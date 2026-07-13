@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact KielTech</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero hero-small">
+      <nav class="nav container">
+        <a class="brand" href="index.html">KielTech</a>
+        <div class="nav-actions">
+          <div class="nav-links">
+            <a href="about.html">About</a>
+            <a href="services.html">Services</a>
+            <a href="downloads.html">Downloads</a>
+            <a href="contact.html">Contact</a>
+            <a href="login.html">Login</a>
+            <a href="dashboard.html">Dashboard</a>
+          </div>
+          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">🌙</button>
+        </div>
+      </nav>
+      <div class="container page-intro">
+        <p class="eyebrow">Contact</p>
+        <h1>Let’s build something meaningful.</h1>
+        <p class="hero-copy">Share your idea and we’ll help shape a strong digital execution plan.</p>
+      </div>
+    </header>
+
+    <main class="container section">
+      <form id="contactForm" class="contact-form">
+        <input type="text" name="name" placeholder="Your name" required />
+        <input type="email" name="email" placeholder="Your email" required />
+        <textarea name="message" rows="6" placeholder="Tell us about your project" required></textarea>
+        <button type="submit" class="btn btn-primary">Send Message</button>
+        <p id="formMessage" class="demo-response"></p>
+      </form>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>© 2026 KielTech. Reach out whenever you are ready.</p>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
