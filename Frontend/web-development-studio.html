@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KielTech AI Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css?v=20261018-studio-project-directory-1" />
+  </head>
+  <body class="studio-app">
+    
+    <!-- Top Navigation -->
+    <nav class="studio-nav">
+      <div class="studio-nav__left">
+        <h1 class="studio-nav__title">KielTech AI Studio</h1>
+      </div>
+      <div class="studio-nav__center studio-website-name" aria-label="Website name">
+        <span id="studioNavTitle" class="studio-website-name__label">Website name</span>
+        <span id="studioSharePermissionBadge" class="studio-share-permission-badge" hidden></span>
+        <button id="studioWebsiteNameEdit" class="studio-website-name__edit" type="button" aria-label="Edit website name" title="Edit website name">
+          <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+        </button>
+        <input id="studioTitleInput" class="studio-website-name__input" type="text" maxlength="80" autocomplete="off" aria-label="Website name" />
+        <span id="studioSaveStatus" class="studio-save-status" role="status" aria-live="polite">Checking save status…</span>
+        <button id="studioSaveRetry" class="studio-save-retry" type="button" hidden>Retry save</button>
+      </div>
+      <div class="studio-nav__right">
+        <button class="studio-nav__action" id="studioProjectsButton" type="button" aria-haspopup="dialog">
+          <span class="material-symbols-outlined" aria-hidden="true">folder_open</span>
+          <span>Projects</span>
+        </button>
+        <button class="studio-nav__action" id="studioVersionsButton" type="button" aria-haspopup="dialog">
+          <span class="material-symbols-outlined" aria-hidden="true">history</span>
+          <span>History</span>
+        </button>
+        <button class="studio-nav__action" id="studioProjectContextButton" type="button" aria-haspopup="dialog">
+          <span class="material-symbols-outlined" aria-hidden="true">tune</span>
+          <span>Guidance</span>
+        </button>
+        <div class="studio-share-wrap">
+          <button class="studio-nav__action" id="studioShareButton" type="button" aria-expanded="false" aria-controls="studioSharePanel">
+            <span class="material-symbols-outlined" aria-hidden="true">share</span>
+            <span>Share</span>
+          </button>
+          <div class="studio-share-panel" id="studioSharePanel" hidden>
+            <div class="studio-share-panel__header">
+              <strong>Share this project</strong>
+              <button class="studio-share-panel__close" id="studioShareClose" type="button" aria-label="Close share panel" title="Close share panel">
+                <span class="material-symbols-outlined" aria-hidden="true">close</span>
+              </button>
+            </div>
+            <p class="studio-share-panel__description">Share a snapshot of the current project and conversation.</p>
+            <label class="studio-share-permission" for="studioSharePermission">
+              <span>Permission</span>
+              <select id="studioSharePermission">
+                <option value="read-only">Read-only</option>
+                <option value="read-write" selected>Read &amp; write</option>
+              </select>
+            </label>
+            <button class="studio-share-create" id="studioCreateShareButton" type="button">Create share link</button>
+            <div class="studio-share-link-row">
+              <input id="studioShareLink" type="text" readonly aria-label="Project share link" placeholder="Share link will appear here" />
+              <button id="studioCopyShareLink" type="button" aria-label="Copy share link" title="Copy share link">
+                <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
+              </button>
+            </div>
+            <button class="studio-share-native" id="studioNativeShare" type="button">
+              <span class="material-symbols-outlined" aria-hidden="true">ios_share</span>
+              <span>Share from device</span>
+            </button>
+            <span class="studio-share-status" id="studioShareStatus" role="status"></span>
+          </div>
+        </div>
+        <button class="studio-nav__action studio-nav__action--primary" id="studioPublishButton" type="button" title="Secure production deployment" aria-label="Deploy to production">
+          <span class="material-symbols-outlined" aria-hidden="true">rocket_launch</span>
+          <span>Deploy</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Workspace Layout -->
+    <div class="studio-layout">
+      
+      <!-- Left Panel: Info, Files, Chat Stream & Input -->
+      <aside class="studio-left-panel">
+        <header class="studio-ai-panel-header">
+          <div class="studio-model-selector-wrap">
+            <div id="studioModelSelector" class="studio-model-selector" role="button" aria-haspopup="menu" aria-expanded="false" tabindex="0">
+              <span class="material-symbols-outlined">auto_awesome</span>
+              <span id="studioSelectedModelLabel">Loading models…</span>
+            </div>
+            <div id="studioModelMenu" class="studio-model-menu" hidden aria-label="Model menu"></div>
+          </div>
+          <div class="studio-active-chat-title" id="studioActiveChatTitle" title="Active chat session">New chat</div>
+          <div class="studio-ai-panel-header__actions">
+            <button class="studio-header-icon" id="studioNewChatButton" type="button" title="New chat" aria-label="New chat">
+              <span class="material-symbols-outlined">add</span>
+            </button>
+            <div class="studio-chat-menu" id="studioChatMenu" hidden>
+              <button type="button" class="studio-chat-menu__new" id="studioStartNewChat">Start new chat</button>
+              <div class="studio-chat-menu__list" id="studioChatMenuList"></div>
+            </div>
+          </div>
+        </header>
+
+        <div class="studio-left-scroll-area studio-chat-feed">
+          <div id="studioActionHistoryList" class="studio-action-history__list"></div>
+          <div class="studio-chat-history">
+            <!-- Live user and AI messages are added here. -->
+          </div>
+        </div>
+
+        <div class="studio-prompt-fixed">
+          <div class="studio-suggestion-chips" aria-label="Suggested prompts">
+            <button type="button" class="studio-suggestion-chip">AI Features</button>
+            <button type="button" class="studio-suggestion-chip">Add Camera Preview</button>
+            <button type="button" class="studio-suggestion-chip">Add Historical Themes</button>
+            <button type="button" class="studio-suggestion-chip">Capture Button Animation</button>
+            <button type="button" class="studio-suggestion-chip">Add Share Button</button>
+          </div>
+          <div class="studio-prompt-box">
+            <div class="studio-build-controls" id="studioBuildControls" hidden>
+              <button type="button" class="studio-build-control studio-build-control--keep" id="studioKeepChanges"><span class="material-symbols-outlined" aria-hidden="true">check</span>Keep</button>
+              <button type="button" class="studio-build-control studio-build-control--undo" id="studioUndoChanges"><span class="material-symbols-outlined" aria-hidden="true">undo</span>Undo</button>
+            </div>
+            <textarea 
+              id="studioPromptInput" 
+              class="studio-prompt-input" 
+              placeholder="Make changes, add new features, ask for anything" 
+              data-max-height="120"
+              rows="2"
+            ></textarea>
+            <div class="studio-context-chips" id="studioContextChips" aria-label="Attached context" hidden></div>
+            <div class="studio-prompt-controls">
+              <div class="studio-prompt-controls__left">
+                <button class="studio-prompt-icon" id="studioVoiceButton" type="button" title="Voice input" aria-label="Voice input"><span class="material-symbols-outlined">mic</span></button>
+                <button class="studio-prompt-icon" id="studioContextButton" type="button" title="Add context" aria-label="Add context"><span class="material-symbols-outlined">add_circle</span></button>
+              </div>
+              <button class="studio-action-button" id="studioActionButton" type="button" aria-label="Send prompt" disabled>
+                <span class="studio-send-arrow" aria-hidden="true">&#8593;</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="studioAuthModal" class="studio-auth-modal" hidden role="dialog" aria-modal="true" aria-labelledby="studioAuthModalTitle">
+          <div class="studio-auth-modal__backdrop" data-studio-auth-close></div>
+          <div class="studio-auth-modal__dialog">
+            <div class="studio-auth-modal__icon material-symbols-outlined" aria-hidden="true">lock</div>
+            <h2 id="studioAuthModalTitle">Sign in to use KielTech AI studio</h2>
+            <p>Your account is required to send requests, use workspace tools, and save project changes.</p>
+            <div class="studio-auth-modal__actions">
+              <a class="studio-auth-modal__primary" href="login.html?return_to=web-development-studio.html">Sign in</a>
+              <a class="studio-auth-modal__secondary" href="signup.html?return_to=web-development-studio.html">Create account</a>
+              <button id="studioAuthModalCancel" type="button">Cancel</button>
+            </div>
+          </div>
+        </div>
+        <div class="studio-edit-warning" id="studioEditWarning" hidden role="dialog" aria-modal="true" aria-labelledby="studioEditWarningTitle">
+          <div class="studio-edit-warning__backdrop" data-edit-warning-close></div>
+          <div class="studio-edit-warning__dialog">
+            <div class="studio-edit-warning__icon material-symbols-outlined" aria-hidden="true">history</div>
+            <div>
+              <h2 id="studioEditWarningTitle">Edit this message?</h2>
+              <p>Editing this message will undo the previous code changes.</p>
+              <label><input type="checkbox" id="studioEditWarningDismiss"> Don't show this message again</label>
+            </div>
+            <div class="studio-edit-warning__actions">
+              <button class="studio-edit-warning__cancel" id="studioEditWarningCancel" type="button">Cancel</button>
+              <button class="studio-edit-warning__continue" id="studioEditWarningContinue" type="button">Continue editing</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Resizer Handle for Sidebar Width Adjustment -->
+      <div class="studio-resizer" id="resizerSidebar"></div>
+
+      <!-- Main Preview / Code Panel -->
+      <main class="studio-center-panel">
+        <div class="studio-right-panel">
+          <div class="studio-panel-body">
+            <!-- View Sub-Toolbar -->
+            <div class="studio-view-toolbar studio-sub-toolbar" id="studioSubToolbar">
+              <div class="studio-segmented-control">
+                <button class="studio-segment-btn active" id="tabPreviewBtn" type="button">Preview</button>
+                <button class="studio-segment-btn" id="tabCodeBtn" type="button">
+                  Code
+                </button>
+              </div>
+
+              <div class="studio-toolbar-right">
+                <div class="studio-preview-viewport-controls" role="group" aria-label="Preview viewport controls">
+                  <button class="studio-btn-icon studio-viewport-btn" data-viewport="mobile" data-width="375" type="button" title="Phone" aria-label="Phone preview" aria-pressed="false">
+                    <span class="material-symbols-outlined">smartphone</span>
+                  </button>
+                  <button class="studio-btn-icon studio-viewport-btn" data-viewport="tablet" data-width="768" type="button" title="iPad" aria-label="iPad preview" aria-pressed="false">
+                    <span class="material-symbols-outlined">tablet_android</span>
+                  </button>
+                  <button class="studio-btn-icon studio-viewport-btn active" data-viewport="desktop" data-width="100%" type="button" title="Desktop" aria-label="Desktop preview" aria-pressed="true">
+                    <span class="material-symbols-outlined">desktop_windows</span>
+                  </button>
+                  <button class="studio-btn-icon" id="refreshPreviewBtn" title="Reload Preview" type="button">
+                    <span class="material-symbols-outlined">sync</span>
+                  </button>
+                  <button class="studio-btn-icon" id="fullscreenPreviewBtn" title="Fullscreen Preview" type="button">
+                    <span class="material-symbols-outlined">fullscreen</span>
+                  </button>
+                </div>
+
+                <button class="studio-btn studio-btn--secondary" id="downloadZipBtn">
+                  <span class="material-symbols-outlined download-icon" aria-hidden="true"></span>
+                  <span class="download-text">Download .zip</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="workspaceContent" class="studio-workspace-content">
+              <div class="studio-view-content active" id="previewView">
+              <div class="studio-preview-shell">
+                <div class="studio-preview-loading" id="previewLoadingIndicator">Preparing preview…</div>
+                <div class="studio-device-frame" id="previewDeviceFrame">
+                  <iframe id="appPreviewIframe" sandbox="allow-scripts allow-forms" title="App Preview"></iframe>
+                </div>
+              </div>
+              <section class="studio-preview-console is-collapsed" aria-label="Preview console">
+                <div class="studio-preview-console__header">
+                  <div class="studio-preview-console__meta">
+                    <span class="studio-status-bar__item studio-status-bar__item--compact" title="Errors">
+                      <span class="material-symbols-outlined">error</span>
+                      <span class="studio-status-badge" id="errorCount">0</span>
+                    </span>
+                    <span class="studio-status-bar__item studio-status-bar__item--compact" title="Warnings">
+                      <span class="material-symbols-outlined">report_problem</span>
+                      <span class="studio-status-badge" id="warningCount">0</span>
+                    </span>
+                    <span class="studio-console-status" id="previewConsoleStatus" data-state="running">running</span>
+                  </div>
+                  <div class="studio-preview-console__actions">
+                    <button class="studio-btn-icon" id="clearPreviewConsoleBtn" type="button" title="Clear console" aria-label="Clear console">
+                      <span class="material-symbols-outlined">delete_sweep</span>
+                    </button>
+                    <button class="studio-btn-icon" id="togglePreviewConsoleBtn" type="button" title="Open console" aria-label="Open console" aria-expanded="false">
+                      <span class="material-symbols-outlined">expand_more</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="studio-preview-console__toolbar">
+                  <div class="studio-preview-console__filters" aria-label="Console level filters">
+                    <button type="button" class="studio-console-filter is-active" data-console-filter="all">All</button>
+                    <button type="button" class="studio-console-filter" data-console-filter="error">Errors</button>
+                    <button type="button" class="studio-console-filter" data-console-filter="warning">Warnings</button>
+                    <button type="button" class="studio-console-filter" data-console-filter="info">Info</button>
+                    <button type="button" class="studio-console-filter" data-console-filter="debug">Debug</button>
+                    <button type="button" class="studio-console-filter" data-console-filter="deprecation">Deprecations</button>
+                  </div>
+                  <div class="studio-preview-console__controls">
+                    <input id="previewConsoleSearchInput" class="studio-console-search" type="search" placeholder="Search logs" aria-label="Search console logs" />
+                    <button id="pausePreviewConsoleBtn" class="studio-console-action" type="button">Pause</button>
+                    <button id="exportPreviewConsoleBtn" class="studio-console-action" type="button">Export</button>
+                  </div>
+                </div>
+                <div class="studio-preview-console__bulk-actions">
+                  <button id="clearPreviewConsoleErrorsBtn" class="studio-console-action studio-console-action--subtle" type="button">Clear errors</button>
+                  <button id="clearPreviewConsoleWarningsBtn" class="studio-console-action studio-console-action--subtle" type="button">Clear warnings</button>
+                </div>
+                <pre class="studio-preview-console__output" id="previewConsoleOutput" aria-live="polite">Preview console ready.</pre>
+              </section>
+            </div>
+
+              <!-- Code Workspace -->
+              <div class="studio-view-content" id="codeView">
+                <aside class="studio-file-tree" id="fileExplorerPanel">
+                  <div class="studio-file-tree__header">
+                    <span>File explorer</span>
+                    <div class="file-actions">
+                      <button class="studio-icon-btn" id="fileSearchBtn" type="button" aria-label="Search files">
+                        <span class="material-symbols-outlined">search</span>
+                      </button>
+                      <button class="studio-icon-btn" id="addFileBtn" type="button" aria-label="Create new file or folder">
+                        <span class="material-symbols-outlined">add_circle</span>
+                      </button>
+                      <button class="studio-icon-btn" id="collapseAllButton" type="button" aria-label="Collapse all folders">
+                        <span class="material-symbols-outlined">unfold_less</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="studio-file-search" id="studioFileSearchWrapper">
+                    <input id="fileSearchInput" class="studio-file-search-input" type="text" placeholder="Search files..." aria-label="Search file explorer" />
+                  </div>
+                  <div class="studio-explorer-dropdown" id="studioExplorerDropdown" hidden>
+                    <button class="studio-explorer-dropdown__item" type="button" data-create-kind="file">
+                      <span class="material-symbols-outlined">description</span>
+                      <span>New File</span>
+                    </button>
+                    <button class="studio-explorer-dropdown__item" type="button" data-create-kind="folder">
+                      <span class="material-symbols-outlined">folder</span>
+                      <span>New Folder</span>
+                    </button>
+                  </div>
+                  <form class="studio-create-entry" id="studioCreateEntryForm" hidden>
+                    <label for="studioCreateEntryName">Name</label>
+                    <input id="studioCreateEntryName" type="text" autocomplete="off" required />
+                    <label for="studioCreateEntryParent">Location</label>
+                    <select id="studioCreateEntryParent">
+                      <option value="">Project root</option>
+                    </select>
+                    <div class="studio-create-entry__actions">
+                      <button type="submit" class="studio-icon-btn" aria-label="Create entry">Create</button>
+                      <button type="button" class="studio-icon-btn" id="studioCreateEntryCancel">Cancel</button>
+                    </div>
+                  </form>
+                  <div class="studio-delete-dialog" id="studioDeleteEntryDialog" hidden role="dialog" aria-modal="true" aria-labelledby="studioDeleteEntryTitle">
+                    <strong id="studioDeleteEntryTitle">Delete entry?</strong>
+                    <p id="studioDeleteEntryName"></p>
+                    <div class="studio-create-entry__actions">
+                      <button type="button" class="studio-icon-btn studio-delete-entry-confirm" id="studioDeleteEntryConfirm">Delete</button>
+                      <button type="button" class="studio-icon-btn" id="studioDeleteEntryCancel">Cancel</button>
+                    </div>
+                  </div>
+                  <div class="studio-delete-dialog studio-rename-dialog" id="studioRenameEntryDialog" hidden role="dialog" aria-modal="true" aria-labelledby="studioRenameEntryTitle">
+                    <strong id="studioRenameEntryTitle">Rename entry</strong>
+                    <p id="studioRenameEntryName"></p>
+                    <input id="studioRenameEntryInput" type="text" autocomplete="off" aria-label="New entry name" />
+                    <div class="studio-create-entry__actions">
+                      <button type="button" class="studio-icon-btn" id="studioRenameEntryConfirm">Rename</button>
+                      <button type="button" class="studio-icon-btn" id="studioRenameEntryCancel">Cancel</button>
+                    </div>
+                  </div>
+                  <div class="studio-file-tree__content" id="studioFileTreeContent">
+                    <ul class="file-list" id="studioFileList">
+                      <!-- Populated dynamically by JS -->
+                    </ul>
+                  </div>
+                </aside>
+
+                <main class="studio-editor-surface studio-editor-area" id="editorMainArea">
+                  <div class="studio-editor-header">
+                    <div class="studio-editor-tabs" id="editorTabs"></div>
+                    <button class="studio-btn-icon" title="Settings" type="button">
+                      <span class="material-symbols-outlined">settings</span>
+                    </button>
+                  </div>
+
+                  <div class="studio-editor-body">
+                    <div class="studio-editor-code-pane">
+                      <div id="codeViewerContainer" class="studio-code-viewer"></div>
+                    </div>
+                  </div>
+                </main>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <div class="studio-project-dialog" id="studioProjectsDialog" hidden>
+      <div class="studio-project-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="studioProjectsTitle">
+        <header><div><span>Workspace</span><h2 id="studioProjectsTitle">Your projects</h2></div><button type="button" data-studio-dialog-close aria-label="Close projects">×</button></header>
+        <p>Projects are saved to your account and available when you sign in on another device.</p>
+        <div id="studioProjectsList" class="studio-project-list" aria-live="polite"></div>
+        <div class="studio-project-dialog__actions"><button type="button" id="studioCreateProjectButton">New project</button></div>
+      </div>
+    </div>
+
+    <div class="studio-project-dialog" id="studioCreateProjectDialog" hidden>
+      <form class="studio-project-dialog__panel studio-project-create-form" id="studioCreateProjectForm" role="dialog" aria-modal="true" aria-labelledby="studioCreateProjectTitle">
+        <header><div><span>Workspace</span><h2 id="studioCreateProjectTitle">Create a project</h2></div><button type="button" data-studio-dialog-close aria-label="Close new project dialog">×</button></header>
+        <p>Give your website project a name. You can change it later.</p>
+        <label for="studioCreateProjectName">Project name</label>
+        <input id="studioCreateProjectName" name="project_name" type="text" maxlength="120" autocomplete="off" placeholder="e.g. My portfolio website" required />
+        <div class="studio-project-dialog__actions">
+          <span id="studioCreateProjectStatus" role="status" aria-live="polite"></span>
+          <button type="button" class="studio-project-create-form__cancel" data-studio-dialog-close>Cancel</button>
+          <button type="submit">Create project</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="studio-project-dialog" id="studioVersionsDialog" hidden>
+      <div class="studio-project-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="studioVersionsTitle">
+        <header><div><span>Recovery</span><h2 id="studioVersionsTitle">Version history</h2></div><button type="button" data-studio-dialog-close aria-label="Close version history">×</button></header>
+        <p>Restore a saved checkpoint. Studio first saves the current workspace as a recovery point.</p>
+        <div id="studioVersionsList" class="studio-project-list" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="studio-project-dialog" id="studioGuidanceDialog" hidden>
+      <form class="studio-project-dialog__panel studio-project-guidance" id="studioProjectGuidanceForm" role="dialog" aria-modal="true" aria-labelledby="studioGuidanceTitle">
+        <header><div><span>Project memory</span><h2 id="studioGuidanceTitle">Project guidance</h2></div><button type="button" data-studio-dialog-close aria-label="Close project guidance">×</button></header>
+        <p>These preferences are saved with the project and supplied to the agent as editable context.</p>
+        <label>Purpose<textarea name="purpose" maxlength="2000" rows="3" placeholder="Who is this site for, and what should it help them do?"></textarea></label>
+        <label>Preferred visual style<textarea name="visual_style" maxlength="2000" rows="3" placeholder="Describe the look, tone, colors, or examples to follow."></textarea></label>
+        <label>Constraints<textarea name="constraints" maxlength="2000" rows="3" placeholder="List technical, content, accessibility, or business constraints."></textarea></label>
+        <div class="studio-project-dialog__actions"><span id="studioGuidanceStatus" role="status"></span><button type="submit">Save guidance</button></div>
+      </form>
+    </div>
+
+    <div class="studio-publish-modal" id="studioPublishModal" hidden>
+      <div class="studio-publish-modal__panel" role="dialog" aria-modal="true" aria-labelledby="studioPublishTitle">
+        <div class="studio-publish-modal__header">
+          <div>
+            <span class="studio-publish-modal__eyebrow">Publish workspace</span>
+            <h2 id="studioPublishTitle">Ready to publish?</h2>
+          </div>
+          <button type="button" class="studio-publish-modal__close" id="studioPublishClose" aria-label="Close publish dialog" title="Close publish dialog">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div id="studioPublishValidation" class="studio-publish-validation"></div>
+        <div class="studio-publish-settings" id="studioPublishSettings">
+          <label>Website name<input id="studioPublishName" type="text" maxlength="80" placeholder="My production site" /></label>
+
+          <div class="studio-publish-target-picker" aria-label="Deployment target selector">
+            <span class="studio-publish-target-picker__label">Deployment target</span>
+            <div class="studio-publish-target-picker__options">
+              <button type="button" class="studio-publish-target-option is-active" data-target-value="kieltech-preview">Production host</button>
+              <button type="button" class="studio-publish-target-option" data-target-value="custom-domain">Custom domain</button>
+            </div>
+            <select id="studioPublishTarget" aria-label="Select deployment target" hidden>
+              <option value="kieltech-preview" selected>Production host</option>
+              <option value="custom-domain">Custom domain</option>
+            </select>
+          </div>
+
+          <label id="studioPublishCustomDomainWrap" class="studio-publish-domain-field" hidden>Custom domain<input id="studioPublishCustomDomain" type="text" maxlength="255" placeholder="app.example.com" /></label>
+
+        </div>
+        <div class="studio-publish-progress" id="studioPublishProgress" hidden>
+          <div class="studio-publish-progress__bar"><span id="studioPublishProgressBar"></span></div>
+          <p id="studioPublishProgressText">Preparing your workspace...</p>
+        </div>
+        <div class="studio-publish-result" id="studioPublishResult" hidden></div>
+        <div class="studio-publish-modal__actions">
+          <button type="button" id="studioPublishCancel">Cancel</button>
+          <button type="button" id="studioPublishPreview">Preview deployment</button>
+          <button type="button" class="is-primary" id="studioPublishConfirm">Validate &amp; deploy</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
+      <script src="script.js?v=20261019-admin-model-catalog-sync" defer></script>
+  </body>
+</html>

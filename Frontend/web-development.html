@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KielTech AI website studio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="web-development-page">
+    <a class="skip-link" href="#ai-selection">Skip to AI selection</a>
+    <header class="hero hero-small">
+      <nav class="nav container">
+        <div class="brand-row">
+          <a class="brand" href="index.html" aria-label="KielTech home">
+            <img src="KielTech-logo.png" alt="KielTech logo" class="logo-mark" />
+            <span class="brand-text">KielTech</span>
+          </a>
+        </div>
+        <div class="nav-actions">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">🌙</button>
+        </div>
+      </nav>
+      <div class="container page-intro">
+        <div class="service-nav-shell">
+          <button id="serviceDrawerToggle" class="service-drawer-toggle" type="button" aria-expanded="false">☰ Services</button>
+        </div>
+        <p class="eyebrow">AI website studio</p>
+        <h1 id="heroHeading">Build AI-powered websites fast with KielTech Studio.</h1>
+        <p class="hero-copy" id="heroCopy">From polished landing pages to AI-enhanced website experiences, KielTech Studio helps you launch modern web products quickly.</p>
+      </div>
+    </header>
+
+    <main class="container section">
+      <section class="card service-intro">
+        <div class="service-intro__body">
+          <p class="eyebrow">Build with purpose</p>
+          <h2 id="introHeading">Choose an AI specialist, describe your idea, and we’ll guide it into a polished web experience.</h2>
+          <p id="introDescription">Whether you need a landing page, a business portal, an API layer, or a full product, we can route your request to the right specialist and help you publish or download it at the end.</p>
+        </div>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#ai-selection" id="startBuildLink">Start your build</a>
+          <a class="btn btn-secondary" href="contact.html" id="bookCallLink">Book a discovery call</a>
+        </div>
+      </section>
+
+      <section id="webDevelopmentAuthNotice" class="web-development-auth-notice" hidden aria-live="polite">
+        <div>
+          <p class="eyebrow">Secure workspace</p>
+          <h2>Sign in before you submit a build request.</h2>
+          <p>Your project brief, payment status, approvals, and delivery history are tied to your authenticated account.</p>
+        </div>
+        <a class="btn btn-primary" href="login.html?return_to=web-development.html">Sign in to continue</a>
+      </section>
+
+      <section class="card">
+        <div class="section-heading">
+          <p class="eyebrow">How it works</p>
+          <h2>A simple path from idea to launch.</h2>
+        </div>
+        <div class="process-grid">
+          <article class="process-step">
+            <strong>01</strong>
+            <h3>Choose your service</h3>
+            <p>Select a frontend, backend, or fullstack specialist based on your goals.</p>
+          </article>
+          <article class="process-step">
+            <strong>02</strong>
+            <h3>Describe your project</h3>
+            <p>Share your vision, the pages you need, and the experience you want users to have.</p>
+          </article>
+          <article class="process-step">
+            <strong>03</strong>
+            <h3>Let the AI build it</h3>
+            <p>Your request is routed to the chosen AI specialist for implementation and refinement.</p>
+          </article>
+          <article class="process-step">
+            <strong>04</strong>
+            <h3>Publish or download</h3>
+            <p>Choose to publish your site, deploy it with a domain, or receive the code package.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="ai-selection" class="card">
+        <div class="section-heading">
+          <p class="eyebrow">Frontend</p>
+          <h2>Frontend specialists focused on beautiful, responsive experiences.</h2>
+          <p>Perfect for landing pages, dashboards, SaaS interfaces, and polished user journeys.</p>
+        </div>
+        <div class="card-grid ai-card-grid">
+          <article class="card ai-service-card">
+            <div class="ai-service-card__meta">
+              <p class="eyebrow">UI Studio AI</p>
+              <h3>Landing page builder</h3>
+            </div>
+            <div class="package-price">From $350</div>
+            <p>Creates conversion-focused pages with clear sections, premium visuals, and mobile-friendly layouts.</p>
+            <ul>
+              <li>Hero sections and content blocks</li>
+              <li>Responsive design system</li>
+              <li>Fast page loading and CTA flow</li>
+            </ul>
+            <button class="btn btn-secondary select-ai-button" type="button" data-ai-category="Frontend" data-ai-name="UI Studio AI" data-ai-price="$350">Choose this AI</button>
+          </article>
+          <article class="card ai-service-card">
+            <div class="ai-service-card__meta">
+              <p class="eyebrow">UX Flow AI</p>
+              <h3>Dashboard and app UI specialist</h3>
+            </div>
+            <div class="package-price">From $550</div>
+            <p>Designs interactive product experiences with thoughtful navigation and user-friendly layouts.</p>
+            <ul>
+              <li>Sidebar and dashboard components</li>
+              <li>Reusable UI modules</li>
+              <li>Optimized state and interaction patterns</li>
+            </ul>
+            <button class="btn btn-secondary select-ai-button" type="button" data-ai-category="Frontend" data-ai-name="UX Flow AI" data-ai-price="$550">Choose this AI</button>
+          </article>
+          <article class="card ai-service-card">
+            <div class="ai-service-card__meta">
+              <p class="eyebrow">Motion Craft AI</p>
+              <h3>Premium experience designer</h3>
+            </div>
+            <div class="package-price">From $700</div>
+            <p>Builds elegant interfaces with smoother transitions, polished visuals, and premium-first presentation.</p>
+            <ul>
+              <li>Animated interaction layers</li>
+              <li>Brand-aware visual refinement</li>
+              <li>High-impact storytelling layouts</li>
+            </ul>
+            <button class="btn btn-secondary select-ai-button" type="button" data-ai-category="Frontend" data-ai-name="Motion Craft AI" data-ai-price="$700">Choose this AI</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-heading">
+          <p class="eyebrow">Backend</p>
+          <h2>Backend specialists for logic, APIs, storage, and automation.</h2>
+          <p>Great for product tools, integrations, auth systems, databases, and internal workflows.</p>
+        </div>
+        <div class="card-grid ai-card-grid">
+          <article class="card ai-service-card">
+            <div class="ai-service-card__meta">
+              <p class="eyebrow">API Forge AI</p>
+              <h3>REST API builder</h3>
+            </div>
+            <div class="package-price">From $450</div>
+            <p>Creates reliable APIs for websites, apps, and service integrations.</p>
+            <ul>
+              <li>Routes and endpoint design</li>
+              <li>Validation and error handling</li>
+              <li>Secure data exchange</li>
+            </ul>
+            <button class="btn btn-secondary select-ai-button" type="button" data-ai-category="Backend" data-ai-name="API Forge AI" data-ai-price="$450">Choose this AI</button>
+          </article>
+          <article class="card ai-service-card">
+            <div class="ai-service-card__meta">
+              <p class="eyebrow">Data Core AI</p>
+              <h3>Database and auth specialist</h3>
+            </div>
+            <div class="package-price">From $650</div>
+            <p>Sets up authentication, permissions, secure storage, and dependable data flows.</p>
+            <ul>
+              <li>User accounts and roles</li>
+              <li>Database schema setup</li>
+              <li>Saved state and secure access</li>
+            </ul>
+            <button class="btn btn-secondary select-ai-button" type="button" data-ai-category="Backend" data-ai-name="Data Core AI" data-ai-price="$650">Choose this AI</button>
+          </article>
+          <article class="card ai-service-card">
+            <div class="ai-service-card__meta">
+              <p class="eyebrow">Automation Pulse AI</p>
+              <h3>Workflow and integrations specialist</h3>
+            </div>
+            <div class="package-price">From $800</div>
+            <p>Connects your platform to external tools and automates repetitive business operations.</p>
+            <ul>
+              <li>Webhook and service integrations</li>
+              <li>Automated notifications</li>
+              <li>Background processing flows</li>
+            </ul>
+            <button class="btn btn-secondary select-ai-button" type="button" data-ai-category="Backend" data-ai-name="Automation Pulse AI" data-ai-price="$800">Choose this AI</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-heading">
+          <p class="eyebrow">Fullstack</p>
+          <h2>Fullstack specialists for complete products from start to finish.</h2>
+          <p>Ideal for startups, marketplaces, SaaS tools, and customer-facing platforms.</p>
+        </div>
+        <div class="card-grid ai-card-grid">
+          <article class="card ai-service-card">
+            <div class="ai-service-card__meta">
+              <p class="eyebrow">Product Launch AI</p>
+              <h3>Complete website builder</h3>
+            </div>
+            <div class="package-price">From $950</div>
+            <p>Builds a cohesive full product experience with both frontend polish and backend reliability.</p>
+            <ul>
+              <li>Home, about, pricing, and contact pages</li>
+              <li>Modern layouts and content flow</li>
+              <li>Built to be launch-ready</li>
+            </ul>
+            <button class="btn btn-secondary select-ai-button" type="button" data-ai-category="Fullstack" data-ai-name="Product Launch AI" data-ai-price="$950">Choose this AI</button>
+          </article>
+          <article class="card ai-service-card">
+            <div class="ai-service-card__meta">
+              <p class="eyebrow">SaaS Core AI</p>
+              <h3>Product platform specialist</h3>
+            </div>
+            <div class="package-price">From $1200</div>
+            <p>Creates multi-feature products with dashboard views, booking flows, and secure app logic.</p>
+            <ul>
+              <li>Role-based access and workflows</li>
+              <li>Dynamic user-facing modules</li>
+              <li>Scalable architecture foundation</li>
+            </ul>
+            <button class="btn btn-secondary select-ai-button" type="button" data-ai-category="Fullstack" data-ai-name="SaaS Core AI" data-ai-price="$1200">Choose this AI</button>
+          </article>
+          <article class="card ai-service-card">
+            <div class="ai-service-card__meta">
+              <p class="eyebrow">Growth Stack AI</p>
+              <h3>Launch and scaling specialist</h3>
+            </div>
+            <div class="package-price">From $1500</div>
+            <p>Builds polished product experiences that are ready to grow, deploy, and evolve with your brand.</p>
+            <ul>
+              <li>Publishing and deployment setup</li>
+              <li>Analytics-ready experience</li>
+              <li>Support for future expansion</li>
+            </ul>
+            <button class="btn btn-secondary select-ai-button" type="button" data-ai-category="Fullstack" data-ai-name="Growth Stack AI" data-ai-price="$1500">Choose this AI</button>
+          </article>
+        </div>
+      </section>
+
+
+      <section class="card">
+        <div class="section-heading">
+          <p class="eyebrow">Project tracking</p>
+          <h2>Your build requests stay organized and easier to revisit.</h2>
+        </div>
+        <div class="notifications-shell">
+          <div class="notification-center">
+            <div class="notification-center__header">
+              <strong>In-app notifications</strong>
+              <span id="notificationCenterCount" class="notification-pill">0</span>
+            </div>
+            <div id="notificationCenterList" class="notification-center__list">
+              <div class="notification-center__empty">No updates yet.</div>
+            </div>
+          </div>
+          <div id="webDevelopmentHistory" class="history-list"></div>
+        </div>
+      </section>
+
+      <section class="card service-cta">
+        <h2>Let’s build something that works beautifully.</h2>
+        <p>Choose the route that fits your product best and we’ll guide the next step.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#ai-selection">Start your project</a>
+          <a class="btn btn-secondary" href="services.html">Back to services</a>
+        </div>
+      </section>
+    </main>
+
+    <div id="webDevelopmentToast" class="web-development-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>© 2026 KielTech. Turning ideas into lasting digital value.</p>
+      </div>
+    </footer>
+
+    <script src="script.js?v=20261019-admin-model-catalog-sync"></script>
+  </body>
+</html>

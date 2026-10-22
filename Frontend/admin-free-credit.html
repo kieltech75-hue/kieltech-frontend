@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Grant free wallet credit to individual users or selected customer groups.">
+  <meta name="theme-color" content="#071726">
+  <title>Free Credit | KielTech Admin</title>
+  <script src="/admin-sidebar.js?v=20261021-firestore-role-cookie-route" defer></script>
+  <script src="/admin-free-credit.js" defer></script>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:#071726;color:#eaf5ff;font-synthesis:none}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(circle at 86% 0,rgba(26,137,184,.14),transparent 34%),#071726}
+    button,input{font:inherit}
+    .credit-page{width:min(1160px,100%);margin:0 auto;padding:0 30px 54px}
+    .credit-header{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;padding:34px 0 24px 62px}
+    .credit-eyebrow{margin:0 0 9px;color:#58d3f5;font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+    h1,h2,p{margin-top:0}
+    h1{margin-bottom:8px;font-size:clamp(1.9rem,4vw,2.6rem);letter-spacing:-.045em}
+    .credit-header p:last-child{max-width:680px;margin:0;color:#9ab2c5;line-height:1.6}
+    .credit-panel{border:1px solid rgba(83,191,225,.18);border-radius:20px;background:linear-gradient(145deg,rgba(13,37,59,.96),rgba(8,27,44,.96));box-shadow:0 20px 55px rgba(0,0,0,.16);overflow:hidden}
+    .credit-tabs{display:flex;flex-wrap:wrap;gap:8px;padding:17px 20px;border-bottom:1px solid rgba(83,191,225,.13)}
+    .credit-tab,.credit-button{min-height:42px;padding:0 15px;border:1px solid rgba(83,191,225,.2);border-radius:11px;background:#0c2237;color:#d7eaf5;font-weight:700;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
+    .credit-tab:hover,.credit-button:hover{border-color:rgba(83,211,245,.55);background:#10304a}
+    .credit-tab[aria-selected="true"]{border-color:#42c5eb;background:rgba(66,197,235,.14);color:#9eeaff}
+    .credit-button--primary{border-color:#42c5eb;background:#42c5eb;color:#041522}
+    .credit-button--primary:hover{background:#8be2fa;color:#041522}
+    .credit-button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .credit-content{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);gap:20px;padding:22px}
+    .credit-section{min-width:0}
+    .credit-section h2{margin:0 0 6px;font-size:1.02rem}
+    .credit-muted{color:#91aabd;font-size:.84rem;line-height:1.55}
+    .credit-search{width:100%;min-height:44px;margin:14px 0 10px;padding:0 13px;border:1px solid rgba(83,191,225,.2);border-radius:11px;background:#071b2c;color:#edf8ff}
+    .credit-search:focus,.credit-field input:focus{outline:2px solid rgba(66,197,235,.35);border-color:#42c5eb}
+    .credit-recipient-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+    .credit-recipient-count{margin:0;color:#91aabd;font-size:.77rem}
+    .credit-refresh{min-height:34px;padding:0 10px;font-size:.76rem}
+    .credit-users{display:grid;gap:8px;max-height:360px;overflow:auto;padding:2px 3px 2px 0;scrollbar-color:#28506b transparent;scrollbar-width:thin}
+    .credit-user{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:12px;border:1px solid rgba(83,191,225,.12);border-radius:12px;background:rgba(5,20,33,.55);color:#eaf5ff;text-align:left;cursor:pointer}
+    .credit-user:hover,.credit-user[aria-pressed="true"]{border-color:rgba(66,197,235,.55);background:rgba(22,71,97,.42)}
+    .credit-user strong,.credit-user small{display:block;overflow-wrap:anywhere}
+    .credit-user small{margin-top:4px;color:#91aabd;font-size:.76rem}
+    .credit-user__balance{flex:0 0 auto;color:#b6d8e8;font-size:.78rem;text-align:right}
+    .credit-empty{padding:20px 10px;color:#91aabd;text-align:center;font-size:.86rem}
+    .credit-show-more{width:100%;min-height:38px;border:1px solid rgba(83,191,225,.16);border-radius:10px;background:rgba(5,20,33,.42);color:#9eeaff;font-size:.78rem;font-weight:700;cursor:pointer}
+    .credit-show-more:hover{border-color:rgba(83,211,245,.55);background:#10304a}
+    .credit-form{display:grid;align-content:start;gap:15px;padding:18px;border:1px solid rgba(83,191,225,.13);border-radius:15px;background:rgba(5,20,33,.42)}
+    .credit-field{display:grid;gap:7px;color:#bed0dd;font-size:.8rem;font-weight:700}
+    .credit-field input{width:100%;min-height:44px;padding:0 12px;border:1px solid rgba(83,191,225,.18);border-radius:11px;background:#071b2c;color:#edf8ff}
+    .credit-hint{margin:-3px 0 0;color:#87a4b8;font-size:.76rem;line-height:1.45}
+    .credit-summary{padding:12px;border:1px solid rgba(83,191,225,.12);border-radius:11px;background:rgba(53,201,244,.055);color:#bdd7e5;font-size:.84rem;line-height:1.55}
+    .credit-status{min-height:20px;margin:0;padding:0 22px 18px;color:#9ab2c5;font-size:.86rem}
+    .credit-status[data-kind="error"]{color:#fda4af}
+    .credit-status[data-kind="success"]{color:#86efac}
+    .credit-dialog{width:min(480px,calc(100% - 28px));max-width:480px;padding:0;border:1px solid rgba(83,191,225,.28);border-radius:20px;background:#0b2033;color:#eaf5ff;box-shadow:0 28px 90px rgba(0,0,0,.58)}
+    .credit-dialog::backdrop{background:rgba(2,10,18,.72);backdrop-filter:blur(7px)}
+    .credit-dialog__content{padding:26px}
+    .credit-dialog__icon{display:grid;width:48px;height:48px;place-items:center;margin-bottom:18px;border:1px solid rgba(66,197,235,.28);border-radius:15px;background:rgba(66,197,235,.1);color:#77ddf6;font-size:1.3rem}
+    .credit-dialog h2{margin:0 0 8px;font-size:1.3rem;letter-spacing:-.025em}
+    .credit-dialog__description{margin:0;color:#a8c0d1;font-size:.9rem;line-height:1.6}
+    .credit-dialog__summary{display:grid;gap:10px;margin:20px 0;padding:15px;border:1px solid rgba(83,191,225,.14);border-radius:13px;background:rgba(5,20,33,.55)}
+    .credit-dialog__row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;color:#9ab2c5;font-size:.82rem}
+    .credit-dialog__row strong{color:#eaf5ff;text-align:right;overflow-wrap:anywhere}
+    .credit-dialog__warning{margin:0;color:#f4c979;font-size:.78rem;line-height:1.5}
+    .credit-dialog__actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+    .credit-dialog__actions .credit-button{min-width:118px}
+    .credit-dialog__confirm{border-color:#42c5eb;background:#42c5eb;color:#041522}
+    .credit-dialog__confirm:hover{background:#8be2fa;color:#041522}
+    .credit-dialog__confirm:disabled{opacity:.6;cursor:wait}
+    @media(max-width:800px){.credit-content{grid-template-columns:1fr}}
+    @media(max-width:600px){.credit-page{padding:0 15px 34px}.credit-header{align-items:flex-start;flex-direction:column;padding:78px 0 20px}.credit-tabs{padding:14px}.credit-tab{flex:1 1 auto}.credit-content{padding:15px}.credit-status{padding:0 15px 15px}.credit-user__balance{max-width:85px;white-space:normal}}
+    @media(max-width:480px){.credit-dialog__content{padding:21px}.credit-dialog__actions{flex-direction:column-reverse}.credit-dialog__actions .credit-button{width:100%}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+  </style>
+</head>
+<body class="admin-page">
+  <main class="credit-page">
+    <header class="credit-header">
+      <div>
+        <p class="credit-eyebrow">Admin / Wallet operations</p>
+        <h1>Free credit</h1>
+        <p>Grant promotional wallet credit to one account or distribute the same amount to enterprise or non-enterprise users. Grants are recorded in each wallet's transaction history.</p>
+      </div>
+    </header>
+
+    <section class="credit-panel" aria-label="Free credit grants">
+      <div class="credit-tabs" role="tablist" aria-label="Credit recipient type">
+        <button class="credit-tab" type="button" role="tab" id="tab-single" aria-selected="true" data-audience="single">Single user</button>
+        <button class="credit-tab" type="button" role="tab" id="tab-enterprise" aria-selected="false" data-audience="enterprise">Enterprise users</button>
+        <button class="credit-tab" type="button" role="tab" id="tab-non-enterprise" aria-selected="false" data-audience="non_enterprise">Non-enterprise users</button>
+      </div>
+
+      <div class="credit-content">
+        <section class="credit-section" aria-labelledby="recipientsHeading">
+          <h2 id="recipientsHeading">Choose recipients</h2>
+          <p id="audienceDescription" class="credit-muted">Search for one account, then select it to prepare a grant.</p>
+          <input id="userSearch" class="credit-search" type="search" autocomplete="off" placeholder="Search by name or email" aria-label="Search users">
+          <div class="credit-recipient-tools">
+            <p id="recipientCount" class="credit-recipient-count" aria-live="polite">Loading accounts…</p>
+            <button id="refreshUsersButton" class="credit-button credit-refresh" type="button">Refresh accounts</button>
+          </div>
+          <div id="recipientList" class="credit-users" aria-live="polite"><div class="credit-empty">Loading accounts…</div></div>
+        </section>
+
+        <form id="creditForm" class="credit-form">
+          <h2 id="grantHeading">Grant free credit</h2>
+          <label class="credit-field">Credit amount (USD)
+            <input id="creditAmount" type="number" min="0.01" max="10000" step="0.01" value="5.00" required>
+          </label>
+          <p class="credit-hint">The grant is added to the user's free-credit balance, not paid balance. Maximum per user: $10,000.</p>
+          <label class="credit-field">Reason (optional)
+            <input id="creditReason" type="text" maxlength="160" placeholder="e.g. Product launch promotion">
+          </label>
+          <div id="grantSummary" class="credit-summary" aria-live="polite">Select one user to review the grant.</div>
+          <button id="sendCreditButton" class="credit-button credit-button--primary" type="submit" disabled>Grant free credit</button>
+        </form>
+      </div>
+      <p id="creditStatus" class="credit-status" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <dialog id="creditConfirmDialog" class="credit-dialog" aria-labelledby="creditConfirmHeading" aria-describedby="creditConfirmDescription">
+    <div class="credit-dialog__content">
+      <div class="credit-dialog__icon" aria-hidden="true">$</div>
+      <h2 id="creditConfirmHeading">Confirm free-credit grant</h2>
+      <p id="creditConfirmDescription" class="credit-dialog__description">Review the grant details before adding credit to the selected wallet.</p>
+      <div class="credit-dialog__summary">
+        <div class="credit-dialog__row"><span>Recipient</span><strong id="creditConfirmRecipient"></strong></div>
+        <div class="credit-dialog__row"><span>Credit per user</span><strong id="creditConfirmAmount"></strong></div>
+        <div class="credit-dialog__row"><span>Total grant</span><strong id="creditConfirmTotal"></strong></div>
+      </div>
+      <p class="credit-dialog__warning">This action cannot be undone. The credit will be added to free-credit balances.</p>
+      <div class="credit-dialog__actions">
+        <button id="cancelCreditGrant" class="credit-button" type="button">Cancel</button>
+        <button id="confirmCreditGrant" class="credit-button credit-dialog__confirm" type="button">Confirm grant</button>
+      </div>
+    </div>
+  </dialog>
+</body>
+</html>

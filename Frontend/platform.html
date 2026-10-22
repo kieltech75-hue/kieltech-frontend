@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>KielTech Platform | Production AI infrastructure</title>
+    <meta name="description" content="KielTech provides production AI APIs and developer infrastructure for teams building chat, vision, OCR, and image-generation products.">
+    <link rel="stylesheet" href="styles.css?v=20260906-platform-production">
+    <style>
+      .platform-page { background:#07111b; color:#e6edf3; }
+      .platform-page .platform-hero { border-bottom:1px solid rgba(125,211,252,.16); }
+      .platform-page .platform-hero__inner { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr); gap:2rem; align-items:end; padding:5rem 0 4.5rem; }
+      .platform-page .platform-proof { display:grid; gap:1rem; padding:1.4rem; background:rgba(8,20,32,.86); border:1px solid rgba(125,211,252,.2); border-radius:16px; }
+      .platform-page .platform-proof__row { display:flex; justify-content:space-between; gap:1rem; padding-bottom:.8rem; border-bottom:1px solid rgba(148,163,184,.14); }
+      .platform-page .platform-proof__row:last-child { padding-bottom:0; border-bottom:0; }
+      .platform-page .platform-proof strong { color:#f8fafc; } .platform-page .platform-proof span { color:#8ea3b8; text-align:right; }
+      .platform-page .platform-section { padding:4.5rem 0; }
+      .platform-page .platform-section--alt { background:linear-gradient(180deg,rgba(13,23,38,.9),rgba(8,17,28,.9)); border-block:1px solid rgba(125,211,252,.1); }
+      .platform-page .platform-section__heading { max-width:760px; margin-bottom:1.8rem; }
+      .platform-page .platform-section__heading h2 { margin:.35rem 0 .7rem; font-size:clamp(1.8rem,3vw,2.8rem); }
+      .platform-page .platform-section__heading p:not(.eyebrow) { color:#a8bac9; }
+      .platform-page .platform-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; }
+      .platform-page .platform-card { padding:1.5rem; background:linear-gradient(180deg,rgba(17,28,43,.96),rgba(9,17,28,.96)); border:1px solid rgba(125,211,252,.14); border-radius:14px; }
+      .platform-page .platform-card h3 { margin:.85rem 0 .55rem; color:#f8fafc; font-size:1.1rem; }
+      .platform-page .platform-card p { margin:0; color:#a8bac9; }
+      .platform-page .platform-pill { display:inline-flex; padding:.35rem .6rem; color:#9fe3ff; background:rgba(56,189,248,.1); border:1px solid rgba(56,189,248,.2); border-radius:999px; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; }
+      .platform-page .platform-list { display:grid; gap:.7rem; margin:1.2rem 0 0; padding:0; list-style:none; }
+      .platform-page .platform-list li { display:flex; gap:.65rem; color:#cbd5e1; }
+      .platform-page .platform-list li::before { content:""; width:.45rem; height:.45rem; flex:0 0 auto; margin-top:.55rem; background:#38bdf8; border-radius:50%; }
+      .platform-page .workflow-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:.75rem; }
+      .platform-page .workflow-step { padding:1.2rem; border-top:2px solid #38bdf8; background:rgba(15,23,42,.7); }
+      .platform-page .workflow-step strong { display:block; margin-bottom:.5rem; color:#f8fafc; } .platform-page .workflow-step span { color:#9fb2c4; font-size:.9rem; }
+      .platform-page .code-layout { display:grid; grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr); gap:1.5rem; align-items:center; }
+      .platform-page .code-block { margin:0; padding:1.4rem; overflow-x:auto; color:#d8f7ff; background:#050b13; border:1px solid rgba(125,211,252,.18); border-radius:14px; font:.86rem/1.7 Consolas,monospace; }
+      .platform-page .trust-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+      .platform-page .platform-link-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:.7rem; }
+      .platform-page .platform-link { display:block; padding:1rem; color:#d9f5ff; background:rgba(15,23,42,.7); border:1px solid rgba(125,211,252,.14); border-radius:10px; text-decoration:none; }
+      .platform-page .platform-link:hover { border-color:#38bdf8; } .platform-page .platform-link small { display:block; margin-top:.25rem; color:#8ea3b8; }
+      .platform-page .platform-cta { display:flex; flex-wrap:wrap; gap:.8rem; align-items:center; justify-content:space-between; padding:2rem; background:linear-gradient(135deg,rgba(14,53,77,.9),rgba(10,25,40,.95)); border:1px solid rgba(125,211,252,.22); border-radius:16px; }
+      .platform-page .platform-cta h2 { margin:0; } .platform-page .platform-cta p { max-width:640px; margin:.5rem 0 0; color:#b8cad8; }
+      @media (max-width:900px) { .platform-page .platform-hero__inner,.platform-page .code-layout { grid-template-columns:1fr; } .platform-page .platform-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .platform-page .workflow-grid,.platform-page .platform-link-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+      @media (max-width:600px) { .platform-page .platform-hero__inner { padding:3.5rem 0; } .platform-page .platform-grid,.platform-page .trust-grid,.platform-page .workflow-grid,.platform-page .platform-link-grid { grid-template-columns:1fr; } .platform-page .platform-section { padding:3.5rem 0; } }
+    </style>
+  </head>
+  <body class="platform-page">
+    <header class="hero platform-hero">
+      <nav class="nav container">
+        <div class="brand-block"><a class="brand" href="index.html" aria-label="KielTech home"><img src="KielTech-logo.png" alt="KielTech" class="logo-mark"><span class="brand-text">KielTech</span></a><button id="serviceDrawerToggle" class="service-drawer-toggle service-drawer-toggle--inline" type="button" aria-expanded="false">☰ Services</button></div>
+        <div class="nav-actions"><a href="login.html" class="nav-pill nav-pill--secondary">Login</a><a href="signup.html" class="nav-pill nav-pill--primary">Sign up</a><a href="dashboard.html" class="nav-pill nav-pill--primary">Dashboard</a><button id="themeToggle" class="theme-toggle" type="button" aria-label="Choose theme">☀︎</button></div>
+      </nav>
+      <div class="container platform-hero__inner">
+        <div><p class="eyebrow">KielTech platform</p><h1>Production AI infrastructure for teams building the next generation of software.</h1><p class="hero-copy">KielTech gives developers, startups, and product teams one dependable platform for building and operating chat, reasoning, vision, OCR, and image-generation experiences.</p><div class="hero-actions"><a class="btn btn-primary" href="signup.html?return_to=platform.html">Start building</a><a class="text-link text-link--subtle" href="api-integration.html">Read API docs <span aria-hidden="true">→</span></a></div></div>
+        <aside class="platform-proof" aria-label="Platform overview"><div class="platform-proof__row"><strong>API style</strong><span>Familiar JSON endpoints</span></div><div class="platform-proof__row"><strong>Built for</strong><span>Developers and product teams</span></div><div class="platform-proof__row"><strong>Operations</strong><span>Usage, billing, and status visibility</span></div><div class="platform-proof__row"><strong>Deployment</strong><span>Cloud and edge-ready workflows</span></div></aside>
+      </div>
+    </header>
+
+    <main>
+      <section class="platform-section container"><div class="platform-section__heading"><p class="eyebrow">Platform capabilities</p><h2>One foundation for every intelligent product surface.</h2><p>Choose the capability that fits your product today and keep a consistent integration path as your requirements grow.</p></div><div class="platform-grid">
+        <article class="platform-card"><span class="platform-pill">Language</span><h3>Chat and reasoning APIs</h3><p>Build assistants, automation, coding workflows, and structured generation with fast and reasoning-focused models.</p></article>
+        <article class="platform-card"><span class="platform-pill">Vision</span><h3>Vision and OCR</h3><p>Understand images and documents, extract structured fields, and create grounded multimodal experiences.</p></article>
+        <article class="platform-card"><span class="platform-pill">Creative</span><h3>Image generation</h3><p>Generate production-ready visual assets with model options for speed, quality, and creative control.</p></article>
+        <article class="platform-card"><span class="platform-pill">Integration</span><h3>Streaming and structured output</h3><p>Deliver responsive interfaces with streamed responses and predictable output formats for application logic.</p></article>
+        <article class="platform-card"><span class="platform-pill">Operations</span><h3>Model routing</h3><p>Choose the right model by workload, latency, quality, and cost while keeping application code simple.</p></article>
+        <article class="platform-card"><span class="platform-pill">Deployment</span><h3>Flexible deployment options</h3><p>Move from hosted inference to privacy-sensitive and edge-oriented workflows as your product matures.</p></article>
+      </div></section>
+
+      <section class="platform-section platform-section--alt"><div class="container"><div class="platform-section__heading"><p class="eyebrow">Developer workflow</p><h2>From account creation to production operations.</h2></div><div class="workflow-grid">
+        <div class="workflow-step"><strong>01. Create an account</strong><span>Open a secure developer workspace.</span></div><div class="workflow-step"><strong>02. Generate an API key</strong><span>Manage credentials for your integration.</span></div><div class="workflow-step"><strong>03. Choose a model</strong><span>Match capability and cost to the job.</span></div><div class="workflow-step"><strong>04. Send a request</strong><span>Integrate with familiar JSON APIs.</span></div><div class="workflow-step"><strong>05. Monitor and bill</strong><span>Review usage, quotas, and spend.</span></div>
+      </div></div></section>
+
+      <section class="platform-section container"><div class="code-layout"><div class="platform-section__heading"><p class="eyebrow">API quickstart</p><h2>One request to start building.</h2><p>Use a familiar request shape, then move into model-specific controls when your product needs more precision.</p><a class="text-link" href="api-integration.html">Open API services <span aria-hidden="true">→</span></a></div><pre class="code-block"><code>curl https://api.kieltech.com/v1/chat/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kielmind-pro",
+    "messages": [
+      {"role": "user", "content": "Explain this document"}
+    ]
+  }'</code></pre></div></section>
+
+      <section class="platform-section platform-section--alt"><div class="container"><div class="platform-section__heading"><p class="eyebrow">Production readiness</p><h2>Controls your team can operate with confidence.</h2></div><div class="trust-grid">
+        <article class="platform-card"><span class="platform-pill">Access</span><h3>Authentication and API key management</h3><ul class="platform-list"><li>Account-based access controls</li><li>Managed API credentials</li><li>Server-side integration patterns</li></ul></article>
+        <article class="platform-card"><span class="platform-pill">Governance</span><h3>Usage, quotas, and rate limits</h3><ul class="platform-list"><li>Visible usage and wallet activity</li><li>Account-level quotas and limits</li><li>Predictable request behavior</li></ul></article>
+        <article class="platform-card"><span class="platform-pill">Reliability</span><h3>Monitoring and support</h3><ul class="platform-list"><li>Public platform status</li><li>Operational health signals</li><li>Developer support pathways</li></ul></article>
+        <article class="platform-card"><span class="platform-pill">Trust</span><h3>Data and privacy controls</h3><ul class="platform-list"><li>Clear data handling expectations</li><li>Privacy and security information</li><li>Enterprise conversation when required</li></ul></article>
+      </div></div></section>
+
+      <section class="platform-section container"><div class="platform-section__heading"><p class="eyebrow">Model and service overview</p><h2>Find the right path for your next release.</h2></div><div class="platform-link-grid">
+        <a class="platform-link" href="models.html">Model catalog<small>Capabilities and examples</small></a><a class="platform-link" href="api-integration.html">API services<small>Playground and endpoints</small></a><a class="platform-link" href="billing.html">Pricing<small>Usage and billing information</small></a><a class="platform-link" href="api-access.html">API reference<small>Access and integration guidance</small></a><a class="platform-link" href="model-status.html">Platform status<small>Service health and updates</small></a>
+      </div></section>
+
+      <section class="platform-section platform-section--alt"><div class="container"><div class="platform-section__heading"><p class="eyebrow">Trust and business</p><h2>A platform your business can grow around.</h2></div><div class="platform-grid">
+        <article class="platform-card"><h3>Transparent pricing</h3><p>Understand how usage maps to cost before you commit your product to production traffic.</p></article><article class="platform-card"><h3>Enterprise support</h3><p>Bring deployment, volume, and integration requirements to a team that can work through them with you.</p></article><article class="platform-card"><h3>Security information</h3><p>Review the access, privacy, and operational expectations behind the platform.</p></article><article class="platform-card"><h3>Terms and privacy</h3><p>Find the policies your legal, security, and procurement teams need to review.</p></article><article class="platform-card"><h3>Contact sales</h3><p>Talk through custom access, support, and production requirements.</p><a class="text-link" href="contact.html">Contact the team <span aria-hidden="true">→</span></a></article>
+      </div></div></section>
+
+      <section class="platform-section container"><div class="platform-cta"><div><p class="eyebrow">Build with KielTech</p><h2>Start with one API and grow into a platform.</h2><p>Create an account, get your first key, and move from a working request to a production AI experience.</p></div><div class="hero-actions"><a class="btn btn-primary" href="signup.html?return_to=platform.html">Create an account</a><a class="btn btn-secondary" href="tokens.html?create=1">Get an API key</a><a class="text-link" href="contact.html">Talk to sales <span aria-hidden="true">→</span></a></div></div></section>
+    </main>
+    <footer class="footer"><div class="container footer-inner"><p>(c) 2026 KielTech. Production AI infrastructure for modern teams.</p><a class="text-link" href="status.html">System status</a></div></footer>
+    <script src="script.js?v=20260906-platform-production"></script>
+  </body>
+</html>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pricing and limits | KielTech</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .pricing-page { background: #070d1c; color: #e7edf7; }
+    .pricing-page .pricing-shell { max-width: 1280px; padding-top: 2.4rem; padding-bottom: 3rem; }
+    .pricing-page .pricing-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; margin-bottom: 1.5rem; }
+    .pricing-page .pricing-kicker { margin: 0 0 .5rem; color: #63b3ff; font-size: .7rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    .pricing-page .pricing-hero h1 { margin: 0; color: #f5f8ff; font-size: clamp(2rem, 4vw, 2.55rem); }
+    .pricing-page .pricing-hero p { max-width: 760px; margin: .45rem 0 0; color: #9aaac2; line-height: 1.55; }
+    .pricing-page .pricing-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; margin-bottom: 1.35rem; }
+    .pricing-page .pricing-summary-card { padding: 1rem 1.1rem; border: 1px solid #1d2a43; border-radius: 12px; background: linear-gradient(145deg, #101a2f, #0b1222); }
+    .pricing-page .pricing-summary-card span { display: block; color: #8798b1; font-size: .7rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+    .pricing-page .pricing-summary-card strong { display: block; margin-top: .35rem; color: #f0f5fd; font-size: 1.15rem; }
+    .pricing-page .pricing-summary-card small { display: block; margin-top: .25rem; color: #91a3bc; font-size: .75rem; }
+    .pricing-page .pricing-card { overflow: hidden; border: 1px solid #243656; border-radius: 14px; background: #0d1426; box-shadow: 0 18px 48px rgba(0, 0, 0, .2); }
+    .pricing-page .pricing-card__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.2rem; background: #151e33; color: #dce7f6; font-size: .82rem; font-weight: 800; }
+    .pricing-page .pricing-card__header small { color: #8293ab; font-size: .7rem; font-weight: 600; }
+    .pricing-page .pricing-table-wrap { overflow-x: auto; }
+    .pricing-page .pricing-table { width: 100%; min-width: 720px; border-collapse: collapse; }
+    .pricing-page .pricing-table th { padding: .75rem 1rem; background: #111b30; color: #93a2b9; font-size: .68rem; font-weight: 800; letter-spacing: .04em; text-align: left; text-transform: uppercase; }
+    .pricing-page .pricing-table td { padding: .9rem 1rem; border-top: 1px solid #18243a; color: #aab8cd; font-size: .82rem; }
+    .pricing-page .pricing-table tr:nth-child(even) td { background: rgba(20, 34, 61, .42); }
+    .pricing-page .pricing-table td:first-child { color: #e5edf9; font-weight: 750; }
+    .pricing-page .pricing-table td:nth-child(2) { color: #b8d7ff; font-weight: 700; }
+    .pricing-page .status { display: inline-flex; padding: .25rem .5rem; border: 1px solid rgba(109, 213, 140, .25); border-radius: 999px; background: rgba(109, 213, 140, .1); color: #8ce5a8; font-size: .68rem; font-weight: 800; }
+    .pricing-page .pricing-note { display: flex; gap: .65rem; margin-top: 1rem; padding: .95rem 1.1rem; border: 1px solid rgba(62, 145, 255, .2); border-left: 3px solid #3e91ff; border-radius: 8px; background: rgba(30, 91, 162, .13); color: #aebed3; font-size: .82rem; line-height: 1.5; }
+    .pricing-page .pricing-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: 1.35rem; }
+    .pricing-page .pricing-actions a { display: inline-flex; min-height: 40px; align-items: center; padding: .55rem .85rem; border: 1px solid #1c579e; border-radius: 8px; color: #76b5ff; text-decoration: none; font-size: .82rem; font-weight: 750; }
+    @media (max-width: 700px) { .pricing-page .pricing-shell { padding-top: 1.5rem; } .pricing-page .pricing-hero { align-items: stretch; flex-direction: column; } .pricing-page .pricing-summary { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body class="pricing-page">
+  <header class="hero hero-small">
+    <nav class="nav container">
+      <div class="brand-block">
+        <a class="brand" href="index.html" aria-label="KielTech home"><img src="KielTech-logo.png" alt="KielTech logo" class="logo-mark" /><span class="brand-text">KielTech</span></a>
+        <button id="serviceDrawerToggle" class="service-drawer-toggle service-drawer-toggle--inline" type="button" aria-expanded="false">☰ Services</button>
+      </div>
+      <div class="nav-actions"><a href="models.html" class="nav-pill nav-pill--secondary">Back to models</a><a href="billing.html" class="nav-pill nav-pill--primary">Upgrade plan</a><button id="themeToggle" class="theme-toggle" type="button" aria-label="Choose theme">Theme</button></div>
+    </nav>
+  </header>
+  <main class="container pricing-shell">
+    <div class="pricing-hero"><div><p class="pricing-kicker">Transparent usage pricing</p><h1>Pricing and limits</h1><p>Published rates with operational limits in plain language.</p><p>Rates below match the current billing service. Token charges use total prompt plus completion tokens; image models charge per generated image.</p></div><div class="pricing-actions"><a href="/billing.html">Open billing</a></div></div>
+    <div class="pricing-summary"><div class="pricing-summary-card"><span>Published models</span><strong id="publishedModelCount">Loading</strong><small>Synced from the Admin Models catalog</small></div><div class="pricing-summary-card"><span>Billing unit</span><strong>USD</strong><small>Wallet and usage controls apply</small></div><div class="pricing-summary-card"><span>Availability</span><strong>Live status</strong><small>Readiness follows model setup</small></div></div>
+    <section class="pricing-card" aria-labelledby="pricingTableTitle">
+      <div class="pricing-card__header" id="pricingTableTitle"><span>Published model rates</span><small>Current billing service</small></div>
+      <div class="pricing-table-wrap"><table class="pricing-table"><thead><tr><th>Model</th><th>Unit</th><th>Rate</th><th>Lifecycle</th><th>Context / limits</th></tr></thead><tbody id="pricingModelRows"><tr><td colspan="5">Loading the Admin Models catalog…</td></tr></tbody></table></div>
+    </section>
+    <p class="pricing-note">Rates are shown in USD. Your wallet balance, account tier, rate limit, and usage are managed from the billing workspace.</p>
+    <div class="pricing-actions"><a href="/api-integration.html#documentation">Read API documentation</a><a href="/models.html">Browse models</a></div>
+  </main>
+  <footer class="footer"><div class="container footer-inner"><p>© 2026 KielTech. All rights reserved.</p></div></footer>
+  <script src="script.js"></script>
+  <script>
+    (() => {
+      const rows = document.getElementById('pricingModelRows');
+      const count = document.getElementById('publishedModelCount');
+      const base = ['localhost', '127.0.0.1'].includes(location.hostname) ? 'http://127.0.0.1:8000' : location.origin;
+      const price = (value) => value === null || value === undefined ? 'Pending' : `$${Number(value).toLocaleString(undefined, { maximumFractionDigits: 6 })}`;
+      fetch(`${base}/v1/models/catalog`, { cache: 'no-store' })
+        .then(async (response) => {
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(data.detail || data.error || 'Unable to load model pricing.');
+          const models = Array.isArray(data.models) ? data.models : [];
+          count.textContent = `${models.length} models`;
+          rows.replaceChildren();
+          if (!models.length) {
+            const row = rows.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = 5;
+            cell.textContent = 'No models are currently listed in the Admin Models catalog.';
+            return;
+          }
+          models.forEach((model) => {
+            const row = rows.insertRow();
+            const ready = model.is_ready === true && model.is_configured === true;
+            const unit = model.category === 'image-generation' ? 'Per generated image' : 'Per 1M tokens';
+            const rate = model.category === 'image-generation'
+              ? price(model.output_price)
+              : `Input ${price(model.input_price)} / Output ${price(model.output_price)}`;
+            const context = model.max_context === null || model.max_context === undefined
+              ? 'Not configured'
+              : `${Number(model.max_context).toLocaleString()} tokens`;
+            [model.display_name || model.model_id, unit, rate, ready ? 'Available' : 'Unavailable', context]
+              .forEach((value) => { row.insertCell().textContent = value; });
+          });
+        })
+        .catch((error) => {
+          count.textContent = 'Unavailable';
+          rows.replaceChildren();
+          const row = rows.insertRow();
+          const cell = row.insertCell();
+          cell.colSpan = 5;
+          cell.textContent = error.message || 'Unable to load model pricing.';
+        });
+    })();
+  </script>
+</body>
+</html>

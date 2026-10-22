@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Human Quickstart | KielTech</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="hero hero-small"><nav class="nav container"><a class="brand" href="../index.html" aria-label="KielTech home"><img src="../KielTech-logo.png" alt="KielTech" class="logo-mark"><span class="brand-text">KielTech</span></a><button id="serviceDrawerToggle" class="service-drawer-toggle service-drawer-toggle--inline" type="button" aria-expanded="false">Services</button></nav><div class="container page-intro"><p class="eyebrow">Human Language</p><h1>Quickstart</h1><p class="hero-copy">Install Human, write your first program, and build a small web service.</p></div></header>
+  <main class="container section service-page"><nav class="card" aria-label="Human documentation"><a class="text-link" href="./quickstart.html">Quickstart</a> <a class="text-link" href="./syntax.html">Syntax</a> <a class="text-link" href="./features.html">Features</a> <a class="text-link" href="./releases.html">Releases</a></nav><section class="card release-notes-card"><div class="release-notes-content"><h2>Install and run Human</h2><pre><code>pip install human-language
+human hello.hm</code></pre><h2>Your first program</h2><pre><code>print "Hello, Human!"
+
+set age to 25
+if age is greater than 18 then
+    print "You are an adult"
+end if</code></pre><h2>Build a small web API</h2><pre><code>from human_language.vm import VM, Bytecode
+
+vm = VM(Bytecode())
+vm.web_controllers["home"] = lambda request: vm.text_response("Hello from Human")
+vm.route("GET", "/", "home")</code></pre><h2>Next steps</h2><p>Continue with the <a href="./syntax.html">syntax reference</a>, review the <a href="./features.html">feature reference</a>, and check <a href="./releases.html">release notes</a> before adopting a version.</p></div></section></main>
+  <script src="../script.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat Templates | KielTech</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    :root { --template-bg: #0d0e0f; --template-panel: #17181b; --template-line: #303136; --template-text: #ececef; --template-muted: #a1a1aa; --template-blue: #9ecbff; }
+    body.chat-templates-page { min-height: 100vh; margin: 0; background: var(--template-bg); color: var(--template-text); }
+    .templates-shell { width: min(1040px, calc(100% - 2rem)); margin: 0 auto; padding: 2rem 0 3.5rem; }
+    .templates-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
+    .templates-header__eyebrow { margin: 0 0 .35rem; color: var(--template-blue); font-size: .68rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .templates-header h1 { margin: 0; font-size: 1.5rem; font-weight: 650; }
+    .templates-header p { max-width: 540px; margin: .4rem 0 0; color: var(--template-muted); font-size: .82rem; line-height: 1.55; }
+    .templates-back { min-height: 36px; padding: .45rem .7rem; border: 1px solid #3d3f45; border-radius: 8px; background: #202125; color: #e5e7eb; font: inherit; font-size: .78rem; font-weight: 700; text-decoration: none; }
+    .templates-back:hover { border-color: #6d7079; background: #292a2f; }
+    .templates-back:focus-visible { outline: 2px solid #9ecbff; outline-offset: 2px; }
+    .templates-header__actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .templates-tools { display: flex; gap: .65rem; margin-bottom: 1rem; }
+    .templates-search { width: 100%; min-height: 42px; box-sizing: border-box; padding: .55rem .75rem; border: 1px solid var(--template-line); border-radius: 9px; outline: 0; background: #121315; color: var(--template-text); font: inherit; }
+    .templates-search:focus { border-color: #6b9ed3; box-shadow: 0 0 0 3px rgba(93,142,194,.16); }
+    .template-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; }
+    .template-card { display: grid; gap: .55rem; padding: 1rem; border: 1px solid var(--template-line); border-radius: 11px; background: var(--template-panel); transition: border-color .16s ease, transform .16s ease, background .16s ease; }
+    .template-card:hover { transform: translateY(-2px); border-color: #526b86; background: #1c1e22; }
+    .template-card__top { display: flex; align-items: flex-start; justify-content: space-between; gap: .6rem; }
+    .template-card h2 { margin: 0; color: #f4f4f5; font-size: .92rem; font-weight: 700; }
+    .template-card__icon { display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid rgba(158,203,255,.25); border-radius: 8px; background: rgba(93,142,194,.14); color: var(--template-blue); font-size: .95rem; }
+    .template-card p { min-height: 38px; margin: 0; color: var(--template-muted); font-size: .74rem; line-height: 1.5; }
+    .template-card button { min-height: 34px; padding: .45rem .65rem; border: 1px solid #465d77; border-radius: 7px; background: #202b3a; color: #dbeafe; font: inherit; font-size: .75rem; font-weight: 750; cursor: pointer; }
+    .template-card button:hover { border-color: #9ecbff; background: #29415c; }
+    .template-card__image { width: 100%; height: 112px; object-fit: cover; border: 1px solid rgba(158,203,255,.16); border-radius: 8px; background: #0d1426; }
+    html[data-theme="light"] body.chat-templates-page { --template-bg: #f4f7f9; --template-panel: #fff; --template-line: #dce5eb; --template-text: #17212b; --template-muted: #667584; --template-blue: #17627d; }
+    html[data-theme="light"] .templates-back, html[data-theme="light"] .template-card button { background: #fff; color: #24536d; }
+    html[data-theme="light"] .templates-search { background: #fff; color: #17212b; }
+    @media (max-width: 760px) { .templates-header { align-items: flex-start; flex-direction: column; } .template-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body class="chat-templates-page">
+  <main class="templates-shell">
+    <header class="templates-header"><div><p class="templates-header__eyebrow">Kiel Chat workspace</p><h1>Templates</h1><p>Start with a proven prompt structure for common writing, coding, analysis, and planning tasks.</p></div><div class="templates-header__actions"><a class="templates-back" href="chat.html">Back to chat</a></div></header>
+    <div class="templates-tools"><input id="templateSearch" class="templates-search" type="search" placeholder="Search templates..." aria-label="Search templates"></div>
+    <section id="templateGrid" class="template-grid" aria-label="Chat templates"></section>
+    <p id="marketplaceStatus" style="margin:1rem 0 0;color:var(--template-muted);font-size:.75rem" aria-live="polite"></p>
+  </main>
+  <script src="script.js"></script>
+  <script>
+    (() => { const search = document.getElementById('templateSearch'); const grid = document.getElementById('templateGrid'); const status = document.getElementById('marketplaceStatus'); const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char])); const bindCards = () => { const cards = [...document.querySelectorAll('.template-card')]; cards.forEach((card) => { card.onclick = (event) => { const button = event.target.closest('[data-prompt]') || card.querySelector('[data-prompt]'); if (!button) return; localStorage.setItem('kielChatTemplatePrompt', JSON.stringify({ prompt: button.dataset.prompt, image: button.dataset.image || '', model: button.dataset.model || '', openLastSession: true })); window.location.href = 'chat.html'; }; }); search.oninput = () => { const query = search.value.trim().toLowerCase(); cards.forEach((card) => { card.hidden = query && !card.dataset.template.includes(query); }); }; search.dispatchEvent(new Event('input')); }; const api = location.hostname === 'localhost' || location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000' : location.origin; const loadMarketplace = async () => { try { const response = await fetch(`${api}/v1/chat/templates`, { credentials:'include', cache:'no-store' }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.detail || 'Marketplace unavailable.'); (data.templates || []).forEach((template) => { const card = document.createElement('article'); card.className = 'template-card'; card.dataset.template = `${template.title} ${template.category}`.toLowerCase(); card.innerHTML = `<div class="template-card__top"><h2>${esc(template.title)}</h2><span class="template-card__icon" aria-hidden="true">▦</span></div>${template.image ? `<img class="template-card__image" src="${esc(template.image)}" alt="">` : ''}<p>${esc(template.description || 'A KielTech marketplace template.')}</p><button type="button" data-image="${esc(template.image || '')}" data-model="${esc(template.model || '')}" data-prompt="${esc(template.prompt)}">Use template</button>`; grid.appendChild(card); }); if ((data.templates || []).length) status.textContent = 'More templates from the KielTech marketplace.'; } catch (_) {} bindCards(); }; loadMarketplace(); })();
+  </script>
+</body>
+</html>

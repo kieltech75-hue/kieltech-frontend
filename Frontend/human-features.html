@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Human Language — Feature Reference | KielTech</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero hero-small">
+      <nav class="nav container">
+        <div class="brand-row">
+          <a class="brand" href="index.html" aria-label="KielTech home">
+            <img src="KielTech-logo.png" alt="KielTech logo" class="logo-mark" />
+            <span class="brand-text">KielTech</span>
+          </a>
+        </div>
+        <div class="nav-actions">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">🌙</button>
+        </div>
+      </nav>
+      <div class="container page-intro">
+        <div class="service-nav-shell">
+          <button id="serviceDrawerToggle" class="service-drawer-toggle" type="button" aria-expanded="false">☰ Services</button>
+        </div>
+        <p class="eyebrow">Feature reference</p>
+        <h1>Human Language — Feature Reference</h1>
+        <p class="hero-copy">A summary of the capabilities available in Human v0.1.8, organized for practical usage and reference.</p>
+      </div>
+    </header>
+
+    <main class="container section service-page">
+      <section class="card release-notes-card">
+        <div class="release-notes-content">
+          <h2>Human Language — Feature Reference</h2>
+          <p>This document summarizes the capabilities that are currently available in Human v0.1.8. The goal is to help readers understand what the language can do today and how it can be used in practice.</p>
+
+          <h3>What Human supports today</h3>
+          <p>Human now combines a readable syntax with a runtime that can support:</p>
+          <ul>
+            <li>simple scripts and command-line tools</li>
+            <li>data processing and algorithms</li>
+            <li>typed functions and generics</li>
+            <li>rich standard-library helpers</li>
+            <li>web routes, middleware, authentication, sessions, uploads, downloads, and docs</li>
+            <li>runtime-native frontend interfaces with DOM nodes, events, styling, layout primitives, reactivity, storage/history helpers, and hot-reload support</li>
+            <li>SQLite-backed data access, ORM-style helpers, transactions, and relations</li>
+            <li>Python interop for trusted integrations</li>
+          </ul>
+
+          <h3>1. Core language features</h3>
+          <h4>Variables and expressions</h4>
+          <pre><code>set name to "Ada"
+set score to 100
+set active to true
+print name</code></pre>
+
+          <h4>Conditionals and loops</h4>
+          <pre><code>set age to 25
+if age is greater than 18 then
+    print "Adult"
+else
+    print "Minor"
+end if
+
+loop from 1 to 3 do
+    print "Hello"
+end loop</code></pre>
+
+          <h4>Functions</h4>
+          <pre><code>define greet with name
+    return "Hello, " + name
+end define
+
+print greet("Ada")</code></pre>
+
+          <h3>2. Typed annotations and generics</h3>
+          <p>Human supports optional type hints for readability and future tooling.</p>
+          <pre><code>function add with a: int, b: int -> int
+    return a + b
+end function
+
+function&lt;T&gt; first_item with items: List&lt;T&gt; -> T
+    return items[0]
+end function</code></pre>
+
+          <h3>3. Standard library</h3>
+          <p>Human ships with a growing standard library for common tasks.</p>
+          <h4>Strings</h4>
+          <pre><code>set text to "hello world"
+print call string_upper with text
+print call string_replace with text, "world", "Human"</code></pre>
+
+          <h4>Lists and dicts</h4>
+          <pre><code>set nums to [1, 2, 2, 3]
+print call list_unique with nums
+
+set user to {name: "Ada", age: 37}
+print call dict_get with user, "name"</code></pre>
+
+          <h4>Math and JSON</h4>
+          <pre><code>print call math_sum with [1, 2, 3, 4]
+print call json_stringify with {ok: true}</code></pre>
+
+          <h3>4. Pattern matching and destructuring</h3>
+          <pre><code>set [a, b, c] to [1, 2, 3]
+print a
+
+set {name, age} to {name: "Ada", age: 37}
+print name</code></pre>
+
+          <h3>5. Web framework and frontend runtime capabilities</h3>
+          <p>Human includes a built-in web runtime that can power APIs and browser-like applications from the same runtime.</p>
+          <h4>Routing and handlers</h4>
+          <pre><code>from human_language.vm import VM, Bytecode
+
+vm = VM(Bytecode())
+vm.web_controllers["home_handler"] = lambda request: vm.text_response("Hello")
+vm.route("GET", "/", "home_handler")</code></pre>
+
+          <h4>Middleware, sessions, redirects, and responses</h4>
+          <pre><code>vm.add_request_hook(lambda request: request.setdefault("logged", True))
+vm.add_response_hook(lambda request, response: response)</code></pre>
+
+          <h4>Response helpers</h4>
+          <pre><code>vm.ok({"ok": True})
+vm.created({"id": 1})
+vm.not_found({"detail": "missing"})
+vm.html_response("<h1>Hello</h1>")
+vm.redirect("/login")</code></pre>
+
+          <h4>OpenAPI support</h4>
+          <p>Routes can be documented and exported to an OpenAPI spec using the runtime helpers.</p>
+
+          <h4>Human’s browser-competitive frontend runtime</h4>
+          <p>Human now includes a runtime-first frontend layer that competes with simple browser application stacks. This layer is designed to let you build interactive user interfaces without splitting code across separate HTML, CSS, and JavaScript tooling.</p>
+          <pre><code>from human_language.vm import VM, Bytecode
+
+vm = VM(Bytecode())
+app = vm.dom_create_element("div", {"id": "app"})
+label = vm.dom_create_element("h1", {"id": "title"})
+button = vm.dom_create_element("button", {"id": "action"})
+
+vm.dom_set_text(label, "Counter")
+vm.dom_set_text(button, "Click me")
+vm.dom_set_style(button, {"padding": "10px", "background": "#1d4ed8", "color": "white"})
+vm.dom_append_child(app, label)
+vm.dom_append_child(app, button)
+
+count = {"value": 0}
+
+def update_label(state):
+    vm.dom_set_text(label, f"Clicked {state['value']} times")
+
+vm.dom_add_event_listener(button, "click", lambda event: [count.__setitem__("value", count["value"] + 1), update_label(count)])
+
+update_label(count)</code></pre>
+
+          <h4>Browser-competitive frontend features</h4>
+          <ul>
+            <li>DOM creation, insertion, traversal, cloning, and patching</li>
+            <li>event listeners with capture, target, and bubble phases</li>
+            <li>CSS-like declarations, selector matching, pseudo-state support, and media-query awareness</li>
+            <li>layout computation for display, sizing, padding, margin, and positioning</li>
+            <li>reactive stores and render helpers for state-driven UI updates</li>
+            <li>browser storage and history helpers for session-aware experiences</li>
+            <li>dev-server watch and hot-reload reporting for iterative development</li>
+          </ul>
+
+          <h3>6. Data layer and persistence</h3>
+          <pre><code>call db_connect with "app.db", "default"
+call orm_register_model with "users", {"id": "INTEGER PRIMARY KEY", "name": "TEXT"}
+call orm_create with "users", {"name": "Ada"}</code></pre>
+
+          <h4>Transactions and relations</h4>
+          <pre><code>with db_transaction with "default" {
+    call orm_create with "users", {"name": "Grace"}
+}</code></pre>
+
+          <h3>7. Authentication and security helpers</h3>
+          <pre><code>set cookie = call build_secure_cookie with "session_id", "abc123"
+set token = call create_jwt with {user_id: 1}, "secret", 3600</code></pre>
+
+          <h3>8. Python interop</h3>
+          <pre><code>set np to py_import("numpy")
+set arr to py_call(np, "array", [[1, 2, 3]])</code></pre>
+
+          <h3>9. Async and background work</h3>
+          <p>The runtime supports background tasks and lifecycle hooks for long-running or request-scoped work.</p>
+
+          <h3>10. Packaging and distribution</h3>
+          <p>Human can be run from the CLI, installed from PyPI, and used as the foundation for standalone examples and app prototypes.</p>
+
+          <h3>Recommended learning path</h3>
+          <ol>
+            <li>Learn the core syntax and standard library.</li>
+            <li>Build small scripts and command-line programs.</li>
+            <li>Move to web routes and response helpers.</li>
+            <li>Add persistence, auth, and OpenAPI docs.</li>
+            <li>Connect trusted Python libraries when needed.</li>
+          </ol>
+
+          <h3>Production framework features</h3>
+          <ul>
+            <li>SQLite integration with connection pooling</li>
+            <li>Model registration and full CRUD operations</li>
+            <li>Relation management (one-to-many, many-to-many)</li>
+            <li>Transactions with rollback support</li>
+            <li>Migrations with version tracking and rollback</li>
+            <li>User registration and authentication with password hashing</li>
+            <li>JWT token creation and verification with rotation</li>
+            <li>Session management with TTL and CSRF protection</li>
+            <li>Role-based access control (RBAC)</li>
+            <li>Signed values using HMAC-SHA256</li>
+            <li>Secure cookies with HttpOnly, Secure, and SameSite</li>
+            <li>OpenAPI 3.0 generation with schema integration</li>
+          </ul>
+
+          <h3>Extensibility</h3>
+          <p>Human can be extended by adding builtins in the VM layer, packaging reusable modules, and publishing them for other projects.</p>
+        </div>
+      </section>
+    </main>
+
+    <div id="serviceDrawer" class="service-drawer" aria-hidden="true">
+      <div class="service-drawer__backdrop" data-close-drawer></div>
+      <aside class="service-drawer__panel" role="navigation" aria-label="Services menu">
+        <div class="service-drawer__header">
+          <div class="service-drawer__brand">
+            <span class="service-drawer__brand-mark">K</span>
+            <span class="service-drawer__brand-text">KielTech</span>
+          </div>
+          <button id="serviceDrawerClose" class="service-drawer__close" type="button" aria-label="Close services menu">×</button>
+        </div>
+        <nav class="service-drawer__nav">
+          <a class="service-drawer__link" href="tokens.html">API Token</a>
+          <a class="service-drawer__link" href="api-integration.html">API Integration</a>
+        </nav>
+      </aside>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

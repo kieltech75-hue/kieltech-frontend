@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Model Review | KielTech</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    :root { --review-ink: #e7edf7; --review-muted: #9aaac2; --review-line: #1d2a43; --review-panel: #0d1426; --review-bg: #070d1c; --review-teal: #8fc4ff; --review-amber: #f0b45e; --review-red: #f28b82; }
+    body.model-review-page { margin: 0; min-height: 100vh; background: var(--review-bg); color: var(--review-ink); }
+    .model-review-page .hero-small { background: #091120; border-bottom: 1px solid var(--review-line); }
+    .model-review-page .nav { min-height: 44px; padding-top: .3rem; padding-bottom: .3rem; }
+    .model-review-page .logo-mark { max-height: 26px; width: auto; }
+    .model-review-page .service-drawer-toggle--inline { min-height: 32px; padding: .35rem .65rem; font-size: .78rem; }
+    .review-shell { width: min(1120px, calc(100% - 2rem)); margin: 0 auto; padding: 2.2rem 0 4rem; }
+    .review-heading { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; padding: 1.35rem 1.5rem; overflow: hidden; border: 1px solid #1d2a43; border-radius: 14px; background: linear-gradient(110deg, #0d1426 0%, #0b172b 65%, #102441 100%); box-shadow: 0 14px 36px rgba(0,0,0,.16); }
+    .review-heading::after { position: absolute; right: -2rem; bottom: -4rem; width: 13rem; height: 13rem; border: 1px solid rgba(143,196,255,.16); border-radius: 50%; content: ''; }
+    .review-heading__eyebrow { margin: 0 0 .28rem; color: var(--review-teal); font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .review-heading h1 { position: relative; z-index: 1; margin: 0; font-size: 1.15rem; letter-spacing: 0; line-height: 1.15; }
+    .review-heading p { position: relative; z-index: 1; max-width: 560px; margin: .45rem 0 0; color: var(--review-muted); font-size: .82rem; line-height: 1.55; }
+    .review-heading__action { min-height: 36px; padding: .45rem .75rem; border: 1px solid #3e91ff; border-radius: 7px; background: #347fe9; color: #fff; font: inherit; font-size: .78rem; font-weight: 750; cursor: pointer; box-shadow: 0 8px 22px #347fe93d; }
+    .review-heading__action:hover { border-color: #8fc4ff; background: #428cf0; }
+    .review-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .65rem; margin-bottom: .9rem; }
+    .review-stat, .review-panel { border: 1px solid var(--review-line); border-radius: 9px; background: var(--review-panel); box-shadow: 0 5px 18px rgba(30,65,75,.05); }
+    .review-stat { padding: .8rem .9rem; }
+    .review-stat__label { display: block; color: var(--review-muted); font-size: .68rem; font-weight: 700; }
+    .review-stat strong { display: block; margin-top: .25rem; font-size: 1.35rem; line-height: 1; }
+    .review-stat small { display: block; margin-top: .35rem; color: var(--review-muted); font-size: .67rem; }
+    .review-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(250px, .65fr); gap: .9rem; align-items: start; }
+    .review-panel { padding: 1.15rem; }
+    .review-panel__header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .8rem; }
+    .review-panel__header h2 { margin: 0; font-size: .95rem; }
+    .review-panel__header p { margin: .2rem 0 0; color: var(--review-muted); font-size: .72rem; }
+    .review-filter { min-height: 32px; padding: 0 .45rem; border: 1px solid var(--review-line); border-radius: 6px; background: #091120; color: var(--review-ink); font: inherit; font-size: .72rem; }
+    .review-queue { display: grid; gap: .5rem; }
+    .review-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .65rem; align-items: center; padding: .75rem; border: 1px solid #1d2a43; border-radius: 7px; background: #091120; }
+    .review-item__name { display: flex; align-items: center; gap: .45rem; font-size: .8rem; font-weight: 750; }
+    .review-item__name::before { width: 7px; height: 7px; border-radius: 50%; background: var(--review-amber); content: ''; }
+    .review-item__meta { margin: .25rem 0 0; color: var(--review-muted); font-size: .7rem; }
+    .review-item__score { min-width: 42px; padding: .3rem .4rem; border-radius: 5px; background: #3a2c17; color: var(--review-amber); font-size: .75rem; font-weight: 800; text-align: center; }
+    .review-item__score.is-good { background: #123b32; color: #6dd58c; }
+    .review-item__score.is-risk { background: #422527; color: var(--review-red); }
+    .review-checklist { display: grid; gap: .65rem; margin: 0; padding: 0; list-style: none; }
+    .review-checklist li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: .55rem; align-items: start; color: #c5d1e2; font-size: .76rem; line-height: 1.45; }
+    .review-checklist li::before { display: grid; width: 22px; height: 22px; place-items: center; border: 1px solid #31527d; border-radius: 50%; background: #102441; color: var(--review-teal); content: '\2713'; font-size: .72rem; font-weight: 800; }
+    .review-table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+    .review-table th, .review-table td { padding: .65rem .4rem; border-bottom: 1px solid #1d2a43; text-align: left; }
+    .review-table th { color: var(--review-muted); font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .review-table td { color: #c5d1e2; }
+    .review-status { display: inline-flex; align-items: center; gap: .3rem; color: #15704e; font-weight: 750; }
+    .review-status::before { width: 6px; height: 6px; border-radius: 50%; background: currentColor; content: ''; }
+    .review-empty { padding: 1rem; color: var(--review-muted); font-size: .78rem; text-align: center; }
+    .review-catalog { margin-bottom: .9rem; }
+    .review-catalog__tools { display: flex; gap: .65rem; margin-bottom: .9rem; }
+    .review-catalog__search { width: 100%; min-height: 42px; box-sizing: border-box; padding: .5rem .8rem; border: 1px solid var(--review-line); border-radius: 8px; outline: 0; background: #091120; color: var(--review-ink); font: inherit; font-size: .8rem; box-shadow: inset 0 1px 0 rgba(255,255,255,.03); }
+    .review-catalog__search:focus { border-color: #5b9cff; box-shadow: 0 0 0 3px rgba(52,127,233,.15); }
+    .review-model-row { cursor: pointer; transition: background .16s ease; }
+    .review-model-row:hover { background: rgba(52,127,233,.12); }
+    .review-model-row td:first-child { color: #f1f6ff; font-weight: 750; }
+    .review-model-row td:nth-child(2) { color: #9ecbff; }
+    .review-model-row td:last-child { color: #8fc4ff; font-weight: 750; }
+    .review-model-row td:last-child::after { margin-left: .35rem; content: '\2192'; }
+    .review-modal { position: fixed; inset: 0; z-index: 100; display: none; place-items: center; padding: 1rem; background: rgba(2,6,23,.76); }
+    .review-modal.is-open { display: grid; }
+    .review-modal__panel { width: min(440px, 100%); padding: 1.2rem; border: 1px solid #2d4161; border-radius: 14px; background: #0d1426; box-shadow: 0 24px 70px rgba(0,0,0,.5); }
+    .review-modal__panel h2 { margin: 0; font-size: 1.1rem; }
+    .review-modal__panel p { margin: .35rem 0 1rem; color: var(--review-muted); font-size: .78rem; }
+    .review-stars { display: flex; gap: .15rem; margin-bottom: .75rem; }
+    .review-stars button { padding: .1rem; border: 0; background: transparent; color: #52647f; font-size: 1.8rem; cursor: pointer; }
+    .review-stars button.is-selected, .review-stars button:hover { color: #f5b94c; }
+    .review-modal textarea { width: 100%; min-height: 125px; box-sizing: border-box; padding: .7rem; border: 1px solid #263957; border-radius: 8px; outline: 0; resize: vertical; background: #091120; color: var(--review-ink); font: inherit; }
+    .review-modal__actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .8rem; }
+    .review-modal__actions button { min-height: 35px; padding: .45rem .7rem; border: 1px solid #334b70; border-radius: 7px; background: #111d31; color: #dbe8ff; font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
+    .review-modal__actions button[type="submit"] { border-color: #5b9cff; background: #347fe9; color: #fff; }
+    .service-drawer__link-icon--review { position: relative; font-size: 0 !important; }
+    .service-drawer__link-icon--review::before { width: 12px; height: 15px; border: 1.5px solid currentColor; border-radius: 3px; content: ''; }
+    .service-drawer__link-icon--review::after { position: absolute; top: 7px; left: 7px; color: currentColor; content: '\2713'; font-size: .65rem; font-weight: 800; line-height: 1; }
+    html[data-theme="light"] { --review-ink: #17212b; --review-muted: #667584; --review-line: #dce5eb; --review-panel: #fff; --review-bg: #f3f7f8; --review-teal: #087e88; --review-amber: #b76d18; --review-red: #bd4b4b; }
+    html[data-theme="light"] .model-review-page .hero-small { background: #e9f1f2; }
+    html[data-theme="light"] .review-heading { border-color: #dce5eb; background: linear-gradient(110deg, #fff 0%, #f4f9fb 100%); box-shadow: 0 10px 28px rgba(30,65,75,.08); }
+    html[data-theme="light"] .review-heading__action { border-color: #b9d1d3; background: var(--review-panel); color: var(--review-teal); box-shadow: none; }
+    html[data-theme="light"] .review-heading__action:hover { border-color: var(--review-teal); background: #f0fbfb; }
+    html[data-theme="light"] .review-filter, html[data-theme="light"] .review-item, html[data-theme="light"] .review-catalog__search { background: #fbfdfd; }
+    html[data-theme="light"] .review-modal__panel { border-color: #dce5eb; background: #fff; }
+    html[data-theme="light"] .review-modal textarea { border-color: #dce5eb; background: #fbfdfd; color: #17212b; }
+    html[data-theme="light"] .review-modal .review-stars button { color: #8a98a8 !important; }
+    html[data-theme="light"] .review-modal .review-stars button.is-selected, html[data-theme="light"] .review-modal .review-stars button:hover { color: #d88900 !important; text-shadow: 0 1px 2px rgba(160,92,0,.2); }
+    html[data-theme="light"] .review-item { border-color: #e3eaed; }
+    html[data-theme="light"] .review-item__score { background: #fff4df; }
+    html[data-theme="light"] .review-item__score.is-good { background: #e5f5ef; color: #15704e; }
+    html[data-theme="light"] .review-item__score.is-risk { background: #fbe9e9; }
+    html[data-theme="light"] .review-checklist li { color: #40515e; }
+    html[data-theme="light"] .review-checklist li::before { border-color: #b9d8d5; background: #eef9f7; }
+    html[data-theme="light"] .review-table th, html[data-theme="light"] .review-table td { border-bottom-color: #edf1f2; }
+    html[data-theme="light"] .review-table td { color: #40515e; }
+    @media (max-width: 760px) { .review-heading { align-items: flex-start; flex-direction: column; } .review-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .review-layout { grid-template-columns: 1fr; } .review-panel { padding: .85rem; } }
+  </style>
+</head>
+<body class="model-review-page">
+  <header class="hero hero-small">
+    <nav class="nav container">
+      <div class="brand-block"><a class="brand" href="index.html" aria-label="KielTech home"><img src="KielTech-logo.png" alt="KielTech logo" class="logo-mark"><span class="brand-text">KielTech</span></a><button id="serviceDrawerToggle" class="service-drawer-toggle service-drawer-toggle--inline" type="button" aria-expanded="false">Services</button></div>
+      <div class="nav-actions"><a class="nav-pill nav-pill--secondary" href="models.html">Models</a><a class="nav-pill nav-pill--primary" href="model-status.html">Model status</a><button id="themeToggle" class="theme-toggle" type="button" aria-label="Choose theme">Theme</button></div>
+    </nav>
+  </header>
+  <main class="review-shell">
+    <section class="review-heading" aria-labelledby="review-title"><div><p class="review-heading__eyebrow">Customer feedback</p><h1 id="review-title">Model review</h1><p>Review model quality, safety, and release readiness before a change reaches production.</p></div></section>
+    <section class="review-panel review-catalog" aria-labelledby="review-models-title"><div class="review-panel__header"><div><h2 id="review-models-title">Help shape the models you use</h2><p>Your feedback helps KielTech improve quality, reliability, and production readiness.</p></div></div><div class="review-catalog__tools"><input id="reviewModelSearch" class="review-catalog__search" type="search" placeholder="Search models..." aria-label="Search models"></div><div class="overflow-x-auto"><table class="review-table"><thead><tr><th>Model</th><th>Type</th><th>Context</th><th>Action</th></tr></thead><tbody id="reviewModelRows"><tr><td class="review-empty" colspan="4">No models yet.</td></tr></tbody></table></div></section>
+  </main>
+  <footer class="footer"><div class="container footer-inner"><p>&copy; 2026 KielTech. All rights reserved.</p></div></footer>
+  <div id="reviewModal" class="review-modal" aria-hidden="true"><form id="reviewForm" class="review-modal__panel"><h2 id="reviewModalTitle">Review model</h2><p>How was your experience with this model?</p><div id="reviewStars" class="review-stars" role="radiogroup" aria-label="Model rating"><button type="button" data-rating="1" aria-label="1 star">★</button><button type="button" data-rating="2" aria-label="2 stars">★</button><button type="button" data-rating="3" aria-label="3 stars">★</button><button type="button" data-rating="4" aria-label="4 stars">★</button><button type="button" data-rating="5" aria-label="5 stars">★</button></div><textarea id="reviewText" maxlength="5000" placeholder="Write your review..." required></textarea><p id="reviewResult" role="status"></p><div class="review-modal__actions"><button id="reviewCancel" type="button">Cancel</button><button type="submit">Send review</button></div></form></div>
+  <script src="script.js"></script>
+  <script>
+    (() => {
+      const modelSearch = document.getElementById('reviewModelSearch');
+      const modelRows = [...document.querySelectorAll('#reviewModelRows .review-model-row')];
+      const modal = document.getElementById('reviewModal');
+      const form = document.getElementById('reviewForm');
+      const reviewText = document.getElementById('reviewText');
+      const reviewResult = document.getElementById('reviewResult');
+      const reviewStars = [...document.querySelectorAll('#reviewStars button')];
+      let selectedModel = '';
+      let selectedRating = 0;
+      const resetRating = () => { selectedRating = 0; reviewStars.forEach((star) => { star.classList.remove('is-selected'); star.style.removeProperty('color'); }); };
+      const closeReview = () => { resetRating(); modal.classList.remove('is-open'); modal.setAttribute('aria-hidden', 'true'); };
+      const openReview = (model) => { selectedModel = model; resetRating(); document.getElementById('reviewModalTitle').textContent = `Review ${model}`; reviewText.value = ''; reviewResult.textContent = ''; modal.classList.add('is-open'); modal.setAttribute('aria-hidden', 'false'); reviewText.focus(); };
+      modelSearch.addEventListener('input', () => { const query = modelSearch.value.trim().toLowerCase(); modelRows.forEach((row) => { row.hidden = !row.dataset.model.toLowerCase().includes(query); }); });
+      modelRows.forEach((row) => { row.tabIndex = 0; row.setAttribute('role', 'button'); row.setAttribute('aria-label', `Write a review for ${row.dataset.model}`); row.addEventListener('click', () => openReview(row.dataset.model)); row.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openReview(row.dataset.model); } }); });
+      reviewStars.forEach((star) => star.addEventListener('click', () => { selectedRating = Number(star.dataset.rating); reviewStars.forEach((item) => { const selected = Number(item.dataset.rating) <= selectedRating; item.classList.toggle('is-selected', selected); item.style.setProperty('color', selected ? '#d88900' : '#8a98a8', 'important'); }); }));
+      document.getElementById('reviewCancel').addEventListener('click', closeReview);
+      modal.addEventListener('click', (event) => { if (event.target === modal) closeReview(); });
+      document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && modal.classList.contains('is-open')) closeReview(); });
+      form.addEventListener('submit', async (event) => { event.preventDefault(); if (!selectedRating) { reviewResult.textContent = 'Choose a star rating first.'; return; } const button = form.querySelector('button[type="submit"]'); const api = location.hostname === 'localhost' || location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000' : location.origin; button.disabled = true; reviewResult.textContent = 'Sending...'; try { const response = await fetch(`${api}/v1/model-reviews`, { method:'POST', credentials:'include', headers:{ 'Content-Type':'application/json', ...(localStorage.getItem('kieltechToken') ? { Authorization:`Bearer ${localStorage.getItem('kieltechToken')}` } : {}) }, body: JSON.stringify({ model:selectedModel, rating:selectedRating, review:reviewText.value.trim() }) }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.detail || 'Unable to send your review.'); reviewResult.textContent = 'Review sent. Thank you.'; window.setTimeout(closeReview, 700); } catch (error) { reviewResult.textContent = error.message; } finally { button.disabled = false; } });
+    })();
+  </script>
+</body>
+</html>

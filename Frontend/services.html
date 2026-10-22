@@ -9,42 +9,82 @@
   <body>
     <header class="hero hero-small">
       <nav class="nav container">
-        <a class="brand" href="index.html">KielTech</a>
+        <div class="brand-row">
+          <a class="brand" href="index.html" aria-label="KielTech home">
+            <img src="KielTech-logo.png" alt="KielTech logo" class="logo-mark" />
+            <span class="brand-text">KielTech</span>
+          </a>
+        </div>
         <div class="nav-actions">
-          <div class="nav-links">
-            <a href="about.html">About</a>
-            <a href="services.html">Services</a>
-            <a href="downloads.html">Downloads</a>
-            <a href="contact.html">Contact</a>
-            <a href="login.html">Login</a>
-            <a href="dashboard.html">Dashboard</a>
-          </div>
           <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">🌙</button>
         </div>
       </nav>
       <div class="container page-intro">
-        <p class="eyebrow">Services</p>
-        <h1>Launch products with confidence.</h1>
-        <p class="hero-copy">We support startups and growing organizations with website development, AI integrations, workflow automation, and digital experiences that feel premium.</p>
+        <div class="service-nav-shell">
+          <button id="serviceDrawerToggle" class="service-drawer-toggle" type="button" aria-expanded="false">☰ Services</button>
+        </div>
+        <p class="eyebrow">Product platform</p>
+        <h1>Professional software products and secure access.</h1>
+        <p class="hero-copy">KielTech brings your products together in one polished experience: downloadable software, controlled access, ratings, reviews, and product growth tracking.</p>
       </div>
     </header>
 
     <main class="container section">
       <div class="card-grid">
         <article class="card">
-          <h3>Custom websites</h3>
-          <p>Fast, modern websites that communicate clearly and convert better.</p>
+          <h3>Human Language</h3>
+          <p>Your custom programming language for building human-friendly software and developer tools.</p>
         </article>
         <article class="card">
-          <h3>AI-enabled products</h3>
-          <p>Smart chat experiences, content automation, and intelligent product workflows.</p>
+          <h3>KielSeek</h3>
+          <p>A refined search experience that helps users discover information with speed and relevance.</p>
         </article>
         <article class="card">
-          <h3>Dashboard systems</h3>
-          <p>Secure portals for users, admins, and internal operations with real-time data.</p>
+          <h3>KielBolt</h3>
+          <p>A lightweight web browser product built for productivity, simplicity, and polished browsing.</p>
+        </article>
+        <article class="card">
+          <h3>Jotex</h3>
+          <p>An AI assistant app designed for daily productivity, knowledge help, and user convenience.</p>
+        </article>
+        <article class="card">
+          <h3>Web Development</h3>
+          <p>Custom frontend, backend, and full stack web projects built to scale with your product goals.</p>
         </article>
       </div>
+
+      <section class="card" style="margin-top: 1.25rem;">
+        <h3>Access requirements</h3>
+        <p>Developers and partners can request access through the website through a controlled proxy backend experience. Access is granted only after the required checks are met.</p>
+        <ul>
+          <li>Valid app or project registration</li>
+          <li>Approved API access request</li>
+          <li>Compliance with usage and rate-limit requirements</li>
+          <li>Secure proxy routing through your stored Runpod endpoint</li>
+        </ul>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="contact.html">Request API access</a>
+          <a class="btn btn-secondary" href="downloads.html">Open product downloads</a>
+        </div>
+      </section>
     </main>
+
+    <div id="serviceDrawer" class="service-drawer" aria-hidden="true">
+      <div class="service-drawer__backdrop" data-close-drawer></div>
+      <aside class="service-drawer__panel" role="navigation" aria-label="Services menu">
+        <div class="service-drawer__header">
+          <div class="service-drawer__brand">
+            <span class="service-drawer__brand-mark">K</span>
+            <span class="service-drawer__brand-text">KielTech</span>
+          </div>
+          <button id="serviceDrawerClose" class="service-drawer__close" type="button" aria-label="Close services menu">×</button>
+        </div>
+        <nav class="service-drawer__nav">
+          <a class="service-drawer__link" href="tokens.html">API Token</a>
+          <a class="service-drawer__link is-active" href="api-integration.html">API Integration</a>
+        </nav>
+      </aside>
+    </div>
 
     <footer class="footer">
       <div class="container footer-inner">

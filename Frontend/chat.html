@@ -1,0 +1,946 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kiel | KielTech</title>
+  <meta name="description" content="Kiel is the authenticated conversational workspace for KielTech models.">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body.kiel-chat-page { min-height: 100vh; background: #07111b; color: #e6edf3; }
+    .kiel-chat-shell { display: grid; grid-template-columns: 280px minmax(0, 1fr); width: min(1280px, calc(100% - 2rem)); min-height: calc(100vh - 2rem); margin: 1rem auto; overflow: hidden; border: 1px solid rgba(125,211,252,.16); border-radius: 18px; background: #0d1726; box-shadow: 0 24px 70px rgba(2,6,23,.35); }
+    .kiel-chat-sidebar { display: flex; min-width: 0; flex-direction: column; gap: 1rem; padding: 1rem; background: #091521; border-right: 1px solid rgba(125,211,252,.14); }
+    .kiel-chat-sidebar__top, .kiel-chat-sidebar__header { display: flex; align-items: center; justify-content: space-between; gap: .65rem; }
+    .kiel-chat-sidebar__title { margin: 0; color: #f8fafc; font-size: .95rem; }
+    .kiel-chat-new { width: 100%; min-height: 42px; border: 1px solid rgba(125,211,252,.34); border-radius: 9px; background: rgba(56,189,248,.12); color: #d9f5ff; font: inherit; font-weight: 750; cursor: pointer; }
+    .kiel-chat-new:hover { background: rgba(56,189,248,.2); border-color: #7dd3fc; }
+    .kiel-chat-history { display: grid; gap: .35rem; min-height: 0; overflow: auto; }
+    .kiel-chat-history__empty { padding: 1rem .5rem; color: #8499ab; font-size: .78rem; line-height: 1.5; text-align: center; }
+    .kiel-chat-history__item { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: .3rem; padding: .65rem .7rem; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #b9c9d7; text-align: left; cursor: pointer; }
+    .kiel-chat-history__item:hover, .kiel-chat-history__item.is-active { color: #f8fafc; background: rgba(125,211,252,.1); border-color: rgba(125,211,252,.22); }
+    .kiel-chat-history__item-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .8rem; }
+    .kiel-chat-history__item { position: relative; }
+    .kiel-chat-history__item-open { min-width: 0; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+    .kiel-chat-history__item-menu-button { display: grid; width: 28px; height: 28px; place-items: center; padding: 0; border: 0; border-radius: 6px; background: transparent; color: #7890a4; font-size: 1.15rem; line-height: 1; cursor: pointer; }
+    .kiel-chat-history__item-menu-button:hover, .kiel-chat-history__item-menu-button[aria-expanded="true"] { background: rgba(255,255,255,.1); color: #f8fafc; }
+    .kiel-chat-history__menu { position: absolute; top: calc(100% - .2rem); right: .45rem; z-index: 5; display: grid; min-width: 126px; padding: .3rem; border: 1px solid rgba(255,255,255,.12); border-radius: 10px; background: #242528; box-shadow: 0 12px 28px rgba(0,0,0,.3); }
+    .kiel-chat-history__menu[hidden] { display: none; }
+    .kiel-chat-history__menu button { padding: .5rem .6rem; border: 0; border-radius: 7px; background: transparent; color: #e8e9eb; font: inherit; font-size: .78rem; text-align: left; cursor: pointer; }
+    .kiel-chat-history__menu button:hover { background: rgba(255,255,255,.1); }
+    .kiel-chat-history__menu button[data-menu-action="delete"] { color: #ff9b9b; }
+    .kiel-chat-sidebar__footer { margin-top: auto; padding-top: .8rem; border-top: 1px solid rgba(148,163,184,.14); color: #8499ab; font-size: .74rem; line-height: 1.45; }
+    .kiel-chat-main { display: grid; grid-template-rows: auto minmax(0,1fr) auto; min-width: 0; min-height: 0; background: #0d1726; }
+    .kiel-chat-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 1.15rem; border-bottom: 1px solid rgba(125,211,252,.14); background: rgba(13,23,38,.86); }
+    .kiel-chat-toolbar__title { min-width: 0; }
+    .kiel-chat-toolbar h1 { overflow: hidden; margin: 0; color: #f8fafc; font-size: 1rem; text-overflow: ellipsis; white-space: nowrap; }
+    .kiel-chat-toolbar p { margin: .2rem 0 0; color: #8499ab; font-size: .73rem; }
+    .kiel-chat-model { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; clip-path: inset(50%); }
+    .kiel-chat-model-picker { position: relative; width: max-content; min-width: 0; }
+    .kiel-chat-model-picker__trigger { display: flex; width: max-content; min-height: 32px; max-width: min(260px, calc(100vw - 6rem)); align-items: center; justify-content: space-between; gap: .5rem; padding: 0 .55rem; border: 1px solid rgba(148,163,184,.25); border-radius: 8px; background: #101f2e; color: #d9e7f1; font: inherit; font-size: .74rem; text-align: left; cursor: pointer; }
+    .kiel-chat-model-picker__trigger:hover, .kiel-chat-model-picker__trigger[aria-expanded="true"] { border-color: rgba(125,211,252,.62); background: #14283a; }
+    .kiel-chat-model-picker__trigger:focus-visible, .kiel-chat-model-picker__option:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 2px; }
+    .kiel-chat-model-picker__label { max-width: calc(100vw - 7.5rem); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .kiel-chat-model-picker__chevron { flex: 0 0 auto; color: #8da8ba; font-size: .7rem; }
+    .kiel-chat-model-picker__menu { position: absolute; top: calc(100% + .35rem); left: 0; z-index: 12; display: grid; width: max-content; min-width: 100%; max-width: min(320px, calc(100vw - 6rem)); max-height: min(15rem, calc(100dvh - 2rem)); gap: .15rem; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: .3rem; border: 1px solid rgba(125,211,252,.24); border-radius: 10px; background: #151619; box-shadow: 0 14px 32px rgba(0,0,0,.44); scrollbar-color: #555b63 #151619; scrollbar-width: thin; }
+    .kiel-chat-model-picker__menu[hidden] { display: none; }
+    .kiel-chat-model-picker__option { display: flex; width: 100%; min-height: 40px; flex-direction: column; align-items: flex-start; justify-content: center; gap: .12rem; padding: .42rem .6rem; border: 0; border-radius: 7px; background: transparent; color: #e7e9ed; font: inherit; text-align: left; cursor: pointer; }
+    .kiel-chat-model-picker__option-heading { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: .75rem; }
+    .kiel-chat-model-picker__option-name { max-width: 100%; font-size: .78rem; font-weight: 550; line-height: 1.2; white-space: nowrap; }
+    .kiel-chat-model-picker__option-check { flex: 0 0 auto; color: #7dd3fc; font-size: .9rem; font-weight: 700; line-height: 1; opacity: 0; }
+    .kiel-chat-model-picker__option[aria-selected="true"] .kiel-chat-model-picker__option-check { opacity: 1; }
+    .kiel-chat-model-picker__option-capability { color: #9aa0a9; font-size: .66rem; font-weight: 450; line-height: 1.2; }
+    .kiel-chat-model-picker__option:hover, .kiel-chat-model-picker__option[aria-selected="true"] { background: #292a2e; color: #fff; }
+    .kiel-chat-model-picker__option:disabled { color: #718698; cursor: not-allowed; }
+    .kiel-chat-model-picker__option:disabled:hover { background: transparent; }
+    .kiel-chat-model-picker--toolbar .kiel-chat-model-picker__trigger { max-width: min(260px, calc(100vw - 6rem)); }
+    html[data-theme="light"] .kiel-chat-model-picker__trigger { border-color: rgba(71,99,118,.28); background: #f4f8fb; color: #203444; }
+    html[data-theme="light"] .kiel-chat-model-picker__menu { border-color: rgba(71,99,118,.22); background: #fff; box-shadow: 0 16px 36px rgba(15,23,42,.2); scrollbar-color: #a6b4bf #fff; }
+    html[data-theme="light"] .kiel-chat-model-picker__option { color: #203444; }
+    html[data-theme="light"] .kiel-chat-model-picker__option-capability { color: #697b89; }
+    html[data-theme="light"] .kiel-chat-model-picker__option:hover, html[data-theme="light"] .kiel-chat-model-picker__option[aria-selected="true"] { background: #edf2f6; color: #123b50; }
+    html[data-theme="light"] .kiel-chat-model-picker__option:disabled { color: #738796; }
+    .kiel-chat-icon-button { min-width: 36px; min-height: 36px; border: 1px solid rgba(148,163,184,.25); border-radius: 8px; background: transparent; color: #b9c9d7; cursor: pointer; }
+    .kiel-chat-icon-button:hover { color: #073b55; background: #e2f3fa; }
+    .kiel-chat-messages { min-height: 0; overflow-y: auto; overflow-anchor: none; padding: clamp(1rem, 4vw, 2.5rem); }
+    .kiel-chat-empty { display: grid; min-height: 100%; place-content: center; justify-items: center; max-width: 600px; margin: auto; text-align: center; }
+    .kiel-chat-empty__mark { display: grid; width: 3rem; height: 3rem; margin-bottom: 1rem; place-items: center; border: 1px solid rgba(125,211,252,.3); border-radius: 12px; background: rgba(56,189,248,.12); color: #7dd3fc; font-size: 1.5rem; }
+    .kiel-chat-empty h2 { margin: 0; color: #f8fafc; font-size: clamp(1.45rem, 3vw, 2rem); }
+    .kiel-chat-empty p { margin: .65rem 0 0; color: #9ab0c0; line-height: 1.6; }
+    .kiel-chat-message { display: flex; flex-direction: column; align-items: flex-start; max-width: 820px; margin: 0 auto 1.25rem; }
+    .kiel-chat-message--user { align-items: flex-end; }
+    .kiel-chat-message__avatar { display: none; }
+    .kiel-chat-message__body { width: fit-content; max-width: min(760px, 88%); min-width: 0; padding: .85rem 1rem; border: 1px solid rgba(125,211,252,.13); border-radius: 12px; background: rgba(17,31,45,.78); color: #dce9f1; font-family: "Google Sans Text", "Google Sans", "Product Sans", Arial, sans-serif; font-size: .96rem; font-weight: 400; line-height: 1.62; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .kiel-chat-message--assistant .kiel-chat-message__body { color: #cbd5df; font-weight: 350; }
+    .kiel-chat-message--assistant .kiel-chat-message__body { font-size: .875rem; line-height: 1.48; letter-spacing: 0; }
+    .kiel-chat-message--user .kiel-chat-message__body { background: rgba(8,126,164,.18); border-color: rgba(125,211,252,.24); }
+    .kiel-chat-message__meta { display: none; }
+    .kiel-chat-message__body h1, .kiel-chat-message__body h2, .kiel-chat-message__body h3 { color: #f1f2f4; font-family: "Google Sans", "Google Sans Text", "Product Sans", Arial, sans-serif; letter-spacing: 0; }
+    .kiel-chat-message__body h1 { margin: 1.35rem 0 .65rem; font-size: 1.45rem; font-weight: 750; line-height: 1.2; }
+    .kiel-chat-message__body h2 { margin: 1.15rem 0 .5rem; font-size: 1.2rem; font-weight: 700; line-height: 1.25; }
+    .kiel-chat-message__body h3 { margin: .95rem 0 .4rem; font-size: 1rem; font-weight: 600; line-height: 1.3; }
+    .kiel-chat-message__body p { margin: 0 0 .9rem; line-height: 1.68; }
+    .kiel-chat-message__body strong { padding: .04em .22em; border-radius: 4px; background: rgba(125,211,252,.08); color: #e7edf2; font-weight: 650; }
+    .kiel-chat-message--assistant .kiel-chat-message__body strong { color: #d8e0e7; font-weight: 500; }
+    .kiel-chat-message__body em { color: #cbd7e0; }
+    .kiel-chat-message__body del { color: #9aa4ad; text-decoration-color: #f87171; }
+    .kiel-chat-message__body a { color: #7dd3fc; text-decoration: underline; text-underline-offset: 2px; }
+    .kiel-chat-message__body mark { padding: .05em .2em; border-radius: 3px; background: #facc15; color: #17202a; }
+    .kiel-chat-message__body kbd { padding: .08rem .3rem; border: 1px solid #56616d; border-bottom-width: 2px; border-radius: 4px; background: #242b33; color: #f1f2f4; font: .82em ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .kiel-chat-message__body blockquote { margin: .45rem 0; padding: .35rem .75rem; border-left: 3px solid #38bdf8; color: #b9c9d7; background: rgba(56,189,248,.06); }
+    .kiel-chat-message__body .kiel-chat-callout { margin: .55rem 0; padding: .55rem .75rem; border: 1px solid rgba(125,211,252,.25); border-left: 3px solid #38bdf8; border-radius: 6px; background: rgba(56,189,248,.07); }
+    .kiel-chat-message__body .kiel-chat-callout--warning { border-color: rgba(250,204,21,.3); border-left-color: #facc15; background: rgba(250,204,21,.07); }
+    .kiel-chat-message__body .kiel-chat-callout--tip { border-color: rgba(52,211,153,.3); border-left-color: #34d399; background: rgba(52,211,153,.07); }
+    .kiel-chat-message__body .kiel-chat-definition { margin: .35rem 0; }
+    .kiel-chat-message__body .kiel-chat-definition dt { color: #f1f2f4; font-weight: 750; }
+    .kiel-chat-message__body .kiel-chat-definition dd { margin: .1rem 0 .35rem 1rem; color: #b9c9d7; }
+    .kiel-chat-message__body hr { margin: .65rem 0; border: 0; border-top: 1px solid rgba(148,163,184,.25); }
+    .kiel-chat-message__body .kiel-chat-task { display: flex; align-items: baseline; gap: .45rem; list-style: none; margin-left: -1.1rem; }
+    .kiel-chat-message__body .kiel-chat-task input { width: .85rem; height: .85rem; accent-color: #38bdf8; }
+    .kiel-chat-message__body .kiel-chat-task.is-complete { color: #9aa4ad; text-decoration: line-through; }
+    .kiel-chat-message__body ol, .kiel-chat-message__body ul { margin: .45rem 0 1rem 1.45rem; padding: 0; }
+    .kiel-chat-message__body li { margin: .35rem 0; padding-left: .2rem; line-height: 1.62; }
+    .kiel-chat-message__body .kiel-chat-math { font-family: Georgia, 'Times New Roman', serif; font-style: italic; color: #f1f2f4; }
+    .kiel-chat-message__body .kiel-chat-math--display { display: block; margin: .45rem 0; text-align: center; font-size: 1.15em; }
+    .kiel-chat-message__body .kiel-chat-math__fraction { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 .12em; font-style: normal; line-height: 1.05; }
+    .kiel-chat-message__body .kiel-chat-math__fraction > span:first-child { padding: 0 .18em .08em; border-bottom: 1px solid currentColor; }
+    .kiel-chat-message__body .kiel-chat-math__fraction > span:last-child { padding: .08em .18em 0; }
+    .kiel-chat-message__body .kiel-chat-math sup, .kiel-chat-message__body .kiel-chat-math sub { font-size: .7em; line-height: 0; }
+    .kiel-chat-message__body .kiel-chat-math__root { display: inline-flex; align-items: flex-start; font-style: normal; }
+    .kiel-chat-message__body .kiel-chat-math__root > sup { margin-right: -.08em; }
+    .kiel-chat-message__body .kiel-chat-matrix { display: inline-table; margin: .25rem .15rem; border-collapse: collapse; vertical-align: middle; font-family: Georgia, 'Times New Roman', serif; font-style: italic; }
+    .kiel-chat-message__body .kiel-chat-matrix td { min-width: 1.35rem; padding: .1rem .35rem; text-align: center; }
+    .kiel-chat-message__body .kiel-chat-science { font-family: Georgia, 'Times New Roman', serif; }
+    .kiel-chat-message__body .kiel-chat-vector { font-weight: 700; text-decoration: overline; }
+    .kiel-chat-message__body .kiel-chat-unit { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .9em; font-style: normal; white-space: nowrap; }
+    .kiel-chat-message__body .kiel-chat-chem { font-family: Georgia, 'Times New Roman', serif; font-style: normal; white-space: nowrap; }
+    .kiel-chat-message__body .kiel-chat-chem sup, .kiel-chat-message__body .kiel-chat-chem sub { font-size: .7em; line-height: 0; }
+    .kiel-chat-message__body .kiel-chat-reaction { display: inline-block; margin: 0 .15em; font-family: Georgia, 'Times New Roman', serif; font-style: normal; }
+    .kiel-chat-message__body .studio-markdown-table-wrap { max-width: 100%; max-height: min(42vh, 420px); margin: .8rem 0; overflow: auto; overscroll-behavior: contain; border: 1px solid #343942; border-radius: 8px; }
+    .kiel-chat-message__body .studio-markdown-table { min-width: 420px; border-collapse: collapse; color: inherit; font-size: .82rem; line-height: 1.45; }
+    .kiel-chat-message__body .studio-markdown-table th, .kiel-chat-message__body .studio-markdown-table td { padding: .5rem .65rem; border-bottom: 1px solid #343942; white-space: nowrap; text-align: left; }
+    .kiel-chat-message__body .studio-markdown-table th { position: sticky; top: 0; z-index: 1; background: #1b1c1e; color: #f1f2f4; font-weight: 750; }
+    .kiel-chat-message__body code:not(pre code) { padding: .14em .38em; border: 1px solid rgba(125,211,252,.2); border-radius: 5px; background: rgba(125,211,252,.1); color: #bdeeff; font: .9em ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .kiel-chat-message--assistant .kiel-chat-message__body p { margin-bottom: .9rem; }
+    .kiel-chat-message--assistant .kiel-chat-message__body h1 { font-size: 1.45rem; }
+    .kiel-chat-message--assistant .kiel-chat-message__body h2 { font-size: 1.2rem; }
+    .kiel-chat-message--assistant .kiel-chat-message__body h3 { font-size: 1rem; }
+    .kiel-chat-message--assistant .kiel-chat-message__body code:not(pre code) { padding: .08rem .28rem; border: 1px solid #25282c; border-radius: 5px; background: #1a1c1f; color: #b9c5cf; font-size: .86em; }
+    .kiel-chat-message__body .studio-chat-code { margin: .8rem 0; overflow: hidden; border: 1px solid #34363b; border-radius: 10px; background: #111214; }
+    .kiel-chat-message__body .studio-chat-code__header { display: flex; align-items: center; justify-content: space-between; padding: .45rem .65rem; border-bottom: 1px solid #2b2d31; color: #9ca0a8; font: .7rem ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: lowercase; }
+    .kiel-chat-message__body .studio-chat-code__copy { position: relative; display: inline-grid; width: 2rem; height: 2rem; flex: 0 0 auto; place-items: center; padding: 0; border: 1px solid #3a3c42; border-radius: 8px; background: #25262a; color: #c4c7ce; cursor: pointer; transition: background .16s ease, border-color .16s ease, color .16s ease, transform .16s ease; }
+    .kiel-chat-message__body .studio-chat-code__copy svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
+    .kiel-chat-message__body .studio-chat-code__copy:hover { transform: translateY(-1px); border-color: #5d626c; background: #303136; color: #f4f4f5; }
+    .kiel-chat-message__body .studio-chat-code__copy:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 2px; }
+    .kiel-chat-message__body .studio-chat-code__copy.is-copied { border-color: rgba(54,211,153,.35); background: rgba(54,211,153,.12); color: #36d399; }
+    .kiel-chat-message__body .studio-chat-code__copy.is-copied svg { display: none; }
+    .kiel-chat-message__body .studio-chat-code__copy.is-copied::before { content: '✓'; font-size: 1rem; font-weight: 800; }
+    .kiel-chat-activity { display: inline-flex; align-items: center; gap: .5rem; color: #9ab0c0; font-size: .82rem; font-style: normal; }
+    .kiel-chat-message--assistant:has(.kiel-chat-activity), .kiel-chat-message--assistant:has(.kiel-chat-activity) .kiel-chat-message__body { width: 100%; max-width: none; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+    .kiel-chat-message--assistant:has(.kiel-chat-activity) > .kiel-chat-message__actions { display: none; }
+    .kiel-chat-activity__dots { display: inline-flex; gap: .18rem; }
+    .kiel-chat-activity__dots span { width: .32rem; height: .32rem; border-radius: 50%; background: #7dd3fc; animation: kiel-chat-activity-pulse 1.1s ease-in-out infinite; }
+    .kiel-chat-activity__dots span:nth-child(2) { animation-delay: .16s; }
+    .kiel-chat-activity__dots span:nth-child(3) { animation-delay: .32s; }
+    @keyframes kiel-chat-activity-pulse { 0%, 60%, 100% { opacity: .3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-2px); } }
+    .kiel-chat-message__body .studio-chat-code pre { margin: 0; padding: .85rem; overflow-x: auto; color: #d4d4d4; font: .82rem/1.55 ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .kiel-chat-message__body .studio-chat-code pre code { display: block; min-width: max-content; }
+    .kiel-chat-composer { padding: .9rem 1.15rem 1.1rem; border-top: 1px solid rgba(125,211,252,.14); background: rgba(9,21,33,.94); }
+      .kiel-chat-composer__box { position: relative; display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: .7rem; max-width: 820px; margin: auto; padding: .55rem; border: 1px solid rgba(125,211,252,.24); border-radius: 12px; background: #101f2e; }
+    .kiel-chat-composer textarea { min-height: 44px; max-height: 180px; resize: vertical; padding: .65rem; border: 0; outline: 0; background: transparent; color: #f8fafc; font: inherit; line-height: 1.5; }
+    .kiel-chat-attachment { position: absolute; top: -3.9rem; right: 4.25rem; z-index: 4; display: none; align-items: center; gap: .35rem; padding: .25rem; border: 1px solid rgba(158,203,255,.22); border-radius: 8px; background: rgba(9,17,32,.94); box-shadow: 0 5px 16px rgba(0,0,0,.22); pointer-events: none; }
+    .kiel-chat-attachment.is-visible { display: flex; }
+    .kiel-chat-attachment img { width: 46px; height: 46px; object-fit: cover; border-radius: 6px; }
+    .kiel-chat-attachment__meta { display: none; }
+    .kiel-chat-attachment__remove { position: absolute; top: -8px; right: -8px; display: grid; width: 18px; height: 18px; place-items: center; padding: 0; border: 1px solid #303136; border-radius: 50%; background: #242528; color: #e5e7eb; font-size: .78rem; line-height: 1; cursor: pointer; pointer-events: auto; }
+    .kiel-chat-attachment__remove:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .kiel-chat-message__image { display: block; width: min(260px, 100%); max-height: 190px; margin: 0 0 .65rem; object-fit: cover; border: 1px solid rgba(158,203,255,.18); border-radius: 10px; }
+    .kiel-chat-search-result { width: min(420px, 100%); margin: .8rem 0; }
+    .kiel-chat-search-result__image { display: block; width: 100%; max-height: 360px; object-fit: contain; border: 1px solid rgba(125,211,252,.2); border-radius: 8px; background: #101f2e; }
+    .kiel-chat-search-result figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem; margin-top: .4rem; color: #9ab0c0; font-size: .75rem; }
+    .kiel-chat-search-result figcaption a { color: #7dd3fc; }
+    .kiel-chat-search-result__description { margin: .45rem 0 0; color: #cbd5df; font-size: .82rem; line-height: 1.5; }
+    .kiel-chat-message__image + .kiel-chat-message__text { display: block; }
+    .kiel-chat-message--user.has-image { gap: .55rem; }
+    .kiel-chat-message--user.has-image .kiel-chat-message__image { width: min(320px, 88%); max-height: 230px; margin: 0; object-fit: cover; border: 1px solid rgba(158,203,255,.22); border-radius: 12px; background: #101f2e; box-shadow: 0 6px 18px rgba(0,0,0,.16); }
+    .kiel-chat-message--user.has-image .kiel-chat-message__body { width: fit-content; padding: .85rem 1rem; border-color: rgba(125,211,252,.24); background: rgba(8,126,164,.18); }
+    .kiel-chat-message--user.has-image .kiel-chat-message__body .kiel-chat-message__image { display: none; }
+    .kiel-chat-message__text { display: contents; }
+    .kiel-chat-composer textarea::placeholder { color: #7890a4; }
+    .kiel-chat-send { align-self: end; min-height: 42px; padding: .65rem 1rem; border: 0; border-radius: 9px; background: #7dd3fc; color: #073b55; font: inherit; font-weight: 800; cursor: pointer; }
+    .kiel-chat-send:disabled { opacity: .55; cursor: wait; }
+    .kiel-chat-composer__hint { max-width: 820px; margin: .45rem auto 0; color: #7890a4; font-size: .68rem; text-align: center; }
+    html[data-theme="light"] body.kiel-chat-page { background: #f3f7fb; color: #172b3d; }
+    html[data-theme="light"] .kiel-chat-shell { background: #fff; border-color: rgba(30,64,90,.16); box-shadow: 0 24px 70px rgba(30,64,90,.13); }
+    html[data-theme="light"] .kiel-chat-sidebar, html[data-theme="light"] .kiel-chat-main { background: #fff; }
+    html[data-theme="light"] .kiel-chat-sidebar { border-right-color: rgba(30,64,90,.14); }
+    html[data-theme="light"] .kiel-chat-sidebar__title, html[data-theme="light"] .kiel-chat-toolbar h1, html[data-theme="light"] .kiel-chat-empty h2 { color: #172b3d; }
+    html[data-theme="light"] .kiel-chat-sidebar__footer, html[data-theme="light"] .kiel-chat-history__empty, html[data-theme="light"] .kiel-chat-toolbar p, html[data-theme="light"] .kiel-chat-empty p, html[data-theme="light"] .kiel-chat-composer__hint { color: #526a7d; }
+    html[data-theme="light"] .kiel-chat-history__item { color: #24536d; }
+    html[data-theme="light"] .kiel-chat-history__item:hover, html[data-theme="light"] .kiel-chat-history__item.is-active { color: #073b55; background: #e2f3fa; border-color: rgba(8,126,164,.24); }
+    html[data-theme="light"] .kiel-chat-toolbar, html[data-theme="light"] .kiel-chat-composer { background: #f6fafc; border-color: rgba(30,64,90,.14); }
+    html[data-theme="light"] .kiel-chat-model, html[data-theme="light"] .kiel-chat-composer__box { color: #172b3d; background: #fff; border-color: rgba(30,64,90,.22); }
+    html[data-theme="light"] .kiel-chat-message__body { color: #172b3d; background: #f6fafc; border-color: rgba(30,64,90,.15); }
+    html[data-theme="light"] .kiel-chat-message--user .kiel-chat-message__body { background: #e2f3fa; border-color: rgba(8,126,164,.24); }
+    html[data-theme="light"] .kiel-chat-message__meta { color: #526a7d; }
+    html[data-theme="light"] .kiel-chat-composer textarea { color: #172b3d; }
+    @media (max-width: 760px) { .kiel-chat-shell { grid-template-columns: 1fr; width: 100%; min-height: 100vh; margin: 0; border-radius: 0; } .kiel-chat-sidebar { max-height: 190px; border-right: 0; border-bottom: 1px solid rgba(125,211,252,.14); } .kiel-chat-history { max-height: 86px; } .kiel-chat-main { min-height: calc(100vh - 190px); } .kiel-chat-toolbar { padding: .75rem; } .kiel-chat-model { max-width: 145px; } }
+
+    /* Focused workspace treatment: quiet rail, centered conversation, floating composer. */
+    body.kiel-chat-page { background: #0d0e0f; overflow: hidden; }
+    .kiel-chat-shell { grid-template-columns: 76px minmax(0,1fr); width: 100%; height: 100vh; min-height: 100vh; margin: 0; border: 0; border-radius: 0; background: #0d0e0f; box-shadow: none; }
+    .kiel-chat-sidebar { box-sizing: border-box; position: relative; z-index: 30; width: 76px; padding: 1rem .75rem; overflow: hidden; background: #0a0b0c; border-right: 1px solid rgba(255,255,255,.06); transition: width .2s ease, box-shadow .2s ease; }
+    .kiel-chat-sidebar.is-expanded { width: 280px; overflow-y: auto; box-shadow: 14px 0 40px rgba(0,0,0,.22); }
+    .kiel-chat-sidebar__top { min-width: 226px; justify-content: flex-start; }
+    .kiel-chat-sidebar__title { display: block; width: 0; overflow: hidden; opacity: 0; white-space: nowrap; transition: width .2s ease, opacity .2s ease; }
+    .kiel-chat-sidebar.is-expanded .kiel-chat-sidebar__title { width: auto; opacity: 1; }
+    .kiel-chat-sidebar__brand { display: grid; width: 2.2rem; height: 2.2rem; flex: 0 0 auto; place-items: center; border-radius: 50%; background: conic-gradient(#35c9f4, #1687ff 42%, #7ce6ff 72%, #35c9f4); color: #fff; font-size: 1.1rem; box-shadow: 0 0 18px rgba(53,201,244,.24); }
+    .kiel-chat-sidebar__top .kiel-chat-icon-button { margin-left: auto; }
+    .kiel-chat-new { min-width: 42px; width: 42px; height: 42px; overflow: hidden; padding: 0; text-align: center; white-space: nowrap; font-size: 0; }
+    .kiel-chat-new::before { content: '+'; font-size: 1.35rem; line-height: 1; }
+    .kiel-chat-sidebar.is-expanded .kiel-chat-new { min-width: 224px; width: 224px; padding: 0 .7rem; text-align: left; font-size: inherit; }
+    .kiel-chat-sidebar.is-expanded .kiel-chat-new::before { content: none; }
+    .kiel-chat-new::first-letter { font-size: 1.2rem; }
+    .kiel-chat-templates-link { display: flex; align-items: center; gap: .55rem; min-width: 224px; width: 224px; min-height: 38px; padding: 0 .7rem; border: 1px solid rgba(255,255,255,.08); border-radius: 9px; background: #151619; color: #cbd0d8; font-size: .78rem; font-weight: 650; text-decoration: none; }
+    .kiel-chat-templates-link:hover { border-color: rgba(125,211,252,.3); background: #202125; color: #fff; }
+    .kiel-chat-templates-link::before { content: '▦'; color: #9ecbff; font-size: 1rem; }
+    .kiel-chat-history { min-width: 224px; width: 224px; opacity: 0; transition: opacity .15s ease; }
+    .kiel-chat-sidebar.is-expanded .kiel-chat-history { opacity: 1; }
+    .kiel-chat-sidebar__footer { min-width: 224px; width: 224px; opacity: 0; }
+    .kiel-chat-sidebar.is-expanded .kiel-chat-sidebar__footer { opacity: 1; }
+    .kiel-chat-sidebar__identity { display: grid; gap: .15rem; }
+    .kiel-chat-sidebar__identity-name { overflow: hidden; color: #e8edf1; font-size: .78rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .kiel-chat-sidebar__identity-email { overflow: hidden; color: #8499ab; font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+    .kiel-chat-main { background: #0d0e0f; }
+    .kiel-chat-toolbar { justify-content: center; min-height: 74px; padding: 1rem 1.5rem; border-bottom: 0; background: #0d0e0f; }
+    .kiel-chat-toolbar__title { display: none; }
+    .kiel-chat-modal { position: fixed; inset: 0; z-index: 100; display: none; place-items: center; padding: 1rem; background: rgba(0,0,0,.62); }
+    .kiel-chat-modal.is-open { display: grid; }
+    .kiel-chat-modal__panel { display: grid; gap: 1rem; width: min(380px, 100%); padding: 1.25rem; border: 1px solid #3b3d42; border-radius: 16px; background: #202124; box-shadow: 0 24px 70px rgba(0,0,0,.45); }
+    .kiel-chat-modal__heading { margin: 0; color: #f4f4f5; font-size: 1.05rem; font-weight: 650; }
+    .kiel-chat-modal__copy { margin: -.5rem 0 0; color: #a1a1aa; font-size: .82rem; line-height: 1.5; }
+    .kiel-chat-modal input { min-height: 42px; box-sizing: border-box; padding: .65rem .75rem; border: 1px solid #4a4c52; border-radius: 9px; outline: 0; background: #121315; color: #f1f2f4; font: inherit; }
+    .kiel-chat-modal__actions { display: flex; justify-content: flex-end; gap: .55rem; }
+    .kiel-chat-modal__actions button { min-height: 36px; padding: .5rem .8rem; border: 1px solid #4a4c52; border-radius: 8px; background: transparent; color: #d4d4d8; font: inherit; cursor: pointer; }
+    .kiel-chat-modal__actions button[type="submit"] { border-color: #7dd3fc; background: #7dd3fc; color: #073b55; font-weight: 750; }
+    .kiel-chat-modal__actions .is-danger { border-color: #e76f70; background: #d95757; color: #fff; font-weight: 750; }
+    html[data-theme="light"] .kiel-chat-modal__panel { border-color: rgba(30,64,90,.18); background: #fff; box-shadow: 0 16px 40px rgba(30,64,90,.18); }
+    html[data-theme="light"] .kiel-chat-modal__heading { color: #172b3d; }
+    html[data-theme="light"] .kiel-chat-modal__copy { color: #526a7d; }
+    html[data-theme="light"] .kiel-chat-modal input { border-color: rgba(30,64,90,.22); background: #f6fafc; color: #172b3d; }
+    html[data-theme="light"] .kiel-chat-modal__actions button { border-color: rgba(30,64,90,.22); color: #24536d; }
+    .kiel-chat-model { max-width: 180px; border: 1px solid rgba(255,255,255,.1); border-radius: 10px; background: #1b1c1e; color: #d5d7dc; box-shadow: 0 5px 18px rgba(0,0,0,.16); }
+    .kiel-chat-messages { padding: 3rem clamp(1rem, 12vw, 10rem) 10rem; background: radial-gradient(circle at 50% 20%, rgba(50,55,65,.1), transparent 42%); }
+    .kiel-chat-empty { min-height: 58vh; }
+    .kiel-chat-empty__mark { width: 2.7rem; height: 2.7rem; border: 0; border-radius: 50%; background: conic-gradient(#35c9f4, #1687ff 42%, #7ce6ff 72%, #35c9f4); color: #fff; }
+    .kiel-chat-empty h2 { color: #f1f2f4; font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 500; }
+    .kiel-chat-empty p { color: #9b9da3; }
+    .kiel-chat-message { max-width: 780px; }
+    .kiel-chat-message__body { background: transparent; border: 0; color: #e0e1e5; line-height: 1.5; }
+    .kiel-chat-message__body p { margin: 0 0 .4rem; }
+    .kiel-chat-message__body h1 { margin: 1.35rem 0 .65rem; }
+    .kiel-chat-message__body h2 { margin: 1.15rem 0 .5rem; }
+    .kiel-chat-message__body h3 { margin: .95rem 0 .4rem; }
+    .kiel-chat-message__body ol, .kiel-chat-message__body ul { margin: .45rem 0 1rem 1.45rem; }
+    .kiel-chat-message__body li { line-height: 1.62; }
+    .kiel-chat-message__body .studio-chat-code { margin: .45rem 0; }
+    .kiel-chat-message__body .studio-chat-code pre { padding: .65rem; line-height: 1.4; }
+    .kiel-chat-message--user .kiel-chat-message__body { padding: .8rem 1.1rem; background: #1b1b1d; border: 0; border-radius: 24px; }
+    .kiel-chat-message--user .kiel-chat-message__body.is-folded { max-height: 6em; overflow: hidden; }
+    .kiel-chat-message__fold-toggle { display: inline-grid; width: 28px; height: 28px; margin: .25rem 0 0; place-items: center; padding: 0; border: 1px solid #3b3d42; border-radius: 50%; background: #1b1c1e; color: #c6c8cc; font: inherit; font-size: 0; cursor: pointer; transition: background .15s ease, color .15s ease, border-color .15s ease; }
+    .kiel-chat-message__fold-toggle::before { content: '⌄'; font-size: 1.1rem; line-height: 1; }
+    .kiel-chat-message__fold-toggle[aria-expanded="true"]::before { content: '⌃'; }
+    .kiel-chat-message__fold-toggle:hover { background: #292a2d; border-color: #565960; color: #fff; }
+    .kiel-chat-message__avatar { background: #25262a; }
+    .kiel-chat-composer { position: fixed; right: 0; bottom: 0; left: 76px; z-index: 5; padding: 1rem clamp(1rem, 12vw, 10rem) 1.4rem; border-top: 0; background: linear-gradient(180deg, transparent, #0d0e0f 32%); }
+    .kiel-chat-composer__box { max-width: 780px; grid-template-columns: auto minmax(0,1fr) auto; align-items: end; gap: .45rem; padding: .55rem .65rem; border: 0; border-radius: 28px; background: #1b1c1e; box-shadow: 0 8px 30px rgba(0,0,0,.22); }
+    .kiel-chat-add-button { display: grid; width: 2.15rem; height: 2.15rem; place-items: center; flex: 0 0 auto; border: 1px solid #3b3d42; border-radius: 50%; background: #292a2d; color: #c6c8cc; font: inherit; font-size: 1.35rem; font-weight: 300; cursor: pointer; }
+    .kiel-chat-add-button:hover, .kiel-chat-add-button[aria-expanded="true"] { background: #36383c; color: #fff; }
+    .kiel-chat-add-menu { position: absolute; bottom: 4.2rem; left: .55rem; z-index: 8; display: none; min-width: 145px; padding: .3rem; border: 1px solid #3b3d42; border-radius: 10px; background: #202125; box-shadow: 0 14px 32px rgba(0,0,0,.34); }
+    .kiel-chat-add-menu.is-open { display: grid; }
+    .kiel-chat-add-menu button { padding: .55rem .65rem; border: 0; border-radius: 7px; background: transparent; color: #e5e7eb; font: inherit; font-size: .78rem; text-align: left; cursor: pointer; }
+    .kiel-chat-add-menu button:hover { background: rgba(255,255,255,.1); }
+    .kiel-chat-file-input { display: none; }
+    .kiel-chat-composer textarea { height: 44px; max-height: 180px; overflow-y: hidden; padding: .55rem .3rem; color: #e8e9ec; }
+    body.kiel-chat-page .kiel-chat-composer textarea:focus,
+    body.kiel-chat-page .kiel-chat-composer textarea:focus-visible { border-color: transparent !important; outline: none !important; box-shadow: none !important; }
+    .kiel-chat-composer__tools { display: flex; align-items: center; gap: .35rem; }
+    .kiel-chat-composer__tools .kiel-chat-model { max-width: 180px; min-height: 36px; }
+    .kiel-chat-send { width: 2.15rem; min-height: 2.15rem; padding: 0; border-radius: 50%; background: #2b2c30; color: #d6d7da; font-size: 0; transition: background .15s ease, color .15s ease, opacity .15s ease; }
+    .kiel-chat-send:not(:disabled) { background: #7dd3fc; color: #073b55; }
+    .kiel-chat-send.is-stop, .kiel-chat-send.is-stop:not(:disabled) { background: #f87171; color: #fff; }
+    .kiel-chat-send:disabled { opacity: .42; cursor: not-allowed; }
+    .kiel-chat-send::after { content: '↑'; font-size: 1.15rem; }
+    .kiel-chat-send.is-stop::after { content: '■'; font-size: .8rem; }
+    .kiel-chat-composer__hint { color: #85878c; }
+    .kiel-chat-message__actions { display: flex; align-items: center; justify-content: flex-start; gap: .12rem; margin-top: .25rem; opacity: .72; }
+    .kiel-chat-message--assistant .kiel-chat-message__body:empty + .kiel-chat-message__actions { display: none; }
+    .kiel-chat-message__action { display: inline-grid; width: 30px; height: 30px; min-height: 30px; padding: 0; place-items: center; border: 0; border-radius: 7px; background: transparent; color: #aeb1b7; font: inherit; cursor: pointer; }
+    .kiel-chat-message__action-icon { display: grid; position: relative; width: 18px; height: 18px; flex: 0 0 18px; place-items: center; font-size: 1.05rem; line-height: 18px; }
+    .kiel-chat-message__action-icon--copy svg { display: block; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .kiel-chat-message__action-icon--edit svg, .kiel-chat-message__action-icon--regenerate svg { display: block; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .kiel-chat-message__action-icon--regenerate svg { fill: currentColor; stroke: none; }
+    .kiel-chat-message__action.is-copied { color: #36d399; background: rgba(54,211,153,.12); }
+    .kiel-chat-message__action.is-copied { position: relative; }
+    .kiel-chat-message__action.is-copied .kiel-chat-message__action-icon--copy svg { visibility: hidden; }
+    .kiel-chat-message__action.is-copied .kiel-chat-message__action-icon--copy::after { position: absolute; top: 0; left: 2px; content: '✓'; font-size: 1rem; font-weight: 900; }
+    .kiel-chat-message__action-label { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .kiel-chat-message__action:hover { color: #f1f2f4; background: #2b2c30; border-color: #565960; }
+    html[data-theme="light"] body.kiel-chat-page { background: #f3f7fb; }
+    html[data-theme="light"] .kiel-chat-shell, html[data-theme="light"] .kiel-chat-main { background: #f3f7fb; }
+    html[data-theme="light"] .kiel-chat-sidebar { background: #eaf2f7; border-color: rgba(30,64,90,.14); }
+    html[data-theme="light"] .kiel-chat-toolbar, html[data-theme="light"] .kiel-chat-composer { background: #f3f7fb; }
+    html[data-theme="light"] .kiel-chat-model { background: #fff; color: #172b3d; }
+    html[data-theme="light"] .kiel-chat-empty h2 { color: #172b3d; }
+    html[data-theme="light"] .kiel-chat-empty p, html[data-theme="light"] .kiel-chat-composer__hint { color: #526a7d; }
+    html[data-theme="light"] .kiel-chat-composer__box { background: #fff; box-shadow: 0 8px 30px rgba(30,64,90,.14); }
+    html[data-theme="light"] .kiel-chat-add-button { color: #24536d; background: #e2f3fa; border-color: rgba(8,126,164,.22); }
+    html[data-theme="light"] .kiel-chat-add-menu { border-color: #d9dce2; background: #fff; box-shadow: 0 14px 32px rgba(15,23,42,.16); }
+    html[data-theme="light"] .kiel-chat-add-menu button { color: #172b3d; }
+    html[data-theme="light"] .kiel-chat-composer textarea { color: #172b3d; }
+    html[data-theme="light"] .kiel-chat-composer__tools .kiel-chat-model { color: #172b3d; background: #f6fafc; border: 1px solid rgba(30,64,90,.18); }
+    html[data-theme="light"] .kiel-chat-message--user .kiel-chat-message__body { background: #e2f3fa; color: #172b3d; }
+    html[data-theme="light"] .kiel-chat-message__action { color: #24536d; border-color: rgba(30,64,90,.2); }
+    html[data-theme="light"] .kiel-chat-message__action:hover { color: #073b55; background: #e2f3fa; border-color: #087ea4; }
+    html[data-theme="light"] .kiel-chat-message__body h1, html[data-theme="light"] .kiel-chat-message__body h2, html[data-theme="light"] .kiel-chat-message__body h3, html[data-theme="light"] .kiel-chat-message__body strong { color: #172b3d; }
+    html[data-theme="light"] .kiel-chat-message__body code:not(pre code) { background: #e2f3fa; color: #17627d; }
+    html[data-theme="light"] .kiel-chat-message__body .studio-chat-code { border-color: rgba(30,64,90,.2); background: #172b3d; }
+    html[data-theme="light"] .kiel-chat-message__body .studio-chat-code__copy { border-color: rgba(30,64,90,.2); background: #f4f7fa; color: #526a7d; }
+    html[data-theme="light"] .kiel-chat-message__body .studio-chat-code__copy:hover { border-color: rgba(8,126,164,.4); background: #e8f4f8; color: #087ea4; }
+    @media (max-width: 760px) { .kiel-chat-shell { display: block; min-height: 100dvh; height: 100dvh; overflow: hidden; } .kiel-chat-sidebar { position: relative; z-index: 20; box-sizing: border-box; width: 100%; height: 76px; max-height: 76px; padding: .65rem .8rem; flex-direction: row; align-items: center; overflow: hidden; transition: height .2s ease, max-height .2s ease, box-shadow .2s ease; } .kiel-chat-sidebar.is-expanded { width: 100%; height: min(55dvh, 390px); max-height: min(55dvh, 390px); flex-direction: column; align-items: stretch; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,.28); } .kiel-chat-sidebar__top { width: auto; min-width: 0; height: 46px; flex: 1 1 auto; } .kiel-chat-sidebar.is-expanded .kiel-chat-sidebar__top { width: 100%; flex: 0 0 46px; } .kiel-chat-sidebar__title { max-width: 12rem; } .kiel-chat-sidebar.is-expanded .kiel-chat-sidebar__title { width: auto; } .kiel-chat-new, .kiel-chat-history, .kiel-chat-sidebar__footer { min-width: 0; } .kiel-chat-new { flex: 0 0 42px; width: 42px; } .kiel-chat-sidebar.is-expanded .kiel-chat-new { min-width: 0; width: 100%; flex: 0 0 42px; margin-top: .55rem; } .kiel-chat-history { display: grid; width: 100%; flex: 1 1 auto; min-height: 0; max-height: none; overflow-y: auto; overscroll-behavior: contain; opacity: 0; pointer-events: none; } .kiel-chat-sidebar.is-expanded .kiel-chat-history { height: 0; flex: 1 1 0%; opacity: 1; pointer-events: auto; } .kiel-chat-sidebar__footer { display: none; } .kiel-chat-main { min-height: calc(100dvh - 76px); height: calc(100dvh - 76px); } .kiel-chat-composer { left: 0; padding-inline: .75rem; } .kiel-chat-composer__tools .kiel-chat-model { max-width: 128px; font-size: .68rem; } }
+    /* Gemini-style response surface: calm prose, semantic hierarchy, and clear code blocks. */
+    .kiel-chat-message--assistant { align-items: flex-start; width: 100%; max-width: 780px; margin-bottom: 2rem; }
+    .kiel-chat-message--assistant .kiel-chat-message__body { width: 100%; max-width: none; padding: 0; border: 0; border-radius: 0; background: transparent; color: #e4e4e7; font-size: .96rem; font-weight: 400; line-height: 1.68; white-space: normal; }
+    .kiel-chat-message--assistant .kiel-chat-message__body p { margin: 0 0 1rem; }
+    .kiel-chat-message--assistant .kiel-chat-message__body h1 { margin: 1rem 0 .45rem; color: #f4f4f5; font-size: 1.5rem; font-weight: 700; line-height: 1.22; }
+    .kiel-chat-message--assistant .kiel-chat-message__body h2 { margin: .85rem 0 .4rem; color: #f4f4f5; font-size: 1.22rem; font-weight: 650; line-height: 1.3; }
+    .kiel-chat-message--assistant .kiel-chat-message__body h3 { margin: .7rem 0 .3rem; color: #e4e4e7; font-size: 1.04rem; font-weight: 600; line-height: 1.35; }
+    .kiel-chat-message--assistant .kiel-chat-message__body p + h1, .kiel-chat-message--assistant .kiel-chat-message__body p + h2, .kiel-chat-message--assistant .kiel-chat-message__body p + h3 { margin-top: .7rem; }
+    .kiel-chat-message--assistant .kiel-chat-message__body strong { padding: 0; background: transparent; color: #f4f4f5; font-weight: 650; }
+    .kiel-chat-message--assistant .kiel-chat-message__body ul, .kiel-chat-message--assistant .kiel-chat-message__body ol { margin: .35rem 0 1.05rem 1.4rem; }
+    .kiel-chat-message--assistant .kiel-chat-message__body li { margin: .42rem 0; padding-left: .25rem; line-height: 1.62; }
+    .kiel-chat-stream-caret { display: inline-block; margin-left: .1em; color: #7dd3fc; animation: kiel-chat-stream-caret 1s steps(2, jump-none) infinite; }
+    @keyframes kiel-chat-stream-caret { 50% { opacity: .25; } }
+    @media (prefers-reduced-motion: reduce) { .kiel-chat-stream-caret { animation: none; } }
+    .kiel-chat-message--assistant .kiel-chat-message__body .studio-chat-code { margin: 1rem 0 1.2rem; border-color: #303136; border-radius: 12px; background: #17181b; }
+    .kiel-chat-message--assistant .kiel-chat-message__body .studio-chat-code__header { padding: .55rem .75rem; background: #202125; color: #a1a1aa; }
+    .kiel-chat-message--assistant .kiel-chat-message__body .studio-chat-code pre { padding: 1rem; font-size: .84rem; line-height: 1.6; }
+    .kiel-chat-message--assistant .kiel-chat-message__body code:not(pre code) { padding: .12em .38em; border-color: #3f4148; border-radius: 5px; background: #27282d; color: #d4d4d8; font-size: .88em; }
+    html[data-theme="light"] .kiel-chat-message--assistant .kiel-chat-message__body { color: #25262a; }
+    html[data-theme="light"] .kiel-chat-message--assistant .kiel-chat-message__body h1, html[data-theme="light"] .kiel-chat-message--assistant .kiel-chat-message__body h2, html[data-theme="light"] .kiel-chat-message--assistant .kiel-chat-message__body h3, html[data-theme="light"] .kiel-chat-message--assistant .kiel-chat-message__body strong { color: #17181b; }
+
+    /* Reference layout: full-bleed Gemini-style workspace with an overlay rail. */
+    body.kiel-chat-page { background: #000; color: #e7e7e7; }
+    .kiel-chat-shell { display: block; position: relative; width: 100%; height: 100dvh; min-height: 100dvh; margin: 0; overflow: hidden; background: #000; }
+    .kiel-chat-sidebar { position: fixed; inset: 0 auto 0 0; z-index: 40; width: min(320px, 86vw); height: 100dvh; min-height: 100dvh; box-sizing: border-box; transform: translateX(-102%); transition: transform .22s ease; background: #1d1d1f; border: 0; box-shadow: 12px 0 40px rgba(0,0,0,.35); }
+    .kiel-chat-sidebar.is-expanded { width: min(320px, 86vw); transform: translateX(0); overflow-y: auto; }
+    .kiel-chat-sidebar::after { content: ''; position: fixed; inset: 0 -100vw 0 100%; z-index: -1; background: rgba(0,0,0,.58); opacity: 0; pointer-events: none; transition: opacity .22s ease; }
+    .kiel-chat-sidebar.is-expanded::after { opacity: 1; pointer-events: auto; }
+    .kiel-chat-sidebar__top { position: relative; min-width: 0; width: 100%; padding: .1rem 0; justify-content: flex-end; }
+    .kiel-chat-home-link { display: grid; place-items: center; text-decoration: none; }
+    .kiel-chat-home-link .service-drawer__link-icon { display: inline-grid; width: 1.25rem; height: 1.25rem; place-items: center; font-size: 1.05rem; line-height: 1; }
+    .kiel-chat-sidebar__brand { display: none; }
+    .kiel-chat-sidebar__title { position: absolute; left: 50%; width: auto; opacity: 1; transform: translateX(-50%); color: #f2f2f2; font-size: 1rem; }
+    .kiel-chat-sidebar__top .kiel-chat-icon-button { margin-left: 0; }
+    .kiel-chat-sidebar__top .kiel-chat-icon-button:last-child { margin-left: auto; }
+    .kiel-chat-new { min-width: 0; width: 100%; height: 44px; font-size: inherit; border: 0; border-radius: 12px; background: #303033; color: #f1f1f1; text-align: left; }
+    .kiel-chat-new::before { content: none; }
+    .kiel-chat-history { min-width: 0; width: 100%; opacity: 1; }
+    .kiel-chat-sidebar__footer { min-width: 0; width: 100%; opacity: 1; }
+    .kiel-chat-main { display: grid; position: relative; grid-template-rows: 64px minmax(0,1fr) auto; width: 100%; height: 100dvh; min-height: 100dvh; background: #000; }
+    .kiel-chat-toolbar { justify-content: center; min-height: 64px; padding: .65rem 1.15rem; border-bottom: 0; background: #000; }
+    .kiel-chat-toolbar > .kiel-chat-sidebar__toggle { position: absolute; top: .7rem; left: .85rem; z-index: 50; border: 0; border-radius: 50%; color: #ddd; font-size: 0; line-height: 0; }
+    .kiel-chat-toolbar > .kiel-chat-sidebar__toggle::after { content: '☰'; font-size: 1.5rem; }
+    .kiel-chat-toolbar__title { display: block; position: absolute; left: 74px; min-width: 0; }
+    .kiel-chat-model--toolbar { display: block; min-height: 38px; width: min(210px, 36vw); max-width: 210px; padding: 0 .65rem; border: 1px solid #343438; border-radius: 10px; outline: 0; background: #171719; color: #f2f2f2; font-size: .93rem; font-weight: 600; box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 4px 16px rgba(0,0,0,.18); }
+    .kiel-chat-model--toolbar:hover, .kiel-chat-model--toolbar:focus { border-color: #5d5d64; background: #202023; }
+    .kiel-chat-model--toolbar option { background: #242426; color: #f2f2f2; }
+    .kiel-chat-toolbar h1 { color: #f2f2f2; font-size: 1rem; font-weight: 600; }
+    .kiel-chat-toolbar p { display: none; }
+    .kiel-chat-messages { padding: 2rem clamp(1rem, 11vw, 9rem) 8rem; background: #000; }
+    .kiel-chat-empty { min-height: 60vh; }
+    .kiel-chat-empty__mark { display: none; }
+    .kiel-chat-empty h2 { color: #f2f2f2; font-size: clamp(1.7rem, 4vw, 2.8rem); font-weight: 500; }
+    .kiel-chat-message { max-width: 780px; }
+    .kiel-chat-message--user .kiel-chat-message__body { background: #252527; border-radius: 22px; color: #f1f1f1; }
+    .kiel-chat-composer { position: relative; right: auto; bottom: auto; left: auto; z-index: 10; width: 100%; box-sizing: border-box; padding: 0 1rem 1rem; background: linear-gradient(180deg, transparent 0%, #000 30%); }
+    .kiel-chat-composer__box { grid-template-columns: auto minmax(0,1fr) auto; max-width: 770px; min-height: 68px; box-sizing: border-box; align-items: center; padding: .6rem .85rem; border: 0; border-radius: 38px; background: #242426; box-shadow: none; }
+    .kiel-chat-add-button { width: 2.5rem; height: 2.5rem; padding: 0; color: #ddd; background: transparent; border: 0; font-size: 2rem; line-height: 1; }
+    .kiel-chat-composer textarea { height: 44px; padding: .6rem .2rem; color: #f1f1f1; font-size: 1rem; }
+    .kiel-chat-composer textarea::placeholder { color: #a6a6aa; }
+    .kiel-chat-composer__tools { display: contents; }
+    .kiel-chat-composer__tools .kiel-chat-model { display: none; }
+    .kiel-chat-send, .kiel-chat-send:not(:disabled) { width: 2.5rem; min-height: 2.5rem; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; background: #303033; color: #f1f1f1; font-size: 0; box-shadow: 0 3px 10px rgba(0,0,0,.18); }
+    .kiel-chat-send:hover, .kiel-chat-send:not(:disabled):hover { border-color: rgba(255,255,255,.34); background: #3a3a3e; }
+    .kiel-chat-send::after { content: '↑'; font-size: 1.45rem; font-weight: 700; }
+    .kiel-chat-send.is-stop::after { content: '■'; font-size: .8rem; }
+    .kiel-chat-composer__hint { margin: .65rem auto 0; color: #a0a0a8; font-size: .78rem; }
+    html[data-theme="light"] body.kiel-chat-page, html[data-theme="light"] .kiel-chat-shell, html[data-theme="light"] .kiel-chat-main, html[data-theme="light"] .kiel-chat-toolbar, html[data-theme="light"] .kiel-chat-messages { background: #f7f8fa; color: #202124; }
+    html[data-theme="light"] .kiel-chat-sidebar { background: #ffffff; border-right: 1px solid #e5e7eb; box-shadow: 12px 0 40px rgba(15,23,42,.12); }
+    html[data-theme="light"] .kiel-chat-sidebar__title, html[data-theme="light"] .kiel-chat-toolbar h1, html[data-theme="light"] .kiel-chat-empty h2 { color: #202124; }
+    html[data-theme="light"] .kiel-chat-model--toolbar { border-color: #d9dce2; background: #ffffff; color: #202124; box-shadow: 0 2px 8px rgba(15,23,42,.08); }
+    html[data-theme="light"] .kiel-chat-model--toolbar option { background: #ffffff; color: #202124; }
+    html[data-theme="light"] .kiel-chat-history__menu { border-color: rgba(30,64,90,.16); background: #fff; box-shadow: 0 12px 28px rgba(30,64,90,.18); }
+    html[data-theme="light"] .kiel-chat-history__menu button { color: #172b3d; }
+    html[data-theme="light"] .kiel-chat-history__menu button[data-menu-action="delete"] { color: #c0392b; }
+    html[data-theme="light"] .kiel-chat-composer { background: linear-gradient(180deg, transparent 0%, #f7f8fa 30%); }
+    html[data-theme="light"] .kiel-chat-composer__box { background: #ffffff; box-shadow: 0 8px 24px rgba(15,23,42,.12); }
+    html[data-theme="light"] .kiel-chat-composer textarea { color: #202124; }
+    html[data-theme="light"] .kiel-chat-composer__hint { color: #6b7280; }
+    html[data-theme="light"] .kiel-chat-message--user .kiel-chat-message__body { background: #e5eefb; color: #202124; }
+    html[data-theme="light"] .kiel-chat-activity { color: #526a7d; }
+    html[data-theme="light"] .kiel-chat-activity__dots span { background: #087ea4; }
+    body.kiel-chat-page .kiel-chat-composer__box { border: 1px solid transparent; transition: border-color .18s ease, box-shadow .18s ease; }
+    body.kiel-chat-page .kiel-chat-composer__box:focus-within { border: 1px solid rgba(125,211,252,.58) !important; box-shadow: 0 0 0 3px rgba(53,201,244,.14), 0 8px 30px rgba(0,0,0,.22); }
+    html[data-theme="light"] body.kiel-chat-page .kiel-chat-composer__box:focus-within { border-color: rgba(8,126,164,.55) !important; box-shadow: 0 0 0 3px rgba(8,126,164,.12), 0 8px 24px rgba(15,23,42,.12); }
+    @media (max-width: 760px) { .kiel-chat-sidebar { width: min(320px, 86vw); height: 100dvh; max-height: none; padding: 1rem; border: 0; } .kiel-chat-sidebar.is-expanded { width: min(320px, 86vw); height: 100dvh; max-height: none; } .kiel-chat-sidebar__top { height: 46px; flex: 0 0 46px; } .kiel-chat-new { flex: 0 0 44px; width: 100%; margin-top: .75rem; } .kiel-chat-history { height: auto; flex: 1 1 auto; width: 100%; max-height: none; } .kiel-chat-sidebar__footer { display: block; flex: 0 0 auto; max-height: none; margin-top: auto; padding-top: .75rem; opacity: 1; } .kiel-chat-main { height: 100dvh; min-height: 100dvh; } .kiel-chat-toolbar__title { left: 4.5rem; } .kiel-chat-messages { padding-inline: 1rem; } .kiel-chat-composer { padding-inline: .6rem; } }
+  </style>
+</head>
+<body class="kiel-chat-page">
+  <div class="kiel-chat-shell">
+    <aside class="kiel-chat-sidebar" aria-label="Chat history">
+      <div class="kiel-chat-sidebar__top"><span class="kiel-chat-sidebar__brand" aria-hidden="true">✦</span><strong class="kiel-chat-sidebar__title">Kiel</strong><a class="kiel-chat-icon-button kiel-chat-home-link" href="index.html" aria-label="Back to home" title="Back to home"><span class="service-drawer__link-icon service-drawer__link-icon--home" aria-hidden="true">🏠</span></a></div>
+      <button id="kielChatNew" class="kiel-chat-new" type="button">＋ New chat</button>
+      <a class="kiel-chat-templates-link" href="chat-templates.html">Templates</a>
+      <div id="kielChatHistory" class="kiel-chat-history" aria-live="polite"><div class="kiel-chat-history__empty">Your conversations will appear here.</div></div>
+      <div class="kiel-chat-sidebar__footer"><div class="kiel-chat-sidebar__identity"><strong id="kielChatUserName" class="kiel-chat-sidebar__identity-name">Signed-in user</strong><span id="kielChatUserEmail" class="kiel-chat-sidebar__identity-email">Loading account...</span></div></div>
+    </aside>
+    <main class="kiel-chat-main">
+      <header class="kiel-chat-toolbar"><button id="kielChatSidebarToggle" class="kiel-chat-icon-button kiel-chat-sidebar__toggle" type="button" aria-label="Expand chat navigation" title="Open chat sessions" aria-expanded="false"></button><div class="kiel-chat-toolbar__title"><h1 id="kielChatTitle" hidden>New chat</h1><div class="kiel-chat-model-picker kiel-chat-model-picker--toolbar"><select id="kielChatModel" class="kiel-chat-model" aria-hidden="true" tabindex="-1"><option value="">Loading models...</option></select><button class="kiel-chat-model-picker__trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Select AI model"><span class="kiel-chat-model-picker__label">Loading models...</span><span class="kiel-chat-model-picker__chevron" aria-hidden="true">▾</span></button><div class="kiel-chat-model-picker__menu" role="listbox" aria-label="AI models" hidden></div></div></div></header>
+      <form id="kielChatRenamePopover" class="kiel-chat-modal" aria-labelledby="kielChatRenameHeading"><div class="kiel-chat-modal__panel" role="dialog" aria-modal="true"><h2 id="kielChatRenameHeading" class="kiel-chat-modal__heading">Rename conversation</h2><p class="kiel-chat-modal__copy">Choose a clear name for this conversation.</p><input id="kielChatRenameInput" type="text" maxlength="120" placeholder="Conversation name" aria-label="Conversation name"><div class="kiel-chat-modal__actions"><button id="kielChatRenameCancel" type="button">Cancel</button><button type="submit">Save name</button></div></div></form>
+      <div id="kielChatDeleteModal" class="kiel-chat-modal" aria-labelledby="kielChatDeleteHeading" hidden><div class="kiel-chat-modal__panel" role="dialog" aria-modal="true"><h2 id="kielChatDeleteHeading" class="kiel-chat-modal__heading">Delete conversation?</h2><p class="kiel-chat-modal__copy">This conversation and its messages will be permanently removed.</p><div class="kiel-chat-modal__actions"><button type="button" data-delete-cancel>Cancel</button><button type="button" class="is-danger" data-delete-confirm>Delete conversation</button></div></div></div>
+      <section id="kielChatMessages" class="kiel-chat-messages" aria-live="polite"><div class="kiel-chat-empty"><div class="kiel-chat-empty__mark" aria-hidden="true">✦</div><h2>Ask me, Anything</h2><p>Ask Kiel to reason, explain code, review an idea, or help shape your next production request.</p></div></section>
+      <form id="kielChatComposer" class="kiel-chat-composer"><div class="kiel-chat-composer__box"><button id="kielChatAddButton" class="kiel-chat-add-button" type="button" aria-label="Add attachment" aria-expanded="false" title="Add attachment">+</button><div id="kielChatAddMenu" class="kiel-chat-add-menu"><button id="kielChatUploadButton" type="button">Upload image</button></div><input id="kielChatFileInput" class="kiel-chat-file-input" type="file" accept="image/png,image/jpeg,image/webp"><div id="kielChatAttachment" class="kiel-chat-attachment"><img id="kielChatAttachmentImage" alt="Attached image preview"><div class="kiel-chat-attachment__meta"><strong id="kielChatAttachmentName">Attached image</strong><span>Image will be sent with this prompt</span></div><button id="kielChatAttachmentRemove" class="kiel-chat-attachment__remove" type="button" aria-label="Remove attached image" title="Remove image">×</button></div><textarea id="kielChatInput" rows="1" placeholder="Ask Kiel" aria-label="Message Kiel"></textarea><div class="kiel-chat-composer__tools"><button id="kielChatSend" class="kiel-chat-send" type="submit">Send</button></div></div><p class="kiel-chat-composer__hint">Kiel is AI and can make mistakes.</p></form>
+    </main>
+  </div>
+  <script src="script.js?v=20261020-chat-modern-code-copy"></script>
+  <script>
+    (() => {
+      const apiBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000' : window.location.origin;
+      const token = () => localStorage.getItem('kieltechToken') || '';
+      const headers = () => ({ 'Content-Type': 'application/json', ...(token() ? { Authorization: `Bearer ${token()}` } : {}) });
+      const state = { conversation: null, messages: [], busy: false, editingIndex: null, reader: null, activity: 'Thinking', activityStartedAt: 0, userLabel: 'Anything', responseWatchdog: null, responseController: null, responseTimedOut: false, responseStopped: false, attachment: null, lastSentImage: null, lastContextMessageId: null, streamQueue: [], streamPendingLength: 0, streamTimer: null, streamAssistant: null, streamDone: null };
+      const chatSystemInstructions = 'You are a careful STEM tutor and technical assistant. For mathematics, physics, and chemistry: verify calculations and every equality before stating a result; show the essential steps; define symbols and assumptions; preserve significant figures and units; distinguish exact values from approximations; and say when information is insufficient instead of inventing a result. Write every equation using explicit LaTeX: inline math in $...$ and display math on its own line in $$...$$. Use braces for multi-character exponents and subscripts (x^{n+1}, a_{out}); never flatten powers or subscripts into adjacent digits. In physics, use consistent SI units, state sign/direction conventions when relevant, and check dimensional consistency. In chemistry, use standard formulae, balance reactions and charge, distinguish coefficients from subscripts, and show physical states or conditions when relevant. Do not use Markdown code fences for equations. Keep prose outside math delimiters, and explain ambiguity before solving.';
+      const originalFetch = window.fetch.bind(window);
+      const trackedFetch = async (...args) => { const url = String(args[0] || ''); const isChatCompletion = url.includes('/v1/chat/completions'); const isConversationRequest = isChatCompletion || url.includes('/v1/vision/analysis'); if (isConversationRequest) { const options = args[1] || {}; try { const body = JSON.parse(options.body || '{}'); const lastUserMessage = [...state.messages].reverse().find((item) => item.role === 'user'); body.conversation_id = body.conversation_id || state.conversation?.id; body.context_message_id = body.context_message_id || lastUserMessage?.id || state.lastContextMessageId; state.lastContextMessageId = body.context_message_id || state.lastContextMessageId; args[1] = { ...options, body: JSON.stringify(body) }; } catch (_) {} } if (isChatCompletion) { state.responseController = new AbortController(); args[1] = { ...(args[1] || {}), signal: state.responseController.signal }; } try { return await originalFetch(...args); } catch (error) { if (isChatCompletion && state.responseTimedOut) return new Response('', { status: 200 }); if (isChatCompletion) throw new Error('Something went wrong, check your internet connection and try again'); throw error; } };
+      window.fetch = async (...args) => { const url = String(args[0] || ''); if (state.busy && url.includes('/v1/chat/completions') && !state.responseWatchdog) startResponseWatchdog(); const response = await trackedFetch(...args); if (state.busy && url.includes('/v1/chat/completions') && !response.ok) { const data = await response.clone().json().catch(() => ({})); throw new Error(customerFacingError(data.detail || data.error, `The AI service couldn’t complete the request (error ${response.status}). Please try again.`)); } if (state.busy && url.includes('/v1/chat/completions') && response.ok) { state.activity = 'Preparing response'; renderMessages(); } if (state.busy && response.body) { const getReader = response.body.getReader.bind(response.body); response.body.getReader = () => { state.reader = getReader(); return state.reader; }; } return response; };
+      const sidebar = document.querySelector('.kiel-chat-sidebar');
+      const history = document.getElementById('kielChatHistory');
+      const messages = document.getElementById('kielChatMessages');
+      const applyLongMessageFolds = () => { messages.querySelectorAll('.kiel-chat-message--user').forEach((article) => { const body = article.querySelector('.kiel-chat-message__body'); if (!body) return; const lineCount = Math.max((body.textContent || '').split(/\r?\n/).length, body.querySelectorAll('br').length + 1); const toggle = article.querySelector('.kiel-chat-message__fold-toggle'); if (lineCount <= 4) { body.classList.remove('is-folded'); toggle?.remove(); return; } const expanded = article.dataset.foldExpanded === 'true'; body.classList.toggle('is-folded', !expanded); if (!toggle) body.insertAdjacentHTML('afterend', `<button class="kiel-chat-message__fold-toggle" type="button" aria-expanded="${expanded}" aria-label="${expanded ? 'Collapse message' : 'Expand full message'}" title="${expanded ? 'Collapse message' : 'Expand full message'}"></button>`); }); };
+      const messageScrollObserver = new MutationObserver(() => { applyLongMessageFolds(); window.requestAnimationFrame(() => { messages.scrollTop = messages.scrollHeight; }); });
+      messageScrollObserver.observe(messages, { childList: true, subtree: true, characterData: true });
+      window.setInterval(applyLongMessageFolds, 500);
+      const input = document.getElementById('kielChatInput');
+      const send = document.getElementById('kielChatSend');
+      const model = document.getElementById('kielChatModel');
+      const modelSelectors = [model].map((select) => {
+        const picker = select.closest('.kiel-chat-model-picker');
+        return {
+          select,
+          picker,
+          trigger: picker.querySelector('.kiel-chat-model-picker__trigger'),
+          label: picker.querySelector('.kiel-chat-model-picker__label'),
+          menu: picker.querySelector('.kiel-chat-model-picker__menu')
+        };
+      });
+      const title = document.getElementById('kielChatTitle');
+      const userName = document.getElementById('kielChatUserName');
+      const userEmail = document.getElementById('kielChatUserEmail');
+      const composer = document.getElementById('kielChatComposer');
+      const attachment = document.getElementById('kielChatAttachment');
+      const attachmentImage = document.getElementById('kielChatAttachmentImage');
+      const attachmentName = document.getElementById('kielChatAttachmentName');
+      const addButton = document.getElementById('kielChatAddButton');
+      const addMenu = document.getElementById('kielChatAddMenu');
+      const fileInput = document.getElementById('kielChatFileInput');
+      const renamePopover = document.getElementById('kielChatRenamePopover');
+      const renameInput = document.getElementById('kielChatRenameInput');
+      const deleteModal = document.getElementById('kielChatDeleteModal');
+      let pendingDeleteId = null;
+      const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+      const customerFacingError = (error, fallback = 'Please try again in a moment. If the problem continues, check your connection and try again.') => {
+        let value = error;
+        for (let depth = 0; depth < 3; depth += 1) {
+          if (typeof value === 'string') {
+            const message = value.trim();
+            return message && message !== '[object Object]' && !message.startsWith('{') ? message : fallback;
+          }
+          if (!value || typeof value !== 'object') return fallback;
+          value = value.message || value.detail || value.error || value.reason;
+        }
+        return fallback;
+      };
+      const request = async (path, options = {}) => { const response = await fetch(`${apiBase}${path}`, { ...options, headers: { ...headers(), ...(options.headers || {}) }, credentials: 'include' }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(customerFacingError(data.detail || data.error, 'We couldn’t complete that request. Please try again in a moment.')); return data; };
+      const populateModelSelectors = async () => {
+        const data = await request('/v1/models/catalog', { cache: 'no-store' });
+        const models = Array.isArray(data.models)
+          ? data.models.filter((item) => item?.model_id && item?.display_name && item?.category && item.is_chat_available === true)
+          : [];
+        const options = models.map((item) => {
+          const option = document.createElement('option');
+          const category = item.category === 'image-understanding' ? 'multimodal' : item.category;
+          const supportedCategory = ['text-generation', 'image-understanding', 'multimodal'].includes(item.category);
+          const available = item.is_configured === true && item.is_ready === true && supportedCategory;
+          option.value = item.model_id;
+          option.textContent = item.display_name;
+          option.disabled = !available;
+          option.dataset.category = category;
+          option.dataset.displayName = item.display_name;
+          return option;
+        });
+        const previousSelection = model.value && options.some((option) => option.value === model.value && !option.disabled)
+          ? model.value
+          : '';
+        const defaultSelection = options.find((option) => !option.disabled)?.value || '';
+        modelSelectors.forEach(({ select, menu }) => {
+          select.replaceChildren(...options.map((option) => option.cloneNode(true)));
+          select.value = previousSelection || defaultSelection;
+          menu.replaceChildren();
+          options.forEach((option) => {
+            const choice = document.createElement('button');
+            choice.type = 'button';
+            choice.className = 'kiel-chat-model-picker__option';
+            choice.setAttribute('role', 'option');
+            choice.dataset.modelValue = option.value;
+            choice.disabled = option.disabled;
+            choice.setAttribute('aria-selected', String(option.value === select.value));
+            const heading = document.createElement('span');
+            heading.className = 'kiel-chat-model-picker__option-heading';
+            const name = document.createElement('span');
+            name.className = 'kiel-chat-model-picker__option-name';
+            name.textContent = option.textContent;
+            const check = document.createElement('span');
+            check.className = 'kiel-chat-model-picker__option-check';
+            check.setAttribute('aria-hidden', 'true');
+            check.textContent = '✓';
+            heading.append(name, check);
+            choice.append(heading);
+            const capability = models.find((item) => item.model_id === option.value)?.chat_capability?.trim();
+            if (capability) {
+              const description = document.createElement('span');
+              description.className = 'kiel-chat-model-picker__option-capability';
+              description.textContent = capability;
+              choice.append(description);
+            }
+            menu.append(choice);
+          });
+        });
+        updateModelPickerLabels();
+        updateSendState();
+      };
+      const updateModelPickerLabels = () => {
+        modelSelectors.forEach(({ select, label, menu }) => {
+          const selected = [...select.options].find((option) => option.value === select.value && !option.disabled);
+          label.textContent = selected?.dataset.displayName || 'No model selected';
+          menu.querySelectorAll('[role="option"]').forEach((option) => {
+            option.setAttribute('aria-selected', String(option.dataset.modelValue === select.value));
+          });
+        });
+      };
+      const showModelCatalogError = (error) => {
+        console.error('Unable to load the Kiel model catalog:', error);
+        modelSelectors.forEach(({ select, label, menu, trigger }) => {
+          const unavailable = document.createElement('option');
+          unavailable.value = '';
+          unavailable.disabled = true;
+          unavailable.textContent = 'Model catalog unavailable';
+          select.replaceChildren(unavailable);
+          label.textContent = 'Models unavailable';
+          trigger.disabled = true;
+          menu.replaceChildren();
+        });
+        updateSendState();
+      };
+      const emptyChatMarkup = () => `<div class="kiel-chat-empty"><div class="kiel-chat-empty__mark" aria-hidden="true">✦</div><h2>Ask me, ${escapeHtml(state.userLabel)}</h2><p>Ask Kiel to reason, explain code, review an idea, or help shape your next production request.</p></div>`;
+      const updateSendState = () => { const generating = state.busy; send.disabled = generating ? false : !input.value.trim() || !model.value; send.classList.toggle('is-stop', generating); send.textContent = generating ? 'Stop' : 'Send'; send.setAttribute('aria-label', generating ? 'Stop generating response' : 'Send message'); send.title = generating ? 'Stop generating response' : 'Send message'; };
+      const normalizeAssistantContent = (content) => { const raw = String(content || ''); if (raw.trim() === 'No response returned.' || (state.responseTimedOut && !raw.trim())) return 'Something went wrong, Please try again.'; return raw.replace(/^\s*assistant\s*:\s*/i, '').trimStart(); };
+      const formatAssistantContent = (content) => {
+        const normalized = normalizeAssistantContent(content).replace(/I found this image on Wikimedia Commons\. It was not generated by AI\.\s*(?:License:\s*[^.\n]+\.\s*)?/gi, 'Here is an image that matches your request.\n\n');
+        if (!normalized) return state.busy ? activityMarkup() : 'No response returned.';
+        state.activity = 'Preparing response';
+        const renderMarkdown = (value) => {
+          const html = typeof window.parseMarkdown === 'function' ? window.parseMarkdown(value) : escapeHtml(value).replace(/\n/g, '<br>');
+          return html
+            .replace(/(<\/li>)(?:\s*<br\s*\/?>)+(\s*<\/(?:ul|ol)>)/gi, '$1$2')
+            .replace(/(?:<br\s*\/?>\s*)+(?=<(?:ul|ol|dl)\b)/gi, '');
+        };
+        const markerPattern = /\[\[kieltech-image-result\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)(?:\|([^\]]*))?\]\]/g;
+        let markup = '';
+        let cursor = 0;
+        for (const match of normalized.matchAll(markerPattern)) {
+          markup += renderMarkdown(normalized.slice(cursor, match.index));
+          try {
+            const imageUrl = decodeURIComponent(match[1]);
+            const sourceUrl = decodeURIComponent(match[2]);
+            const title = decodeURIComponent(match[3]);
+            const license = decodeURIComponent(match[4]);
+            const artist = decodeURIComponent(match[5]);
+            const description = decodeURIComponent(match[6] || '');
+            if (!imageUrl.startsWith('https://') || !sourceUrl.startsWith('https://')) {
+              markup += escapeHtml(match[0]);
+            } else {
+              const needsAttribution = !/public\s*domain|cc0/i.test(license);
+              const attribution = needsAttribution ? `<figcaption><span>${escapeHtml(license)} · ${escapeHtml(artist)}</span><a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer" aria-label="View source: ${escapeHtml(title)}" title="${escapeHtml(title)}">View source</a></figcaption>` : '';
+              const imageDescription = description ? `<p class="kiel-chat-search-result__description">${escapeHtml(description)}</p>` : '';
+              markup += `<figure class="kiel-chat-search-result"><a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer"><img class="kiel-chat-search-result__image" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(title)}" loading="lazy" referrerpolicy="no-referrer"></a>${imageDescription}${attribution}</figure>`;
+            }
+          } catch (_) {
+            markup += escapeHtml(match[0]);
+          }
+          cursor = match.index + match[0].length;
+        }
+        return `${markup}${renderMarkdown(normalized.slice(cursor))}${state.streamAssistant && state.streamAssistant.content === content ? '<span class="kiel-chat-stream-caret" aria-hidden="true">▍</span>' : ''}`;
+      };
+      const renderAssistantContent = (content) => content ? formatAssistantContent(content) : activityMarkup();
+      const activityMarkup = () => `<span class="kiel-chat-activity" role="status"><span class="kiel-chat-activity__dots" aria-hidden="true"><span></span><span></span><span></span></span><span>${escapeHtml(state.activity)}...</span></span>`;
+      const startResponseWatchdog = () => { window.clearTimeout(state.responseWatchdog); state.responseTimedOut = false; state.activityStartedAt = Date.now(); state.responseWatchdog = window.setTimeout(() => { const assistant = [...state.messages].reverse().find((item) => item.role === 'assistant'); if (assistant && !assistant.content.trim()) { state.responseTimedOut = true; assistant.content = 'Something went wrong, Please try again.'; renderMessages(); state.responseController?.abort(); state.reader?.cancel(); } state.responseWatchdog = null; }, 45000); };
+      const stopResponseWatchdog = () => { window.clearTimeout(state.responseWatchdog); state.responseWatchdog = null; state.responseController = null; state.responseTimedOut = false; state.activityStartedAt = 0; };
+      const responseUiCleanup = window.setInterval(() => { const activity = messages.querySelector('.kiel-chat-activity'); if (activity) { if (!state.activityStartedAt) state.activityStartedAt = Date.now(); const elapsed = Date.now() - state.activityStartedAt; const stages = [[0, 'Reading your conversation'], [1800, 'Thinking through your request'], [4000, 'Planning a response'], [7000, 'Writing a careful answer'], [12000, 'Finishing the response']]; const nextActivity = [...stages].reverse().find(([after]) => elapsed >= after)?.[1] || stages[0][1]; state.activity = nextActivity; const label = activity.querySelector(':scope > span:last-child'); if (label && label.textContent !== `${nextActivity}...`) label.textContent = `${nextActivity}...`; } else if (!state.busy) { state.activityStartedAt = 0; } if (!state.busy && activity) { stopResponseWatchdog(); state.activity = 'Thinking'; renderMessages(); } const emptyGreeting = messages.querySelector('.kiel-chat-empty h2'); if (!state.messages.length && emptyGreeting) emptyGreeting.textContent = `Ask me, ${state.userLabel || 'Anything'}`; }, 100);
+      const setActivity = (activity) => { state.activity = activity; renderMessages(); };
+      const renderEmptyMessages = () => { messages.innerHTML = emptyChatMarkup(); };
+      const decorateMessageAttachments = () => { const userMessages = state.messages.filter((item) => item.role === 'user'); messages.querySelectorAll('.kiel-chat-message--user').forEach((article, index) => { const item = userMessages[index]; if (!item?.image) return; article.classList.add('has-image'); let image = article.querySelector(':scope > .kiel-chat-message__image'); if (!image) { image = article.querySelector('.kiel-chat-message__body .kiel-chat-message__image'); if (image) article.prepend(image); } if (!image) { image = document.createElement('img'); image.className = 'kiel-chat-message__image'; image.src = item.image; image.alt = item.image_name || item.imageName || 'Attached image'; article.prepend(image); } }); };
+      window.setInterval(() => { if (state.busy && state.attachment && !state.lastSentImage) state.lastSentImage = { image:state.attachment.image, name:state.attachment.name }; if (state.messages.length) { decorateMessageAttachments(); if (state.lastSentImage) { const userArticles = messages.querySelectorAll('.kiel-chat-message--user'); const lastArticle = userArticles[userArticles.length - 1]; if (lastArticle && !lastArticle.querySelector(':scope > .kiel-chat-message__image')) { const image = document.createElement('img'); image.className = 'kiel-chat-message__image'; image.src = state.lastSentImage.image; image.alt = state.lastSentImage.name || 'Attached image'; lastArticle.prepend(image); state.lastSentImage = null; } } } }, 100);
+      const renderMessages = () => { if (!state.messages.length) { messages.innerHTML = '<div class="kiel-chat-empty"><div class="kiel-chat-empty__mark" aria-hidden="true">✦</div><h2>Ask me, Anything</h2><p>Ask Kiel to reason, explain code, review an idea, or help shape your next production request.</p></div>'; return; } messages.innerHTML = state.messages.map((item, index) => { const actions = item.role === 'user' ? `<div class="kiel-chat-message__actions"><button class="kiel-chat-message__action" type="button" data-chat-copy="${index}" aria-label="Copy message" title="Copy message"><span class="kiel-chat-message__action-icon kiel-chat-message__action-icon--copy" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span><span class="kiel-chat-message__action-label">Copy</span></button><button class="kiel-chat-message__action" type="button" data-chat-edit="${index}" aria-label="Edit message" title="Edit message"><span class="kiel-chat-message__action-icon kiel-chat-message__action-icon--edit" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></span><span class="kiel-chat-message__action-label">Edit</span></button></div>` : `<div class="kiel-chat-message__actions"><button class="kiel-chat-message__action" type="button" data-chat-regenerate="${index}" aria-label="Regenerate response" title="Regenerate response"><span class="kiel-chat-message__action-icon kiel-chat-message__action-icon--regenerate" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 7.93 9h-2.02A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35Z"/></svg></span><span class="kiel-chat-message__action-label">Regenerate</span></button><button class="kiel-chat-message__action" type="button" data-chat-copy="${index}" aria-label="Copy response" title="Copy response"><span class="kiel-chat-message__action-icon kiel-chat-message__action-icon--copy" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span><span class="kiel-chat-message__action-label">Copy</span></button></div>`; const rendered = item.role === 'assistant' ? formatAssistantContent(item.content) : escapeHtml(item.content).replace(/\n/g, '<br>'); return `<article class="kiel-chat-message kiel-chat-message--${item.role}" aria-label="${item.role === 'user' ? 'User message' : 'Assistant response'}"><div class="kiel-chat-message__body">${rendered}</div>${actions}</article>`; }).join(''); messages.scrollTop = messages.scrollHeight; };
+      const renderHistory = (items) => { history.innerHTML = items.length ? items.map((item) => { const conversationTitle = typeof item.title === 'string' && !item.title.includes('isTrusted') ? item.title : 'New chat'; const id = escapeHtml(item.id); return `<div class="kiel-chat-history__item ${state.conversation?.id === item.id ? 'is-active' : ''}" data-chat-id="${id}"><button class="kiel-chat-history__item-open" type="button" data-open-chat="${id}"><span class="kiel-chat-history__item-title">${escapeHtml(conversationTitle)}</span></button><button class="kiel-chat-history__item-menu-button" type="button" data-chat-menu="${id}" aria-label="More actions for ${escapeHtml(conversationTitle)}" aria-expanded="false" title="More actions">&#8943;</button><span class="kiel-chat-history__menu" data-chat-menu-panel="${id}" hidden><button type="button" data-menu-action="rename" data-chat-id="${id}">Rename</button><button type="button" data-menu-action="delete" data-chat-id="${id}">Delete</button></span></div>`; }).join('') : '<div class="kiel-chat-history__empty">Your conversations will appear here.</div>'; };
+      const sidebarToggle = document.getElementById('kielChatSidebarToggle');
+      const closeSidebar = () => { sidebar.classList.remove('is-expanded'); sidebarToggle?.setAttribute('aria-expanded', 'false'); sidebarToggle?.setAttribute('aria-label', 'Expand chat navigation'); if (sidebarToggle) sidebarToggle.title = 'Open chat sessions'; };
+      sidebarToggle?.addEventListener('click', () => { const expanded = sidebar.classList.toggle('is-expanded'); sidebarToggle.setAttribute('aria-expanded', String(expanded)); sidebarToggle.setAttribute('aria-label', expanded ? 'Collapse chat navigation' : 'Expand chat navigation'); sidebarToggle.title = expanded ? 'Close chat sessions' : 'Open chat sessions'; });
+      document.addEventListener('click', (event) => { if (sidebar.classList.contains('is-expanded') && !sidebar.contains(event.target) && !event.target.closest('#kielChatSidebarToggle')) closeSidebar(); });
+      let conversations = [];
+      const loadConversations = async () => { const data = await request('/v1/chat/conversations'); conversations = data.conversations || []; renderHistory(conversations); if (!state.conversation && conversations.length) { const lastOpenedId = localStorage.getItem('kielChatLastOpenedId'); const lastOpened = conversations.find((conversation) => conversation.id === lastOpenedId); await openConversation(lastOpened?.id || conversations[0].id); } };
+      const openConversation = async (id) => { const data = await request(`/v1/chat/conversations/${encodeURIComponent(id)}`); state.conversation = data; state.messages = data.messages || []; state.lastContextMessageId = null; localStorage.setItem('kielChatLastOpenedId', data.id); title.textContent = data.title || 'New chat'; const savedModel = [...model.options].find((option) => option.value === data.model && !option.disabled); const selectedModel = savedModel || [...model.options].find((option) => option.value === model.value && !option.disabled) || [...model.options].find((option) => !option.disabled); model.value = selectedModel?.value || ''; updateModelPickerLabels(); updateSendState(); renderMessages(); renderHistory(conversations); };
+      const createConversation = async (conversationTitle = 'New chat') => { if (typeof conversationTitle !== 'string' || !conversationTitle.trim()) conversationTitle = 'New chat'; const data = await request('/v1/chat/conversations', { method:'POST', body: JSON.stringify({ title: conversationTitle.slice(0, 120), model: model.value }) }); state.conversation = data; state.messages = []; state.lastContextMessageId = null; title.textContent = data.title || conversationTitle; renderMessages(); await loadConversations(); };
+      const ensureConversation = async () => { const nextTitle = input.value.trim().slice(0, 120); if (!state.conversation) { await createConversation(nextTitle); return; } if (!state.messages.length && state.conversation.title === 'New chat' && nextTitle) { await request(`/v1/chat/conversations/${encodeURIComponent(state.conversation.id)}`, { method:'PATCH', body:JSON.stringify({ title: nextTitle }) }); state.conversation.title = nextTitle; title.textContent = nextTitle; await loadConversations(); } };
+      const startNewChat = () => { state.conversation = null; state.messages = []; state.lastContextMessageId = null; state.editingIndex = null; title.textContent = 'New chat'; input.value = ''; renderMessages(); updateSendState(); closeSidebar(); input.focus(); };
+      const clearAttachment = () => { state.attachment = null; attachment?.classList.remove('is-visible'); if (attachmentImage) attachmentImage.removeAttribute('src'); if (attachmentName) attachmentName.textContent = 'Attached image'; };
+      const setAttachment = (data) => { if (!data?.image) return; state.attachment = data; if (attachmentImage) attachmentImage.src = data.image; if (attachmentName) attachmentName.textContent = data.name || 'Attached image'; attachment?.classList.add('is-visible'); if (data.model && [...model.options].some((option) => option.value === data.model && !option.disabled)) { model.value = data.model; updateModelPickerLabels(); updateSendState(); } };
+      const closeAddMenu = () => { addMenu?.classList.remove('is-open'); addButton?.setAttribute('aria-expanded', 'false'); };
+      addButton?.addEventListener('click', (event) => { event.stopPropagation(); const isOpen = addMenu?.classList.toggle('is-open'); addButton.setAttribute('aria-expanded', String(Boolean(isOpen))); });
+      document.addEventListener('click', (event) => { if (addMenu?.classList.contains('is-open') && !addMenu.contains(event.target) && event.target !== addButton) closeAddMenu(); });
+      document.getElementById('kielChatUploadButton')?.addEventListener('click', () => { closeAddMenu(); fileInput?.click(); });
+      fileInput?.addEventListener('change', () => { const file = fileInput.files?.[0]; if (!file) return; if (file.size > 6 * 1024 * 1024) { window.alert('Choose an image smaller than 6 MB.'); fileInput.value = ''; return; } const reader = new FileReader(); reader.onload = () => setAttachment({ image: String(reader.result), name: file.name }); reader.readAsDataURL(file); fileInput.value = ''; });
+      const saveMessage = async (role, content, replaceMessageId = null, imageAttachment = null) => { const truncateAfterMessageId = role === 'assistant' ? state.lastContextMessageId : null; const saved = await request(`/v1/chat/conversations/${encodeURIComponent(state.conversation.id)}/messages`, { method:'POST', body: JSON.stringify({ role, content, model: model.value, ...(replaceMessageId ? { replace_message_id: replaceMessageId } : {}), ...(truncateAfterMessageId ? { truncate_after_message_id: truncateAfterMessageId } : {}), ...(imageAttachment?.image?.startsWith('data:image/') ? { image: imageAttachment.image, image_name: imageAttachment.name || 'Attached image' } : {}) }) }); if (role === 'user') { state.lastContextMessageId = saved.id; const currentUser = [...state.messages].reverse().find((item) => item.role === 'user' && item.content === content); if (currentUser) currentUser.id = saved.id; } return saved; };
+      const copyText = async (value) => { await navigator.clipboard?.writeText(value); };
+      const streamAssistantDelta = (assistant, delta) => {
+        delta = String(delta || '');
+        if (!delta) return;
+        if (state.streamAssistant !== assistant) {
+          state.streamQueue = [];
+          state.streamPendingLength = 0;
+          state.streamAssistant = assistant;
+        }
+        state.streamQueue.push(delta);
+        state.streamPendingLength += delta.length;
+        if (state.streamTimer) return;
+        const revealNext = () => {
+          const revealLength = Math.min(state.streamPendingLength, Math.max(16, Math.ceil(state.streamPendingLength / 6)));
+          let remaining = revealLength;
+          let visible = '';
+          while (remaining > 0 && state.streamQueue.length) {
+            const segment = state.streamQueue[0];
+            const take = Math.min(remaining, segment.length);
+            visible += segment.slice(0, take);
+            remaining -= take;
+            state.streamPendingLength -= take;
+            if (take === segment.length) state.streamQueue.shift();
+            else state.streamQueue[0] = segment.slice(take);
+          }
+          assistant.content += visible;
+          renderMessages();
+          if (state.streamPendingLength > 0) state.streamTimer = window.setTimeout(revealNext, 24);
+          else {
+            state.streamTimer = null;
+            state.streamDone?.();
+            state.streamDone = null;
+          }
+        };
+        state.streamTimer = window.setTimeout(revealNext, 24);
+      };
+      const finishAssistantStream = (assistant, flush = false) => {
+        if (state.streamAssistant !== assistant) return Promise.resolve();
+        if (flush && state.streamTimer) {
+          window.clearTimeout(state.streamTimer);
+          state.streamTimer = null;
+          assistant.content += state.streamQueue.join('');
+          state.streamQueue = [];
+          state.streamPendingLength = 0;
+          renderMessages();
+        }
+        if (!state.streamPendingLength) {
+          state.streamAssistant = null;
+          renderMessages();
+          return Promise.resolve();
+        }
+        return new Promise((resolve) => { state.streamDone = () => { state.streamAssistant = null; renderMessages(); resolve(); }; });
+      };
+      const getCompletionError = async (response) => { const data = await response.clone().json().catch(() => ({})); return data.detail || data.error || `The AI service returned HTTP ${response.status}.`; };
+      const getImageSearchQuery = (prompt) => { const intent = /\b(?:find|search(?:\s+for)?|get|show|need|want|look(?:\s+for)?)\b[\s\S]{0,60}\b(?:images?|pictures?|photos?|pics?)\b|\b(?:images?|pictures?|photos?|pics?)\b[\s\S]{0,40}\b(?:of|for)\b/i; if (!intent.test(prompt)) return ''; return prompt.replace(/^\s*(?:(?:please|can you|could you)\s+)*(?:(?:i\s+)?(?:need|want)|find|search(?:\s+for)?|get|show|look(?:\s+for)?)\s+(?:me\s+)?/i, '').replace(/^(?:(?:an?|the)\s+)?(?:image|picture|photo|pic)s?\s+(?:of\s+)?/i, '').replace(/\s+(?:image|picture|photo|pic)s?\s*$/i, '').trim().slice(0, 160); };
+      const getImageVariation = (prompt) => { const match = prompt.match(/\b(?:add|put|place|include)\s+(?:a|an|the)?\s*(lady|woman|man|person|girl|boy|child)\b/i); if (!match) return null; for (let index = state.messages.length - 1; index >= 1; index -= 1) { if (state.messages[index].role !== 'assistant' || !state.messages[index].content.includes('kieltech-image-result')) continue; const earlierUser = [...state.messages.slice(0, index)].reverse().find((item) => item.role === 'user'); const subject = earlierUser && getImageSearchQuery(earlierUser.content); if (subject) return { query: `a ${subject} with a ${match[1].toLowerCase()} beside it`, intro: `I can’t alter that exact photo through image search, but here is another image matching the variation you asked for.` }; } return null; };
+      const searchAndShowImage = async (prompt, query, intro = 'Here is an image that matches your request.') => { state.busy = true; updateSendState(); try { await ensureConversation(); state.messages.push({ role:'user', content:prompt }); renderMessages(); input.value = ''; await saveMessage('user', prompt); const assistant = { role:'assistant', content:'' }; state.messages.push(assistant); renderMessages(); const data = await request('/v1/chat/images/search', { method:'POST', body:JSON.stringify({ query, conversation_id:state.conversation.id }) }); const result = data.results?.[0]; assistant.content = result ? `${intro}\n\n[[kieltech-image-result|${encodeURIComponent(result.image_url)}|${encodeURIComponent(result.source_url)}|${encodeURIComponent(result.title)}|${encodeURIComponent(result.license)}|${encodeURIComponent(result.artist)}|${encodeURIComponent(result.description || '')}]]` : `I couldn't find a suitable image for "${query}" on Wikimedia Commons.`; renderMessages(); await saveMessage('assistant', assistant.content); await loadConversations(); } catch (error) { const assistant = [...state.messages].reverse().find((item) => item.role === 'assistant'); if (assistant) assistant.content = `Image search failed: ${error.message}`; else state.messages.push({ role:'assistant', content:`Image search failed: ${error.message}` }); renderMessages(); } finally { state.busy = false; updateSendState(); input.focus(); } };
+      const regenerateFrom = async (index) => {
+        const previousUser = [...state.messages.slice(0, index)].reverse().find((item) => item.role === 'user');
+        if (!previousUser || state.busy) return;
+        state.busy = true;
+        state.activity = 'Analyzing request';
+        updateSendState();
+        state.messages = state.messages.slice(0, index);
+        const assistant = { role: 'assistant', content: '' };
+        state.messages.push(assistant);
+        renderMessages();
+        try {
+          const response = await fetch(`${apiBase}/v1/chat/completions`, {
+            method: 'POST',
+            headers: headers(),
+            credentials: 'include',
+            body: JSON.stringify({
+              system_instructions: chatSystemInstructions,
+              model: model.value,
+              prompt: previousUser.content,
+              messages: state.messages.slice(0, -1),
+              stream: true
+            })
+          });
+          if (!response.ok || !response.body) throw new Error('The chat response could not be started.');
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+          while (true) {
+            const { value, done } = await reader.read();
+            buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+            const chunks = buffer.split('\n\n');
+            buffer = chunks.pop() || '';
+            for (const chunk of chunks) {
+              const line = chunk.split('\n').find((item) => item.startsWith('data: '));
+              if (!line) continue;
+              const text = line.slice(6);
+              if (text === '[DONE]') continue;
+              try {
+                const data = JSON.parse(text);
+                const delta = data?.choices?.[0]?.delta?.content || data?.response?.text || data?.text || '';
+                if (delta) streamAssistantDelta(assistant, delta);
+              } catch (_) {}
+            }
+            if (done) break;
+          }
+          await finishAssistantStream(assistant);
+          assistant.content = normalizeAssistantContent(assistant.content || 'No response returned.');
+          await saveMessage('assistant', assistant.content);
+          await loadConversations();
+        } catch (error) {
+          if (state.responseStopped) {
+            await finishAssistantStream(assistant, true);
+            assistant.content = assistant.content.includes('You stopped the AI response.')
+              ? assistant.content
+              : `${assistant.content}\n\nYou stopped the AI response.`;
+          } else {
+            await finishAssistantStream(assistant, true);
+            assistant.content = `I couldn’t complete that response. ${customerFacingError(error)}`;
+          }
+          renderMessages();
+        } finally {
+          state.busy = false;
+          state.responseStopped = false;
+          updateSendState();
+          input.focus();
+        }
+      };
+      const sendMessage = async (event) => {
+        event.preventDefault();
+        const prompt = input.value.trim();
+        if (!prompt || state.busy) return;
+        state.busy = true;
+        updateSendState();
+        await ensureConversation();
+        const editingIndex = state.editingIndex;
+        const replaceMessageId = editingIndex === null ? null : state.messages[editingIndex]?.id;
+        if (editingIndex !== null) {
+          state.messages = state.messages.slice(0, editingIndex);
+          state.editingIndex = null;
+        }
+        state.messages.push({ role: 'user', content: prompt });
+        renderMessages();
+        input.value = '';
+        updateSendState();
+        await saveMessage('user', prompt, replaceMessageId);
+        const assistant = { role: 'assistant', content: '' };
+        state.messages.push(assistant);
+        renderMessages();
+        try {
+          const response = await fetch(`${apiBase}/v1/chat/completions`, {
+            method: 'POST',
+            headers: headers(),
+            credentials: 'include',
+            body: JSON.stringify({
+              system_instructions: chatSystemInstructions,
+              model: model.value,
+              prompt,
+              messages: state.messages.slice(0, -1),
+              stream: true
+            })
+          });
+          if (!response.ok || !response.body) throw new Error('The chat response could not be started.');
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+          while (true) {
+            const { value, done } = await reader.read();
+            buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+            const chunks = buffer.split('\n\n');
+            buffer = chunks.pop() || '';
+            for (const chunk of chunks) {
+              const line = chunk.split('\n').find((item) => item.startsWith('data: '));
+              if (!line) continue;
+              const text = line.slice(6);
+              if (text === '[DONE]') continue;
+              try {
+                const data = JSON.parse(text);
+                const delta = data?.choices?.[0]?.delta?.content || data?.response?.text || data?.text || '';
+                if (delta) streamAssistantDelta(assistant, delta);
+              } catch (_) {}
+            }
+            if (done) break;
+          }
+          await finishAssistantStream(assistant);
+          assistant.content = normalizeAssistantContent(assistant.content || 'No response returned.');
+          await saveMessage('assistant', assistant.content);
+          await loadConversations();
+        } catch (error) {
+          if (state.responseStopped) {
+            await finishAssistantStream(assistant, true);
+            assistant.content = assistant.content.includes('You stopped the AI response.')
+              ? assistant.content
+              : `${assistant.content}\n\nYou stopped the AI response.`;
+          } else {
+            await finishAssistantStream(assistant, true);
+            assistant.content = `I couldn’t complete that response. ${customerFacingError(error)}`;
+          }
+          renderMessages();
+        } finally {
+          state.busy = false;
+          state.responseStopped = false;
+          updateSendState();
+          input.focus();
+        }
+      };
+      document.getElementById('kielChatNew').addEventListener('click', startNewChat);
+      const closeModal = (modal) => { modal?.classList.remove('is-open'); if (modal) modal.hidden = true; };
+      const openModal = (modal) => { if (!modal) return; modal.hidden = false; modal.classList.add('is-open'); };
+      history.addEventListener('click', async (event) => { const menuButton = event.target.closest('[data-chat-menu]'); if (menuButton) { event.stopImmediatePropagation(); const panel = history.querySelector(`[data-chat-menu-panel="${CSS.escape(menuButton.dataset.chatMenu)}"]`); const willOpen = panel?.hidden; history.querySelectorAll('.kiel-chat-history__menu').forEach((item) => { item.hidden = true; }); history.querySelectorAll('[data-chat-menu]').forEach((item) => item.setAttribute('aria-expanded', 'false')); if (panel) panel.hidden = !willOpen; menuButton.setAttribute('aria-expanded', String(Boolean(willOpen))); return; } const action = event.target.closest('[data-menu-action]'); if (!action) return; event.stopImmediatePropagation(); const id = action.dataset.chatId; const item = conversations.find((conversation) => conversation.id === id); if (action.dataset.menuAction === 'rename') { await openConversation(id); renameInput.value = item?.title || state.conversation?.title || ''; openModal(renamePopover); renameInput.focus(); return; } if (action.dataset.menuAction === 'delete') { pendingDeleteId = id; openModal(deleteModal); return; } });
+      document.getElementById('kielChatRenameCancel').addEventListener('click', () => closeModal(renamePopover));
+      renamePopover.addEventListener('submit', async (event) => { event.preventDefault(); const next=renameInput.value.trim(); if (!next) return; if (!state.conversation) await createConversation(next); else { await request(`/v1/chat/conversations/${encodeURIComponent(state.conversation.id)}`, {method:'PATCH',body:JSON.stringify({title:next})}); state.conversation.title=next; title.textContent=next; await loadConversations(); } closeModal(renamePopover); });
+      deleteModal.querySelector('[data-delete-cancel]').addEventListener('click', () => { pendingDeleteId = null; closeModal(deleteModal); });
+      deleteModal.querySelector('[data-delete-confirm]').addEventListener('click', async () => { if (!pendingDeleteId) return; const deleteId = pendingDeleteId; pendingDeleteId = null; closeModal(deleteModal); await request(`/v1/chat/conversations/${encodeURIComponent(deleteId)}`, { method:'DELETE' }); if (state.conversation?.id === deleteId) { state.conversation = null; state.messages = []; title.textContent = 'New chat'; renderMessages(); } await loadConversations(); });
+      history.addEventListener('click', async (event) => { const id=event.target.closest('[data-chat-id]')?.dataset.chatId; if(id) { await openConversation(id); closeSidebar(); } });
+      messages.addEventListener('click', async (event) => { const codeButton = event.target.closest('[data-studio-copy-code]'); if (codeButton) return; const copyButton = event.target.closest('[data-chat-copy]'); if (copyButton) { event.preventDefault(); event.stopPropagation(); const item = state.messages[Number(copyButton.dataset.chatCopy)]; if (item) { await copyText(item.content); copyButton.classList.add('is-copied'); copyButton.setAttribute('aria-label', 'Copied'); copyButton.title = 'Copied'; window.setTimeout(() => { copyButton.classList.remove('is-copied'); copyButton.setAttribute('aria-label', copyButton.closest('.kiel-chat-message--user') ? 'Copy message' : 'Copy response'); copyButton.title = copyButton.closest('.kiel-chat-message--user') ? 'Copy message' : 'Copy response'; }, 1250); } return; } const editButton = event.target.closest('[data-chat-edit]'); if (editButton) { const index = Number(editButton.dataset.chatEdit); const item = state.messages[index]; if (item) { state.editingIndex = index; input.value = item.content; resizeInput(); updateSendState(); input.focus(); } return; } const regenerateButton = event.target.closest('[data-chat-regenerate]'); if (regenerateButton) { await regenerateFrom(Number(regenerateButton.dataset.chatRegenerate)); } });
+      messages.addEventListener('click', (event) => { const toggle = event.target.closest('.kiel-chat-message__fold-toggle'); if (!toggle) return; const article = toggle.closest('.kiel-chat-message--user'); const body = toggle.previousElementSibling; const folded = body.classList.toggle('is-folded'); const expanded = !folded; article.dataset.foldExpanded = String(expanded); toggle.setAttribute('aria-expanded', String(expanded)); toggle.setAttribute('aria-label', expanded ? 'Collapse message' : 'Expand full message'); toggle.title = expanded ? 'Collapse message' : 'Expand full message'; });
+      messages.addEventListener('click', async (event) => { const button = event.target.closest('[data-studio-copy-code]'); if (!button) return; event.stopImmediatePropagation(); const code = button.closest('.studio-chat-code')?.querySelector('pre code')?.textContent || ''; if (!code) return; try { await copyText(code); button.classList.add('is-copied'); button.setAttribute('aria-label', 'Code copied'); button.title = 'Code copied'; window.setTimeout(() => { button.classList.remove('is-copied'); button.setAttribute('aria-label', 'Copy code'); button.title = 'Copy code'; }, 1400); } catch (_) { button.setAttribute('aria-label', 'Copy failed'); button.title = 'Copy failed'; } }, true);
+      const closeModelMenus = (except = null) => {
+        modelSelectors.forEach(({ trigger, menu }) => {
+          if (menu === except) return;
+          menu.hidden = true;
+          trigger.setAttribute('aria-expanded', 'false');
+        });
+      };
+      const openModelMenu = ({ trigger, menu, select }) => {
+        closeModelMenus(menu);
+        menu.hidden = false;
+        trigger.setAttribute('aria-expanded', 'true');
+        const selected = menu.querySelector(`[data-model-value="${CSS.escape(select.value)}"]:not(:disabled)`);
+        const firstOption = menu.querySelector('[role="option"]:not(:disabled)');
+        (selected || firstOption)?.focus();
+        (selected || firstOption)?.scrollIntoView({ block: 'nearest' });
+      };
+      modelSelectors.forEach((selector) => {
+        const { select, picker, trigger, menu } = selector;
+        trigger.addEventListener('click', () => {
+          if (menu.hidden) openModelMenu(selector);
+          else closeModelMenus();
+        });
+        trigger.addEventListener('keydown', (event) => {
+          if (!['ArrowDown', 'ArrowUp'].includes(event.key)) return;
+          event.preventDefault();
+          openModelMenu(selector);
+        });
+        menu.addEventListener('click', (event) => {
+          const option = event.target.closest('[data-model-value]');
+          if (!option || option.disabled) return;
+          select.value = option.dataset.modelValue;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          closeModelMenus();
+          trigger.focus();
+        });
+        menu.addEventListener('keydown', (event) => {
+          const options = [...menu.querySelectorAll('[role="option"]:not(:disabled)')];
+          const currentIndex = options.indexOf(document.activeElement);
+          let nextIndex = null;
+          if (event.key === 'ArrowDown') nextIndex = Math.min(currentIndex + 1, options.length - 1);
+          else if (event.key === 'ArrowUp') nextIndex = Math.max(currentIndex - 1, 0);
+          else if (event.key === 'Home') nextIndex = 0;
+          else if (event.key === 'End') nextIndex = options.length - 1;
+          else if (event.key === 'Escape') {
+            event.preventDefault();
+            closeModelMenus();
+            trigger.focus();
+            return;
+          }
+          if (nextIndex !== null && options.length) {
+            event.preventDefault();
+            options[nextIndex].focus();
+            options[nextIndex].scrollIntoView({ block: 'nearest' });
+          }
+        });
+        select.addEventListener('change', async () => {
+          if (select !== model) return;
+          updateModelPickerLabels();
+          updateSendState();
+          if (!state.conversation || !model.value) return;
+          state.conversation.model = model.value;
+          try {
+            await request(`/v1/chat/conversations/${encodeURIComponent(state.conversation.id)}`, {
+              method: 'PATCH',
+              body: JSON.stringify({ title: state.conversation.title, model: model.value })
+            });
+          } catch (error) {
+            console.error('Unable to save the selected chat model:', error);
+          }
+        });
+      });
+      document.addEventListener('click', (event) => {
+        if (!event.target.closest('.kiel-chat-model-picker')) closeModelMenus();
+      });
+      const resizeInput = () => { input.style.height = 'auto'; const maxHeight = 180; const nextHeight = Math.min(input.scrollHeight, maxHeight); input.style.height = `${nextHeight}px`; input.style.overflowY = input.scrollHeight > maxHeight ? 'auto' : 'hidden'; };
+      input.addEventListener('input', () => { resizeInput(); updateSendState(); });
+      input.addEventListener('keydown',(event)=>{ if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();document.getElementById('kielChatComposer').requestSubmit();} });
+      send.addEventListener('click', (event) => { if (!state.busy) return; event.preventDefault(); state.responseStopped = true; state.responseController?.abort(); state.reader?.cancel(); const assistant = [...state.messages].reverse().find((item) => item.role === 'assistant'); if (assistant && !assistant.content.includes('You stopped the AI response.')) { finishAssistantStream(assistant, true); assistant.content = `${assistant.content}\n\nYou stopped the AI response.`; renderMessages(); } });
+      resizeInput();
+      const templatePrompt = localStorage.getItem('kielChatTemplatePrompt');
+      if (templatePrompt) { try { const template = JSON.parse(templatePrompt); input.value = template.prompt || ''; if (template.image) setAttachment({ image: template.image, name: template.image.split('/').pop(), model: template.model }); } catch (_) { input.value = templatePrompt; } localStorage.removeItem('kielChatTemplatePrompt'); closeSidebar(); resizeInput(); updateSendState(); input.focus(); }
+      document.getElementById('kielChatAttachmentRemove')?.addEventListener('click', () => { clearAttachment(); input.focus(); });
+      const sendImageMessage = async (event) => { event.preventDefault(); const prompt = input.value.trim(); if (!prompt || state.busy || !state.attachment) return; state.busy = true; updateSendState(); try { await ensureConversation(); const uploadedImage = { ...state.attachment }; const imageResponse = await fetch(new URL(uploadedImage.image, window.location.href));
+        const imageBlob = await imageResponse.blob();
+        const imageBase64 = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = reject; reader.readAsDataURL(imageBlob); });
+        state.messages.push({ role:'user', content:prompt, image:uploadedImage.image, image_name:uploadedImage.name });
+        renderMessages();
+        input.value = '';
+        await saveMessage('user', prompt, null, uploadedImage);
+        const assistant = { role:'assistant', content:'' };
+        state.messages.push(assistant);
+        renderMessages();
+        const response = await request('/v1/vision/analysis', { method:'POST', body:JSON.stringify({ model:model.value === 'kiellens-ocr' ? 'kiellens-ocr' : 'kiellens-chat', prompt, image_base64:imageBase64 }) });
+        assistant.content = response?.response?.description || response?.description || response?.text || 'The image was analyzed successfully.';
+        await saveMessage('assistant', assistant.content);
+        clearAttachment();
+        renderMessages();
+        await loadConversations();
+      } catch (error) { state.messages.push({ role:'assistant', content:`Unable to analyze this image: ${error.message}` }); renderMessages(); } finally { state.busy = false; updateSendState(); input.focus(); } };
+      composer.addEventListener('submit', (event) => { if (state.attachment) { event.stopImmediatePropagation(); sendImageMessage(event); } }, true);
+      composer.addEventListener('submit', (event) => { if (state.attachment) return; const prompt = input.value.trim(); const variation = getImageVariation(prompt); const query = variation?.query || getImageSearchQuery(prompt); if (!query) return; event.preventDefault(); event.stopImmediatePropagation(); searchAndShowImage(prompt, query, variation?.intro).catch((error) => { state.busy = false; updateSendState(); state.messages.push({ role:'assistant', content:`Image search failed: ${error.message}` }); renderMessages(); }); }, true);
+      composer.addEventListener('submit', () => { window.setTimeout(() => { input.style.height = '44px'; input.style.overflowY = 'hidden'; }, 0); });
+      updateSendState();
+      composer.addEventListener('submit', (event) => { sendMessage(event).catch((error) => { state.busy = false; send.disabled = false; state.messages.push({ role: 'assistant', content: `I couldn’t start that response. ${customerFacingError(error)}` }); renderMessages(); input.focus(); }); });
+      request('/v1/auth/me').then((profile) => { const user = profile?.user || {}; const name = String(user.name || user.full_name || user.first_name || user.email || 'Signed-in user'); const email = String(user.email || ''); state.userLabel = name.split('@')[0]; if (userName) userName.textContent = name; if (userEmail) userEmail.textContent = email || 'Authenticated account'; const greeting = messages.querySelector('.kiel-chat-empty h2'); if (greeting) greeting.textContent = `Ask me, ${state.userLabel}`; }).catch(() => { if (userName) userName.textContent = 'Signed-in user'; if (userEmail) userEmail.textContent = 'Account unavailable'; });
+      populateModelSelectors().catch(showModelCatalogError).finally(() => loadConversations().catch(() => { history.innerHTML='<div class="kiel-chat-history__empty">Sign in to use Kiel.</div>'; }));
+    })();
+  </script>
+</body>
+</html>

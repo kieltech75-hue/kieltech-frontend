@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Human Quick Start Guide | KielTech</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero hero-small">
+      <nav class="nav container">
+        <div class="brand-row">
+          <a class="brand" href="index.html" aria-label="KielTech home">
+            <img src="KielTech-logo.png" alt="KielTech logo" class="logo-mark" />
+            <span class="brand-text">KielTech</span>
+          </a>
+        </div>
+        <div class="nav-actions">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">🌙</button>
+        </div>
+      </nav>
+      <div class="container page-intro">
+        <div class="service-nav-shell">
+          <button id="serviceDrawerToggle" class="service-drawer-toggle" type="button" aria-expanded="false">☰ Services</button>
+        </div>
+        <p class="eyebrow">Quick start</p>
+        <h1>Human Quick Start Guide</h1>
+        <p class="hero-copy">Get started with Human v0.1.8 through step-by-step examples and practical code snippets.</p>
+      </div>
+    </header>
+
+    <main class="container section service-page">
+      <section class="card release-notes-card">
+        <div class="release-notes-content">
+          <h2>Human Quick Start Guide</h2>
+          <p>Welcome to Human v0.1.8. This guide is designed to help you learn the language step by step, from the basics to the more powerful features that make Human useful for real applications.</p>
+
+          <h3>1. Install and run Human</h3>
+          <h4>Install from PyPI</h4>
+          <pre><code>pip install human-language</code></pre>
+
+          <h4>Run a program</h4>
+          <pre><code>human hello.hm</code></pre>
+
+          <h3>2. Your first program</h3>
+          <p>Create a file named <code>hello.hm</code>:</p>
+          <pre><code>print "Hello, Human!"</code></pre>
+          <p>Run it:</p>
+          <pre><code>human hello.hm</code></pre>
+
+          <h3>3. Variables, conditionals, and loops</h3>
+          <pre><code>set age to 25
+
+if age is greater than 18 then
+    print "You are an adult"
+else
+    print "You are under 18"
+end if
+
+loop from 1 to 3 do
+    print "Hello"
+end loop</code></pre>
+
+          <h3>4. Functions and return values</h3>
+          <pre><code>define greet with name
+    return "Hello, " + name
+end define
+
+print greet("Ada")</code></pre>
+
+          <h3>5. Lists, dicts, and standard library helpers</h3>
+          <pre><code>set nums to [1, 2, 2, 3]
+print call list_unique with nums
+
+set user to {name: "Ada", age: 37}
+print call dict_get with user, "name"
+print call string_upper with "human"</code></pre>
+
+          <h3>6. Type annotations and generics</h3>
+          <pre><code>function add with a: int, b: int -> int
+    return a + b
+end function
+
+function&lt;T&gt; first_item with items: List&lt;T&gt; -> T
+    return items[0]
+end function</code></pre>
+
+          <h3>7. Pattern matching and destructuring</h3>
+          <pre><code>set [first, second, third] to [10, 20, 30]
+set {name, age} to {name: "Ada", age: 37}
+
+print first
+print name</code></pre>
+
+          <h3>8. Build a tiny web API</h3>
+          <pre><code>from human_language.vm import VM, Bytecode
+
+vm = VM(Bytecode())
+vm.web_controllers["home"] = lambda request: vm.text_response("Hello from Human")
+vm.route("GET", "/", "home")</code></pre>
+
+          <h4>Helpful response helpers</h4>
+          <pre><code>vm.ok({"ok": True})
+vm.created({"id": 1})
+vm.not_found({"detail": "missing"})
+vm.html_response("<h1>Hello</h1>")
+vm.redirect("/login")</code></pre>
+
+          <h3>9. Use a database</h3>
+          <pre><code>call db_connect with "app.db", "default"
+call orm_register_model with "users", {"id": "INTEGER PRIMARY KEY", "name": "TEXT"}
+call orm_create with "users", {"name": "Ada"}</code></pre>
+
+          <h3>10. Add auth and security helpers</h3>
+          <pre><code>set cookie = call build_secure_cookie with "session_id", "abc123"
+set token = call create_jwt with {user_id: 1}, "secret", 3600</code></pre>
+
+          <h3>11. Python interop when you need it</h3>
+          <pre><code>set np to py_import("numpy")
+set arr to py_call(np, "array", [[1, 2, 3]])</code></pre>
+
+          <h3>12. Learn in the right order</h3>
+          <ol>
+            <li>Learn the core syntax and basic control flow.</li>
+            <li>Practice functions and standard-library helpers.</li>
+            <li>Add type annotations and generics.</li>
+            <li>Move to web APIs and routes.</li>
+            <li>Add persistence, auth, and Python integrations.</li>
+          </ol>
+
+          <h3>13. Signed Cookies &amp; CSRF</h3>
+          <pre><code># Sign a value
+set signed_token = call sign_value with "my-secret", "user123"
+
+# Verify signed value
+set verified = call verify_signed_value with "my-secret", signed_token
+
+# Build secure cookie
+set cookie = call build_secure_cookie with "session_id", "abc123"
+# Sets: session_id=abc123; Path=/; HttpOnly; Secure; SameSite=Lax
+
+# Generate CSRF token
+set csrf = call generate_csrf_token with session_id
+
+# Verify CSRF token
+set is_valid = call verify_csrf_token with session_id, csrf</code></pre>
+
+          <h3>14. API Documentation (OpenAPI)</h3>
+          <pre><code># Define route with schema
+call route with "POST", "/users", "create_user", 
+  {"name": {"type": "str", "required": true}, 
+   "email": {"type": "str", "required": true}}
+
+call route with "GET", "/users/{id}", "get_user"
+
+# Generate OpenAPI spec
+set spec = call generate_openapi with "My API", "1.0.0"
+# Returns OpenAPI 3.0 specification with request/response schemas</code></pre>
+
+          <h3>Next steps</h3>
+          <ul>
+            <li>Read <a href="human-syntax.html">SYNTAX</a> for the complete language reference.</li>
+            <li>Read <a href="human-features.html">FEATURES</a> for the current capability list.</li>
+            <li>Explore the examples in the <code>examples/</code> folder.</li>
+            <li>Start building a small app and expand from there.</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <div id="serviceDrawer" class="service-drawer" aria-hidden="true">
+      <div class="service-drawer__backdrop" data-close-drawer></div>
+      <aside class="service-drawer__panel" role="navigation" aria-label="Services menu">
+        <div class="service-drawer__header">
+          <div class="service-drawer__brand">
+            <span class="service-drawer__brand-mark">K</span>
+            <span class="service-drawer__brand-text">KielTech</span>
+          </div>
+          <button id="serviceDrawerClose" class="service-drawer__close" type="button" aria-label="Close services menu">×</button>
+        </div>
+        <nav class="service-drawer__nav">
+          <a class="service-drawer__link" href="tokens.html">API Token</a>
+          <a class="service-drawer__link" href="api-integration.html">API Integration</a>
+        </nav>
+      </aside>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08111f">
+  <title>Website projects | KielTech Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20261018-studio-project-directory-2">
+</head>
+<body class="studio-project-library-page">
+  <header class="studio-library-header">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="brand" href="index.html" aria-label="KielTech home">
+        <img src="KielTech-logo.png" alt="" class="logo-mark" width="38" height="38">
+        <span class="brand-text">KielTech</span>
+      </a>
+      <div class="nav-actions">
+        <a class="nav-pill nav-pill--secondary" href="login.html">Login</a>
+        <a class="nav-pill nav-pill--primary" href="signup.html">Sign up</a>
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">Theme</button>
+      </div>
+      <button id="serviceDrawerToggle" class="service-drawer-toggle service-drawer-toggle--inline" type="button" aria-expanded="false">☰ Services</button>
+    </nav>
+  </header>
+
+  <main id="studioProjectDirectory" class="studio-library-main">
+    <section class="studio-library-hero" aria-labelledby="studioLibraryTitle">
+      <div>
+        <p class="studio-library-eyebrow"><span class="material-symbols-outlined" aria-hidden="true">deployed_code</span> WEBSITE STUDIO</p>
+        <h1 id="studioLibraryTitle">Your projects</h1>
+        <p>Pick up where you left off. Your websites are saved to your account and ready on any device.</p>
+      </div>
+      <button class="studio-library-button" id="studioProjectDirectoryNewButton" type="button">
+        <span class="material-symbols-outlined" aria-hidden="true">add</span>
+        New project
+      </button>
+    </section>
+
+    <section class="studio-library-toolbar" aria-label="Project list controls">
+      <div>
+        <h2>All websites</h2>
+        <p id="studioProjectDirectoryStatus" role="status" aria-live="polite">Loading your projects…</p>
+      </div>
+      <label class="studio-library-search" aria-label="Search projects">
+        <span class="material-symbols-outlined" aria-hidden="true">search</span>
+        <input id="studioProjectDirectorySearch" type="search" placeholder="Search projects" autocomplete="off">
+      </label>
+    </section>
+
+    <section id="studioProjectDirectoryList" class="studio-library-grid" aria-label="Saved website projects" aria-live="polite"></section>
+  </main>
+
+  <div class="studio-project-dialog" id="studioDirectoryCreateDialog" hidden>
+    <form class="studio-project-dialog__panel studio-project-create-form" id="studioDirectoryCreateForm" role="dialog" aria-modal="true" aria-labelledby="studioDirectoryCreateTitle">
+      <header>
+        <div><span>Website Studio</span><h2 id="studioDirectoryCreateTitle">Start a new project</h2></div>
+        <button type="button" data-directory-dialog-close aria-label="Close new project dialog">×</button>
+      </header>
+      <p>Name your website project. It will be saved to your account before Studio opens.</p>
+      <label for="studioDirectoryProjectName">Project name</label>
+      <input id="studioDirectoryProjectName" name="project_name" type="text" maxlength="120" autocomplete="off" placeholder="e.g. My portfolio website" required>
+      <div class="studio-project-dialog__actions">
+        <span id="studioDirectoryCreateStatus" role="status" aria-live="polite"></span>
+        <a class="studio-library-signin" id="studioDirectorySignIn" href="login.html?return_to=studio-projects.html" hidden>Sign in</a>
+        <button type="button" class="studio-project-create-form__cancel" data-directory-dialog-close>Cancel</button>
+        <button type="submit">Create project</button>
+      </div>
+    </form>
+  </div>
+
+  <footer class="studio-library-footer"><span>KielTech Website Studio</span><a href="index.html">Back to KielTech</a></footer>
+  <script src="script.js?v=20261018-studio-project-directory-2" defer></script>
+</body>
+</html>

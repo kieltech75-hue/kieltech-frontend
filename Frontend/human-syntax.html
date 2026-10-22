@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Human Language Syntax Guide | KielTech</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero hero-small">
+      <nav class="nav container">
+        <div class="brand-row">
+          <a class="brand" href="index.html" aria-label="KielTech home">
+            <img src="KielTech-logo.png" alt="KielTech logo" class="logo-mark" />
+            <span class="brand-text">KielTech</span>
+          </a>
+        </div>
+        <div class="nav-actions">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">🌙</button>
+        </div>
+      </nav>
+      <div class="container page-intro">
+        <div class="service-nav-shell">
+          <button id="serviceDrawerToggle" class="service-drawer-toggle" type="button" aria-expanded="false">☰ Services</button>
+        </div>
+        <p class="eyebrow">Syntax guide</p>
+        <h1>Human Language Syntax Guide</h1>
+        <p class="hero-copy">A practical reference for writing Human programs in v0.1.8 with the most useful syntax patterns.</p>
+      </div>
+    </header>
+
+    <main class="container section service-page">
+      <section class="card release-notes-card">
+        <div class="release-notes-content">
+          <h2>Human Language Syntax Guide</h2>
+          <p>This guide is a practical reference for writing Human programs in v0.1.8. The examples below reflect the current runtime behavior and the most useful syntax patterns.</p>
+
+          <h3>1. Comments</h3>
+          <pre><code>-- This is a single-line comment</code></pre>
+
+          <h3>2. Variables and values</h3>
+          <pre><code>set name to "Ada"
+set age to 37
+set active to true
+set score to 99.5</code></pre>
+
+          <h3>3. Printing and input</h3>
+          <pre><code>print "Hello, Human!"
+print name
+ask "What is your name?"</code></pre>
+
+          <h3>4. Operators</h3>
+          <h4>Arithmetic</h4>
+          <pre><code>set sum to 10 + 5
+set product to 3 * 4
+set remainder to 10 % 3</code></pre>
+
+          <h4>Comparison</h4>
+          <pre><code>if age is greater than 18 then
+    print "Adult"
+end if</code></pre>
+
+          <h4>Logical operators</h4>
+          <pre><code>if age is greater than 18 and active is true then
+    print "Ready"
+end if</code></pre>
+
+          <h3>5. Control flow</h3>
+          <h4>If / else</h4>
+          <pre><code>if score is greater than 90 then
+    print "Excellent"
+else
+    print "Needs improvement"
+end if</code></pre>
+
+          <h4>Loops</h4>
+          <pre><code>loop from 1 to 5 do
+    print "Hello"
+end loop</code></pre>
+
+          <h3>6. Functions</h3>
+          <pre><code>define greet with name
+    return "Hello, " + name
+end define
+
+print greet("Ada")</code></pre>
+
+          <h3>7. Lists, dicts, and strings</h3>
+          <pre><code>set nums to [1, 2, 3]
+set user to {name: "Ada", age: 37}
+
+print call list_first with nums
+print call dict_get with user, "name"</code></pre>
+
+          <h3>8. Type annotations</h3>
+          <pre><code>function add with a: int, b: int -> int
+    return a + b
+end function</code></pre>
+
+          <h3>9. Generics</h3>
+          <pre><code>function&lt;T&gt; first_item with items: List&lt;T&gt; -> T
+    return items[0]
+end function</code></pre>
+
+          <h3>10. Pattern matching and destructuring</h3>
+          <pre><code>set [first, second, third] to [10, 20, 30]
+set {name, age} to {name: "Ada", age: 37}</code></pre>
+
+          <h3>11. Standard library examples</h3>
+          <pre><code>set text to "hello world"
+print call string_upper with text
+print call string_replace with text, "world", "Human"
+print call math_average with [1, 2, 3, 4]</code></pre>
+
+          <h3>12. Web framework examples</h3>
+          <pre><code>from human_language.vm import VM, Bytecode
+
+vm = VM(Bytecode())
+vm.web_controllers["home"] = lambda request: vm.text_response("Hello")
+vm.route("GET", "/", "home")</code></pre>
+
+          <h4>Common web helpers</h4>
+          <pre><code>vm.ok({"ok": True})
+vm.created({"id": 1})
+vm.not_found({"detail": "missing"})
+vm.html_response("<h1>Hello</h1>")
+vm.redirect("/login")</code></pre>
+
+          <h3>13. Database and persistence</h3>
+          <pre><code>call db_connect with "app.db", "default"
+call orm_register_model with "users", {"id": "INTEGER PRIMARY KEY", "name": "TEXT"}
+call orm_create with "users", {"name": "Ada"}</code></pre>
+
+          <h3>14. Python interop</h3>
+          <pre><code>set np to py_import("numpy")
+set arr to py_call(np, "array", [[1, 2, 3]])</code></pre>
+
+          <h3>15. Recommended style tips</h3>
+          <ul>
+            <li>use clear names such as <code>user_name</code> instead of <code>x</code></li>
+            <li>keep functions focused on one task</li>
+            <li>use comments to explain non-obvious logic</li>
+            <li>break larger programs into small pieces</li>
+            <li>start with scripts, then add web routes and persistence</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <div id="serviceDrawer" class="service-drawer" aria-hidden="true">
+      <div class="service-drawer__backdrop" data-close-drawer></div>
+      <aside class="service-drawer__panel" role="navigation" aria-label="Services menu">
+        <div class="service-drawer__header">
+          <div class="service-drawer__brand">
+            <span class="service-drawer__brand-mark">K</span>
+            <span class="service-drawer__brand-text">KielTech</span>
+          </div>
+          <button id="serviceDrawerClose" class="service-drawer__close" type="button" aria-label="Close services menu">×</button>
+        </div>
+        <nav class="service-drawer__nav">
+          <a class="service-drawer__link" href="tokens.html">API Token</a>
+          <a class="service-drawer__link" href="api-integration.html">API Integration</a>
+        </nav>
+      </aside>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

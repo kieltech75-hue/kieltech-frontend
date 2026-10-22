@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>KielTech API Integration | Playground</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+      :root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#e6edf3;background:#07111b;font-synthesis:none;text-rendering:optimizeLegibility}
+      *{box-sizing:border-box}
+      [hidden]{display:none!important}
+      body{min-width:320px;min-height:100vh;margin:0;padding:0;background:radial-gradient(ellipse at 50% 0,rgba(14,116,144,.15),transparent 55%),#07111b}
+      .api-header{border-bottom:1px solid rgba(125,211,252,.14);background:rgba(7,17,27,.88)}
+      .api-header .nav{padding-block:.8rem}
+      .api-header .brand-block{display:flex;flex-direction:row;align-items:center;flex:0 0 auto;gap:.7rem}
+      .api-header .nav-actions{display:flex;align-items:center;gap:.65rem}
+      .api-header .api-title{width:min(1120px,calc(100% - 2rem));margin:0 auto;padding:2rem 0 2.25rem}
+      .api-header .api-title h1{margin:.35rem 0 .5rem;color:#f4fbff;font-size:clamp(1.8rem,4vw,2.6rem)}
+      .api-header .api-title p{max-width:760px;margin:0;color:#a8bac9;line-height:1.6}
+      .eyebrow{color:#7dd3fc;font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+      .page-content{width:min(1120px,calc(100% - 2rem));margin:0 auto;padding:2rem 0 3rem}
+      .integration{margin-bottom:2rem;padding:clamp(1rem,3vw,1.5rem);border:1px solid rgba(125,211,252,.16);border-radius:16px;background:linear-gradient(160deg,rgba(17,31,47,.98),rgba(9,18,29,.98));box-shadow:0 20px 50px rgba(0,0,0,.2)}
+      .integration-heading{margin-bottom:1.1rem}
+      .integration-heading h2{margin:0 0 .45rem;color:#f4fbff;font-size:clamp(1.25rem,3vw,1.65rem)}
+      .integration-heading p{margin:0;color:#a8bac9;line-height:1.55}
+      .integration-grid{display:grid;grid-template-columns:210px minmax(0,1fr);gap:1rem}
+      .integration-tabs{display:grid;align-content:start;gap:.45rem}
+      .integration-tab{padding:.75rem .85rem;text-align:left;color:#a8bac9;background:rgba(15,23,42,.7);border:1px solid rgba(125,211,252,.14);border-radius:9px;font:inherit;cursor:pointer}
+      .integration-tab[aria-selected="true"],.integration-tab:hover{color:#e6f9ff;border-color:#38bdf8;background:rgba(14,45,67,.8)}
+      .integration-panel{display:none;min-width:0}
+      .integration-panel.is-active{display:block}
+      .integration-code{position:relative;min-width:0;margin:0;padding:1.1rem;overflow:auto;border:1px solid rgba(125,211,252,.14);border-radius:10px;background:#050b13;color:#d8f7ff;white-space:pre;overflow-wrap:normal;font:.8rem/1.65 Consolas,Monaco,monospace}
+      .integration-code code{font:inherit}
+      .integration-tip{margin:.75rem 0 0;color:#91a6b8;font-size:.82rem;line-height:1.5}
+      .integration-resources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;margin-top:1rem}
+      .integration-resource,.integration-note{min-width:0;padding:1rem;border:1px solid rgba(125,211,252,.14);border-radius:10px;background:rgba(15,23,42,.48)}
+      .integration-resource h3,.integration-note h3{margin:0 0 .35rem;color:#e6edf3;font-size:.95rem}
+      .integration-resource p,.integration-note p{margin:.3rem 0;color:#a8bac9;font-size:.82rem;line-height:1.55}
+      .integration-resource a{display:inline-flex;margin-top:.45rem;color:#7dd3fc;font-size:.84rem;font-weight:700;text-decoration:none}
+      .integration-resource a:hover{text-decoration:underline}
+      .integration-note{grid-column:1/-1}
+      .playground{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);width:min(1120px,100%);gap:1rem}
+      .panel{min-width:0;padding:clamp(1rem,2.5vw,1.5rem);border:1px solid rgba(125,211,252,.16);border-radius:16px;background:linear-gradient(160deg,rgba(17,31,47,.98),rgba(9,18,29,.98));box-shadow:0 20px 50px rgba(0,0,0,.24)}
+      .field{display:grid;gap:.45rem;margin-bottom:1rem;color:#cbd5e1;font-size:.88rem;font-weight:600}
+      select,textarea,input{width:100%;min-width:0;padding:.8rem .85rem;border:1px solid rgba(148,163,184,.25);border-radius:9px;background:#07111b;color:#e6edf3;font:inherit}
+      select:focus-visible,textarea:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid #38bdf8;outline-offset:2px}
+      textarea{min-height:130px;resize:vertical;line-height:1.5}
+      .actions{display:flex;flex-wrap:wrap;gap:.65rem}
+      button{min-height:42px;padding:.65rem .9rem;border:1px solid transparent;border-radius:9px;font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
+      button:disabled{cursor:not-allowed;opacity:.55}
+      .primary{color:#04202c;background:#67d6f5}
+      .primary:hover:not(:disabled){background:#9be8ff}
+      .secondary{color:#d6e3ed;background:rgba(148,163,184,.1);border-color:rgba(148,163,184,.22)}
+      .secondary:hover{background:rgba(148,163,184,.17)}
+      .note{margin:1rem 0 0;color:#91a6b8;font-size:.84rem;line-height:1.5}
+      .image-field{margin-top:.2rem;padding:.8rem;border:1px dashed rgba(125,211,252,.3);border-radius:9px}
+      .output-panel{display:flex;min-height:440px;flex-direction:column}
+      .meta{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.85rem}
+      .badge{padding:.38rem .55rem;border:1px solid rgba(148,163,184,.18);border-radius:999px;background:rgba(148,163,184,.08);color:#afbfcc;font-size:.74rem}
+      .badge.is-success{color:#bbf7d0;border-color:rgba(34,197,94,.3)}
+      .badge.is-error{color:#fecaca;border-color:rgba(239,68,68,.3)}
+      pre{flex:1;min-height:280px;margin:0;padding:1rem;overflow:auto;border:1px solid rgba(125,211,252,.12);border-radius:10px;background:#050b13;color:#d8f7ff;white-space:pre-wrap;overflow-wrap:anywhere;font: .82rem/1.6 Consolas,Monaco,monospace}
+      .copy-row{display:flex;justify-content:flex-end;margin-top:.75rem}
+      @media(max-width:760px){.api-header .nav{align-items:flex-start;gap:.8rem}.api-header .nav-actions{flex-wrap:wrap;justify-content:flex-end}.integration-grid{grid-template-columns:minmax(0,1fr)}.integration-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.integration-tab{text-align:center}.integration-resources{grid-template-columns:minmax(0,1fr)}.integration-note{grid-column:auto}.playground{grid-template-columns:minmax(0,1fr)}.output-panel{min-height:360px}pre{min-height:220px}}
+      @media(max-width:480px){.api-header .nav{flex-direction:column}.api-header .nav-actions{justify-content:flex-start}.integration-tabs{grid-template-columns:1fr}}
+      body.api-page .api-header .brand-block{flex-direction:row;align-items:center;justify-content:flex-start;gap:.7rem}
+      html[data-theme='light'] body.api-page{color-scheme:light;background:radial-gradient(ellipse at 50% 0,rgba(14,116,144,.08),transparent 55%),#f3f7fb!important;color:#172b3d!important}
+      html[data-theme='light'] body.api-page .api-header{background:rgba(255,255,255,.94)!important;border-bottom-color:rgba(30,64,90,.14)!important}
+      html[data-theme='light'] body.api-page .api-title h1,html[data-theme='light'] body.api-page .integration-heading h2,html[data-theme='light'] body.api-page .integration-resource h3,html[data-theme='light'] body.api-page .integration-note h3{color:#172b3d!important}
+      html[data-theme='light'] body.api-page .api-title p,html[data-theme='light'] body.api-page .integration-heading p,html[data-theme='light'] body.api-page .integration-tip,html[data-theme='light'] body.api-page .integration-resource p,html[data-theme='light'] body.api-page .integration-note p,html[data-theme='light'] body.api-page .note{color:#526a7d!important}
+      html[data-theme='light'] body.api-page .eyebrow{color:#087ea4!important}
+      html[data-theme='light'] body.api-page .integration,html[data-theme='light'] body.api-page .panel{color:#172b3d!important;background:linear-gradient(160deg,#fff,#f8fbfd)!important;border-color:rgba(30,64,90,.16)!important;box-shadow:0 16px 36px rgba(30,64,90,.09)!important}
+      html[data-theme='light'] body.api-page .integration-tab{color:#405e73!important;background:#f5f9fc!important;border-color:rgba(30,64,90,.16)!important}
+      html[data-theme='light'] body.api-page .integration-tab[aria-selected='true'],html[data-theme='light'] body.api-page .integration-tab:hover{color:#073b55!important;background:#e2f3fa!important;border-color:#78bfd5!important}
+      html[data-theme='light'] body.api-page:not(.studio-app) #integrationTabs .integration-tab[aria-selected='true']{color:#073b55!important;background:#e2f3fa!important;border-color:#78bfd5!important}
+      html[data-theme='light'] body.api-page .integration-code,html[data-theme='light'] body.api-page #apiOutput{color:#17354b!important;background:#f5f9fc!important;border-color:rgba(30,64,90,.18)!important}
+      html[data-theme='light'] body.api-page .integration-resource,html[data-theme='light'] body.api-page .integration-note{color:#172b3d!important;background:#fff!important;border-color:rgba(30,64,90,.16)!important;box-shadow:0 10px 24px rgba(30,64,90,.06)!important}
+      html[data-theme='light'] body.api-page .integration-resource a{color:#087ea4!important}
+      html[data-theme='light'] body.api-page .field{color:#405e73!important}
+      html[data-theme='light'] body.api-page select,html[data-theme='light'] body.api-page textarea,html[data-theme='light'] body.api-page input{color:#172b3d!important;background:#f7fafc!important;border-color:rgba(30,64,90,.22)!important}
+      html[data-theme='light'] body.api-page select:disabled{color:#718596!important;background:#edf2f6!important}
+      html[data-theme='light'] body.api-page .image-field{border-color:rgba(30,100,130,.28)!important}
+      html[data-theme='light'] body.api-page .secondary{color:#24536d!important;background:#fff!important;border-color:rgba(30,64,90,.2)!important}
+      html[data-theme='light'] body.api-page .secondary:hover{color:#073b55!important;background:#eaf5fa!important}
+      html[data-theme='light'] body.api-page:not(.studio-app) #playground button.primary{color:#073b55!important;background:#bce9f6!important;border-color:#80cfe5!important}
+      html[data-theme='light'] body.api-page:not(.studio-app) #playground button.secondary{color:#24536d!important;background:#fff!important;border-color:rgba(30,64,90,.2)!important}
+      html[data-theme='light'] body.api-page:not(.studio-app) #playground button.secondary:hover{color:#073b55!important;background:#eaf5fa!important;border-color:#78bfd5!important}
+      html[data-theme='light'] body.api-page .badge{color:#405e73!important;background:#f1f6f9!important;border-color:rgba(30,64,90,.16)!important}
+      html[data-theme='light'] body.api-page .badge.is-success{color:#176a4b!important;background:#e7f7ef!important;border-color:rgba(23,106,75,.22)!important}
+      html[data-theme='light'] body.api-page .badge.is-error{color:#a23333!important;background:#fff0f0!important;border-color:rgba(162,51,51,.22)!important}
+      html[data-theme='light'] body.api-page .nav-pill--secondary{color:#24536d!important;background:#fff!important;border-color:rgba(30,64,90,.2)!important}
+      html[data-theme='light'] body.api-page .theme-toggle{color:#17354b!important}
+      html[data-theme='light'] body.api-page .service-drawer-toggle{color:#17354b!important;background:#fff!important;border-color:rgba(30,64,90,.18)!important}
+      html[data-theme='light'] body.api-page .service-drawer-toggle:hover,html[data-theme='light'] body.api-page .service-drawer-toggle:focus-visible{color:#073b55!important;background:#e2f3fa!important}
+      html[data-theme='light'] body.api-page button:focus-visible,html[data-theme='light'] body.api-page select:focus-visible,html[data-theme='light'] body.api-page textarea:focus-visible,html[data-theme='light'] body.api-page input:focus-visible{outline-color:#087ea4}
+    </style>
+  </head>
+  <body class="api-page">
+    <header class="api-header">
+      <nav class="nav container" aria-label="Main navigation">
+        <div class="brand-block">
+          <a class="brand" href="index.html" aria-label="KielTech home"><img src="KielTech-logo.png" alt="KielTech" class="logo-mark"><span class="brand-text">KielTech</span></a>
+          <button id="serviceDrawerToggle" class="service-drawer-toggle service-drawer-toggle--inline" type="button" aria-expanded="false" aria-controls="serviceDrawer">☰ Services</button>
+        </div>
+        <div class="nav-actions">
+          <a class="nav-pill nav-pill--secondary" href="tokens.html">API keys</a>
+          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Choose theme">Theme</button>
+        </div>
+      </nav>
+      <div class="api-title">
+        <span class="eyebrow">Developer API</span>
+        <h1>Integrate KielTech AI into your product</h1>
+        <p>Make authenticated requests from your backend using a language your team already knows. Choose a ready model from the live catalog, and keep API keys out of browser code.</p>
+      </div>
+    </header>
+    <main class="page-content">
+      <section id="documentation" class="integration" aria-labelledby="integrationTitle">
+        <div class="integration-heading">
+          <h2 id="integrationTitle">Connect from your application</h2>
+          <p>These are direct HTTP examples, not official language SDKs. Send a prompt to the chat endpoint with a model ID marked Available in the public catalog, and store your API key in an environment variable or secret manager.</p>
+        </div>
+        <div class="integration-grid">
+          <div id="integrationTabs" class="integration-tabs" role="tablist" aria-label="Integration language">
+          </div>
+          <div id="integrationPanels"></div>
+        </div>
+        <div id="integrations" class="integration-resources" aria-label="Integration tools and compatibility">
+          <article class="integration-resource">
+            <h3>Postman collection</h3>
+            <p>Import the collection, set your API key as a collection variable, and try model discovery and chat requests.</p>
+            <a href="kieltech-postman-collection.json" download>Download Postman collection →</a>
+          </article>
+          <article class="integration-resource">
+            <h3>OpenAPI definition</h3>
+            <p>Import the focused OpenAPI 3.1 spec into your API client or code-generation workflow.</p>
+            <a href="kieltech-openapi.json" download>Download OpenAPI JSON →</a>
+          </article>
+          <article class="integration-note">
+            <h3>Framework and workflow adapters</h3>
+            <p>LangChain, LlamaIndex, Vercel AI SDK, and n8n are not verified as native KielTech integrations. They may be connected with a custom HTTP adapter if its request format matches the KielTech API. Keep credentials in a trusted server or workflow secret store.</p>
+          </article>
+        </div>
+      </section>
+      <div id="playground" class="playground" aria-label="Authenticated API playground">
+      <section class="panel" aria-label="API request">
+        <label class="field" for="apiEndpoint">Endpoint
+          <select id="apiEndpoint">
+            <option value="chat">POST /v1/chat/completions</option>
+            <option value="vision">POST /v1/vision/analysis</option>
+            <option value="image">POST /v1/images/generations</option>
+          </select>
+        </label>
+        <label class="field" for="apiModel">Model
+          <select id="apiModel" disabled>
+            <option value="">No available models</option>
+          </select>
+        </label>
+        <label class="field" for="apiPrompt">Prompt
+          <textarea id="apiPrompt" rows="5"></textarea>
+        </label>
+        <label id="apiImageField" class="field image-field" for="apiImage" hidden>Image input
+          <input id="apiImage" type="file" accept="image/png,image/jpeg,image/webp">
+        </label>
+        <div class="actions">
+          <button id="runApiRequest" class="primary" type="button" disabled>Run authenticated request</button>
+          <button id="resetApiOutput" class="secondary" type="button">Reset</button>
+        </div>
+        <p id="apiAuthNote" class="note">Sign in to run a production request. API keys should remain server-side.</p>
+      </section>
+      <section class="panel output-panel" aria-label="API response">
+        <div class="meta" aria-live="polite">
+          <span id="apiStatus" class="badge">Not run</span>
+          <span id="apiLatency" class="badge">Latency: -</span>
+          <span id="apiRequestId" class="badge">Request ID: -</span>
+          <span id="apiRateLimit" class="badge">Rate limit: -</span>
+        </div>
+        <pre id="apiOutput" aria-live="polite">Run a request to see the real API response.</pre>
+        <div class="copy-row"><button id="copyApiResponse" class="secondary" type="button">Copy response</button></div>
+      </section>
+      </div>
+    </main>
+    <div id="serviceDrawer" class="service-drawer" aria-hidden="true">
+      <div class="service-drawer__backdrop" data-close-drawer></div>
+      <aside class="service-drawer__panel" role="navigation" aria-label="Services menu">
+        <div class="service-drawer__header">
+          <div class="service-drawer__brand"><span class="service-drawer__brand-mark">K</span><span class="service-drawer__brand-text">KielTech</span></div>
+          <button id="serviceDrawerClose" class="service-drawer__close" type="button" aria-label="Close services menu">×</button>
+        </div>
+        <nav class="service-drawer__nav" aria-label="Services">
+          <a class="service-drawer__link" href="tokens.html">API Token</a>
+          <a class="service-drawer__link is-active" href="api-integration.html">API Integration</a>
+        </nav>
+      </aside>
+    </div>
+    <script src="integration-examples.js?v=20261021-faster-slides"></script>
+    <script src="script.js"></script>
+    <script>
+      document.querySelectorAll('[data-integration-tab]').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('[data-integration-tab]').forEach((item) => {
+            const selected = item === tab;
+            item.setAttribute('aria-selected', String(selected));
+            item.tabIndex = selected ? 0 : -1;
+          });
+          document.querySelectorAll('[data-integration-panel]').forEach((panel) => {
+            const selected = panel.dataset.integrationPanel === tab.dataset.integrationTab;
+            panel.classList.toggle('is-active', selected);
+            panel.hidden = !selected;
+          });
+        });
+        tab.addEventListener('keydown', (event) => {
+          if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+          event.preventDefault();
+          const tabs = [...document.querySelectorAll('[data-integration-tab]')];
+          const index = tabs.indexOf(tab);
+          const nextIndex = event.key === 'Home' ? 0
+            : event.key === 'End' ? tabs.length - 1
+              : (index + (event.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
+          tabs[nextIndex].focus();
+          tabs[nextIndex].click();
+        });
+      });
+
+      const apiBase = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+        ? 'http://127.0.0.1:8000'
+        : location.origin;
+      const endpoint = document.getElementById('apiEndpoint');
+      const model = document.getElementById('apiModel');
+      const prompt = document.getElementById('apiPrompt');
+      const imageField = document.getElementById('apiImageField');
+      const imageInput = document.getElementById('apiImage');
+      const output = document.getElementById('apiOutput');
+      const status = document.getElementById('apiStatus');
+      const latency = document.getElementById('apiLatency');
+      const requestId = document.getElementById('apiRequestId');
+      const rateLimit = document.getElementById('apiRateLimit');
+      const authNote = document.getElementById('apiAuthNote');
+      let catalogModels = [];
+
+      function setBadge(element, text, state = '') {
+        element.textContent = text;
+        element.className = `badge${state ? ` is-${state}` : ''}`;
+      }
+
+      function endpointPath() {
+        if (endpoint.value === 'vision') return '/v1/vision/analysis';
+        if (endpoint.value === 'image') return '/v1/images/generations';
+        return '/v1/chat/completions';
+      }
+
+      function updateModels() {
+        const categories = endpoint.value === 'image'
+          ? ['image-generation']
+          : endpoint.value === 'vision'
+            ? ['image-understanding', 'multimodal']
+            : ['text-generation', 'image-understanding', 'multimodal'];
+        const eligible = catalogModels.filter((item) => categories.includes(item.category)
+          && item.is_ready === true && item.is_configured === true);
+        const priorValue = model.value;
+        model.replaceChildren();
+
+        if (!eligible.length) {
+          const emptyOption = new Option('No available models', '');
+          emptyOption.disabled = true;
+          model.add(emptyOption);
+        } else {
+          eligible.forEach((item) => {
+            model.add(new Option(item.display_name || item.model_id, item.model_id));
+          });
+        }
+
+        const selected = [...model.options].find((option) => option.value === priorValue && !option.disabled)
+          || [...model.options].find((option) => !option.disabled);
+        model.value = selected?.value || '';
+        document.getElementById('runApiRequest').disabled = !selected?.value;
+      }
+
+      async function loadModels() {
+        const response = await fetch(`${apiBase}/v1/models/catalog`, {
+          credentials: 'include',
+          cache: 'no-store'
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.detail || data.error || 'Unable to load the model catalog.');
+        }
+        catalogModels = Array.isArray(data.models) ? data.models : [];
+        updateModels();
+        model.disabled = false;
+      }
+
+      endpoint.addEventListener('change', () => {
+        imageField.hidden = endpoint.value !== 'vision';
+        updateModels();
+      });
+
+      loadModels().catch((error) => {
+        model.replaceChildren(new Option('Model catalog unavailable', ''));
+        model.disabled = true;
+        document.getElementById('runApiRequest').disabled = true;
+        authNote.textContent = error.message || 'Unable to load the model catalog.';
+      });
+
+      document.getElementById('resetApiOutput').addEventListener('click', () => {
+        output.textContent = 'Run a request to see the real API response.';
+        setBadge(status, 'Not run');
+        setBadge(latency, 'Latency: -');
+        setBadge(requestId, 'Request ID: -');
+        setBadge(rateLimit, 'Rate limit: -');
+        authNote.textContent = 'Sign in to run a production request. API keys should remain server-side.';
+      });
+
+      document.getElementById('copyApiResponse').addEventListener('click', async (event) => {
+        try {
+          await navigator.clipboard.writeText(output.textContent);
+          event.currentTarget.textContent = 'Copied';
+          window.setTimeout(() => { event.currentTarget.textContent = 'Copy response'; }, 1200);
+        } catch (error) {
+          authNote.textContent = `Unable to copy response: ${error.message}`;
+        }
+      });
+
+      document.getElementById('runApiRequest').addEventListener('click', async () => {
+        const token = localStorage.getItem('kieltechToken') || '';
+        if (!token) {
+          setBadge(status, '401 Sign in required', 'error');
+          output.textContent = JSON.stringify({
+            error: 'authentication_required',
+            detail: 'Sign in before running a production API request.'
+          }, null, 2);
+          authNote.textContent = 'No session token found. Sign in to run a production request.';
+          return;
+        }
+        if (!prompt.value.trim()) {
+          authNote.textContent = 'Enter a prompt before running the request.';
+          prompt.focus();
+          return;
+        }
+
+        const button = document.getElementById('runApiRequest');
+        const started = performance.now();
+        button.disabled = true;
+        output.textContent = 'Sending request...';
+        authNote.textContent = 'Request in progress.';
+
+        try {
+          let payload;
+          if (endpoint.value === 'vision') {
+            if (!imageInput.files[0]) throw new Error('Choose an image before running a vision request.');
+            const imageBase64 = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(String(reader.result).split(',')[1]);
+              reader.onerror = () => reject(reader.error || new Error('Unable to read the selected image.'));
+              reader.readAsDataURL(imageInput.files[0]);
+            });
+            payload = { model: model.value, prompt: prompt.value, image_base64: imageBase64 };
+          } else if (endpoint.value === 'image') {
+            payload = { model: model.value, prompt: prompt.value, size: '1024x1024', steps: 20 };
+          } else {
+            payload = { model: model.value, prompt: prompt.value, stream: false };
+          }
+
+          const response = await fetch(`${apiBase}${endpointPath()}`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              Accept: 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify(payload)
+          });
+          const data = await response.json().catch(() => ({}));
+          const responseId = response.headers.get('x-request-id') || data.request_id || 'not returned';
+          const remaining = response.headers.get('x-ratelimit-remaining');
+          setBadge(status, `${response.status} ${response.statusText || ''}`.trim(), response.ok ? 'success' : 'error');
+          setBadge(latency, `Latency: ${Math.round(performance.now() - started)}ms`);
+          setBadge(requestId, `Request ID: ${responseId}`);
+          setBadge(rateLimit, `Rate limit: ${remaining || 'not returned'}`);
+          output.textContent = JSON.stringify(data, null, 2);
+          authNote.textContent = response.ok
+            ? 'Authenticated request completed.'
+            : 'The API returned an error. Review the status and response body.';
+        } catch (error) {
+          const isConnectionError = error instanceof TypeError;
+          setBadge(status, isConnectionError ? '503 Connection error' : 'Request not sent', 'error');
+          setBadge(latency, `Latency: ${Math.round(performance.now() - started)}ms`);
+          output.textContent = JSON.stringify({ error: 'request_error', detail: error.message }, null, 2);
+          authNote.textContent = error.message;
+        } finally {
+          button.disabled = !model.value;
+        }
+      });
+    </script>
+  </body>
+</html>

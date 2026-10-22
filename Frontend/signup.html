@@ -4,38 +4,90 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign up | KielTech</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20261021-google-button-sizing" />
   </head>
   <body>
     <header class="hero hero-small">
       <nav class="nav container">
-        <a class="brand" href="index.html">KielTech</a>
+        <div class="brand-row">
+          <a class="brand" href="index.html" aria-label="KielTech home">
+            <img src="KielTech-logo.png" alt="KielTech logo" class="logo-mark" />
+            <span class="brand-text">KielTech</span>
+          </a>
+        </div>
         <div class="nav-actions">
-          <div class="nav-links">
-            <a href="about.html">About</a>
-            <a href="services.html">Services</a>
-            <a href="downloads.html">Downloads</a>
-            <a href="contact.html">Contact</a>
-            <a href="login.html">Login</a>
-            <a href="dashboard.html">Dashboard</a>
-          </div>
           <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">🌙</button>
         </div>
       </nav>
     </header>
 
     <main class="container section">
-      <form id="signupForm" class="contact-form">
+      <form id="signupForm" class="contact-form" autocomplete="on">
         <h2>Create your account</h2>
-        <input type="text" name="name" placeholder="Full name" required />
-        <input type="email" name="email" placeholder="Email" required />
-        <input type="password" name="password" placeholder="Password" required />
+        <input type="text" name="username" autocomplete="username" placeholder="Username" minlength="3" maxlength="30" required />
+        <input type="email" name="email" autocomplete="email" placeholder="Email" required />
+        <input type="password" name="password" autocomplete="new-password" minlength="8" placeholder="Password" required />
+        <label for="referralCode">Referral code (optional)</label>
+        <input id="referralCode" type="text" name="referral_code" autocomplete="off" placeholder="Enter referral code" maxlength="32" />
         <button type="submit" class="btn btn-primary">Sign up</button>
+        <button id="googleSignInButton" type="button" class="btn btn-secondary google-auth-button">
+          <svg class="google-auth-button__icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+            <path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.6c3.9-3.6 6.1-8.8 6.1-15z"/>
+            <path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.6-5.1c-1.8 1.2-4.1 1.9-6.9 1.9-5.3 0-9.8-3.6-11.4-8.4H5.8v5.3A20 20 0 0 0 24 44z"/>
+            <path fill="#FBBC05" d="M12.6 27.5a12 12 0 0 1 0-7v-5.3H5.8a20 20 0 0 0 0 17.6l6.8-5.3z"/>
+            <path fill="#EA4335" d="M24 12.1c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 6.1 29.5 4 24 4A20 20 0 0 0 5.8 15.2l6.8 5.3c1.6-4.8 6.1-8.4 11.4-8.4z"/>
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+        <div id="emailVerificationPanel" class="hidden signup-verification-modal" role="dialog" aria-modal="true" aria-labelledby="emailVerificationTitle">
+          <div class="signup-verification-modal__backdrop"></div>
+          <div class="signup-verification-modal__content">
+          <h3 id="emailVerificationTitle">Verify your email</h3>
+          <p class="demo-response">We sent a six-digit verification code. Your account will be created after the code is verified. It expires in 10 minutes.</p>
+          <input id="emailVerificationCode" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="6-digit verification code" />
+          <button id="verifyEmailButton" type="button" class="btn btn-secondary">Verify email</button>
+          <button id="resendEmailVerificationButton" type="button" class="btn btn-secondary">Resend verification email</button>
+          <p id="emailVerificationStatus" class="demo-response" aria-live="polite"></p>
+          </div>
+        </div>
         <p class="demo-response">Already have an account? <a href="login.html" class="text-link">Login</a></p>
         <p id="authMessage" class="demo-response"></p>
       </form>
     </main>
 
-    <script src="script.js"></script>
+    <div id="accountCreditModal" class="hidden signup-verification-modal" role="dialog" aria-modal="true" aria-labelledby="accountCreditTitle">
+      <div class="signup-verification-modal__backdrop" data-account-credit-dismiss></div>
+      <div class="signup-verification-modal__content account-credit-modal">
+        <div class="account-credit-modal__success-mark" aria-hidden="true">OK</div>
+        <p class="eyebrow">Welcome to KielTech</p>
+        <h2 id="accountCreditTitle">Your account is ready</h2>
+        <p class="account-credit-modal__intro">Your email is verified and your developer workspace is ready to use.</p>
+        <div class="account-credit-modal__benefits">
+          <div class="account-credit-modal__benefit">
+            <span class="account-credit-modal__benefit-label">Starter credit</span>
+            <strong>$1 free balance</strong>
+            <span>Available for eligible KielTech model requests.</span>
+          </div>
+          <div class="account-credit-modal__benefit">
+            <span class="account-credit-modal__benefit-label">Referral rewards</span>
+            <strong>Give $2, earn 5%</strong>
+            <span>Your friend receives $2 total, and you earn 5% on their first qualifying top-up.</span>
+          </div>
+          <div id="accountCreditReferralBonus" class="account-credit-modal__benefit account-credit-modal__benefit--bonus" hidden>
+            <span class="account-credit-modal__benefit-label">Your referral bonus</span>
+            <strong>+$1 extra free balance</strong>
+            <span>You received this additional credit because you signed up with a referral link or code.</span>
+          </div>
+        </div>
+        <div class="account-credit-modal__actions">
+          <button id="accountCreditContinue" type="button" class="btn btn-primary">Continue to dashboard</button>
+          <a href="referral.html" class="btn btn-secondary">View referral program</a>
+        </div>
+        <p class="account-credit-modal__fine-print">You can access your referral link anytime from the Referral page.</p>
+      </div>
+    </div>
+
+    <script src="script.js?v=20261021-signout-google-modal" defer></script>
+    <script type="module" src="firebase-google-auth.js?v=20261021-firebase-google-auth"></script>
   </body>
 </html>

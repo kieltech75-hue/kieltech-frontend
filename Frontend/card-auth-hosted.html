@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secure card authorization | KielTech</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+        --bg: #07111d;
+        --panel: rgba(15, 23, 42, 0.96);
+        --text: #f8fbff;
+        --muted: #9aa8c3;
+        --accent: #4c8bf5;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(140deg, #050816 0%, #0f172a 100%);
+        color: var(--text);
+      }
+      .card {
+        width: min(92vw, 640px);
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1.2rem;
+        padding: 1.6rem;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+      }
+      h1 { margin: 0 0 0.5rem; font-size: 1.5rem; }
+      p { color: var(--muted); line-height: 1.6; }
+      .actions { margin-top: 1.2rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }
+      button, a {
+        border: 0;
+        border-radius: 999px;
+        padding: 0.8rem 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        color: #fff;
+        background: var(--accent);
+        cursor: pointer;
+      }
+      .secondary { background: rgba(255,255,255,0.08); color: var(--text); }
+      .status { margin-top: 1rem; font-weight: 600; color: #bbf7d0; }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <p class="eyebrow">Secure payment</p>
+      <h1>Complete your card authorization</h1>
+      <p>This page is the hosted return point for the secure card authorization flow. In a production deployment, this should be replaced with the actual Paystack-hosted form or a server-side callback URL that returns to your app after successful authorization.</p>
+      <div class="actions">
+        <button id="completeBtn" type="button">Simulate successful authorization</button>
+        <a class="secondary" href="settings.html">Back to settings</a>
+      </div>
+      <div class="status" id="statusMessage">Waiting for your card authorization.</div>
+    </main>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const apiBase = 'http://127.0.0.1:8000';
+      const email = params.get('email') || '';
+      const amount = Number(params.get('amount') || 0);
+      const tier = params.get('tier') || 'Standard';
+      const returnTo = 'billing.html';
+      const statusMessage = document.getElementById('statusMessage');
+      const completeBtn = document.getElementById('completeBtn');
+
+      completeBtn.addEventListener('click', async () => {
+        if (!email || !amount || amount < 1) {
+          statusMessage.textContent = 'This funding session is missing a valid account or amount. Return to billing and try again.';
+          return;
+        }
+        completeBtn.disabled = true;
+        statusMessage.textContent = 'Saving your card authorization...';
+        try {
+          const token = localStorage.getItem('kieltechToken') || '';
+          const headers = { 'Content-Type': 'application/json' };
+          if (token) headers.Authorization = `Bearer ${token}`;
+          const response = await fetch(`${apiBase}/v1/billing/save-card/complete`, {
+            method: 'POST',
+            headers,
+            credentials: 'include',
+            body: JSON.stringify({
+              email,
+              authorization_code: `AUTH_${Math.floor(Math.random() * 1000000)}`,
+            }),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(payload.detail || 'Unable to save your card authorization.');
+          }
+          statusMessage.textContent = 'Card authorization completed. Funding your wallet...';
+          const fundingResponse = await fetch(`${apiBase}/v1/billing/initialize-topup`, {
+            method: 'POST',
+            headers,
+            credentials: 'include',
+            body: JSON.stringify({
+              email,
+              amount,
+              amount_usd: amount,
+              currency: 'NGN',
+              plan_code: 'wallet-topup',
+              callback_url: `${window.location.origin}/${returnTo}`,
+            }),
+          });
+          const fundingPayload = await fundingResponse.json().catch(() => ({}));
+          if (!fundingResponse.ok) {
+            throw new Error(fundingPayload.detail || 'Card authorization succeeded, but wallet funding failed.');
+          }
+          statusMessage.textContent = `Funding complete for the ${tier} tier. Returning to billing...`;
+          const destination = new URL(returnTo, window.location.href);
+          destination.searchParams.set('demo_checkout', 'success');
+          destination.searchParams.set('reference', fundingPayload.reference || 'local-card-funding');
+          window.setTimeout(() => window.location.assign(destination.toString()), 700);
+        } catch (error) {
+          statusMessage.textContent = error.message || 'Card authorization could not be completed.';
+          completeBtn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>

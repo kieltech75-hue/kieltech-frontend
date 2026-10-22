@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard | KielTech</title>
+    <meta name="description" content="Enterprise-grade admin dashboard for operations, billing, and platform health." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              slate: {
+                950: '#060b12',
+                900: '#0c1420',
+                800: '#121b2a',
+                700: '#1d2940'
+              },
+              brand: {
+                500: '#35c9f4',
+                600: '#1687c4'
+              },
+              mint: {
+                500: '#35c9f4'
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif']
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      .admin-page :is(button, a, input, select):focus-visible {
+        outline: 2px solid #35c9f4;
+        outline-offset: 3px;
+      }
+      .admin-page button:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+      .dashboard-glass-panel,
+      .dashboard-glass-cell,
+      .dashboard-glass-table-wrap {
+        border: 1px solid rgba(112, 220, 255, 0.16) !important;
+        background: linear-gradient(145deg, rgba(20, 54, 79, 0.54), rgba(8, 25, 43, 0.58)) !important;
+        box-shadow:
+          inset 0 1px 0 rgba(224, 248, 255, 0.07),
+          0 12px 32px rgba(0, 0, 0, 0.16),
+          0 0 22px rgba(53, 201, 244, 0.045);
+        -webkit-backdrop-filter: blur(18px) saturate(135%);
+        backdrop-filter: blur(18px) saturate(135%);
+        transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+      }
+      .dashboard-glass-panel {
+        border-radius: 1.25rem;
+      }
+      .dashboard-glass-cell {
+        border-radius: 1rem;
+      }
+      .dashboard-glass-panel:hover,
+      .dashboard-glass-cell:hover {
+        transform: translateY(-2px);
+        border-color: rgba(112, 220, 255, 0.3) !important;
+        box-shadow:
+          inset 0 1px 0 rgba(224, 248, 255, 0.1),
+          0 16px 36px rgba(0, 0, 0, 0.2),
+          0 0 24px rgba(53, 201, 244, 0.09);
+      }
+      .dashboard-glass-table-wrap {
+        overflow-x: auto;
+        border-radius: 1rem;
+      }
+      .dashboard-glass-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        min-width: 680px;
+        width: 100%;
+      }
+      .dashboard-glass-table thead {
+        background: rgba(53, 201, 244, 0.07);
+      }
+      .dashboard-glass-table th {
+        border-bottom: 1px solid rgba(112, 220, 255, 0.16);
+        color: #a8c0d2;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        padding: 0.75rem;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .dashboard-glass-table tbody tr {
+        transition: background-color 160ms ease;
+      }
+      .dashboard-glass-table tbody tr:hover {
+        background: rgba(53, 201, 244, 0.07);
+      }
+      .dashboard-glass-table tbody td {
+        border-bottom: 1px solid rgba(148, 180, 202, 0.09);
+        padding: 0.75rem;
+      }
+      .dashboard-glass-table tbody tr:last-child td {
+        border-bottom: 0;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .dashboard-glass-panel,
+        .dashboard-glass-cell,
+        .dashboard-glass-table tbody tr {
+          transition: none;
+        }
+        .dashboard-glass-panel:hover,
+        .dashboard-glass-cell:hover {
+          transform: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .admin-page *,
+        .admin-page *::before,
+        .admin-page *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+      .table-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+      }
+      .table-scroll::-webkit-scrollbar {
+        height: 8px;
+        width: 8px;
+      }
+      .table-scroll::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.35);
+      }
+      .chip.active {
+        border-color: rgba(197, 237, 119, 0.45);
+        background: rgba(149, 189, 79, 0.14);
+        color: #eff8df;
+      }
+      .sidebar-collapsed .sidebar-label,
+      .sidebar-collapsed .sidebar-meta,
+      .sidebar-collapsed .sidebar-title,
+      .sidebar-collapsed .sidebar-status-text {
+        display: none;
+      }
+      .sidebar-collapsed .sidebar-icon {
+        margin: 0;
+      }
+      .sidebar-collapsed .brand-title {
+        display: none;
+      }
+      @media (min-width: 1024px) {
+        .admin-page main > header,
+        .admin-page main > section {
+          border-radius: 1.25rem;
+        }
+        .admin-page main > section {
+          margin-top: 1rem;
+          padding: 1rem;
+        }
+        .admin-page main > header {
+          padding: 1rem;
+        }
+        .admin-page main h2 {
+          font-size: 1.5rem;
+        }
+        .admin-page main h3 {
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <script src="/admin-sidebar.js?v=20261021-firestore-role-cookie-route" defer></script>
+  <body class="admin-page min-h-full bg-slate-950 text-slate-100">
+    <div class="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(47,111,237,0.18),_transparent_28%),linear-gradient(135deg,_#060b12_0%,_#0d1726_100%)]">
+      <div class="mx-auto flex min-h-screen max-w-[1440px] flex-col lg:flex-row">
+        <div id="sidebarBackdrop" class="fixed inset-0 z-20 hidden bg-slate-950/70"></div>
+        <button id="sidebarToggle" class="fixed left-4 top-4 z-40 rounded-full border border-white/10 bg-slate-950/80 p-2 text-slate-400 shadow-lg backdrop-blur transition hover:bg-white/5" aria-label="Toggle sidebar" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm1 4a1 1 0 100 2h12a1 1 0 100-2H4z" clip-rule="evenodd" />
+          </svg>
+        </button>
+        <aside id="sidebar" class="fixed left-0 top-0 z-30 flex h-screen w-72 -translate-x-full flex-col border-r border-white/10 bg-slate-950/95 px-4 py-5 pt-16 backdrop-blur transition-all duration-200 lg:w-64 lg:border-r lg:bg-slate-950/70 lg:px-5 lg:py-5 lg:pt-5 overflow-y-auto max-h-screen">
+          <div class="flex items-center justify-between lg:block">
+            <div class="brand-title min-w-0 flex items-center gap-3">
+              <img src="/KielTech-logo.png" alt="" class="shrink-0 object-contain" style="width:38px;height:38px;object-fit:contain">
+              <div>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-400">KielTech</p>
+                <h1 class="mt-2 text-xl font-semibold text-white">Enterprise Console</h1>
+              </div>
+            </div>
+          </div>
+
+          <a href="/admin/customers" class="mt-8 flex items-center gap-3 rounded-xl border border-brand-500/20 bg-brand-500/10 px-3 py-2.5 text-sm font-medium text-white transition hover:bg-brand-500/20">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500/20 text-brand-300">◌</span>
+            <span>Customers</span>
+          </a>
+          <a href="/admin/ai-studio" class="mt-2 flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-white/10 hover:text-white">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sky-300">✦</span>
+            <span>AI Studio</span>
+          </a>
+          <a href="/admin/email" class="mt-2 flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-white/10 hover:text-white">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sky-300">@</span>
+            <span>Email</span>
+          </a>
+          <a href="/admin/model-reviews" class="mt-2 flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-white/10 hover:text-white">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sky-300">★</span>
+            <span>Models review</span>
+          </a>
+          <a href="/admin-models.html" class="mt-2 flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-white/10 hover:text-white">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sky-300">▤</span>
+            <span>Models</span>
+          </a>
+          <a href="/admin/chat-templates" class="mt-2 flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-white/10 hover:text-white">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sky-300">▦</span>
+            <span>Templates</span>
+          </a>
+          <a href="/admin/uptime-policy" class="mt-2 flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-white/10 hover:text-white">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sky-300">◷</span>
+            <span>Uptime Policy</span>
+          </a>
+
+          <div class="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div class="flex items-center gap-2 text-sm font-medium text-slate-200">
+              <span class="inline-flex h-2.5 w-2.5 rounded-full bg-mint-500"></span>
+              <span class="sidebar-status-text">Active system status</span>
+            </div>
+            <p id="systemStatusText" class="sidebar-meta mt-3 text-sm text-slate-400">Live admin and billing data are syncing from the backend.</p>
+          </div>
+        </aside>
+
+        <main class="min-w-0 flex-1 px-4 pb-8 pt-20 sm:px-6 lg:px-8">
+          <header class="flex flex-col gap-5 rounded-3xl border border-white/10 bg-slate-900/80 p-5 shadow-[0_12px_40px_rgba(0,0,0,0.12)] backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div class="min-w-0">
+              <div class="mb-2 flex flex-wrap items-center gap-2">
+                <span class="text-xs font-semibold uppercase tracking-[0.18em] text-brand-300">Operations</span>
+                <span class="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-300">Production</span>
+              </div>
+              <h2 class="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Admin dashboard</h2>
+              <p class="mt-1 text-sm text-slate-400">Monitor customer activity, usage and billing health.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 sm:justify-end">
+              <div class="text-xs text-slate-400 sm:text-right">
+                <span class="block uppercase tracking-wide text-slate-500">Last updated</span>
+                <span id="dashboardUpdatedAt" class="mt-1 block font-medium text-slate-300">Waiting for data</span>
+              </div>
+              <button id="refreshDashboardButton" type="button" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-2 text-sm font-semibold text-brand-200 transition hover:bg-brand-500/20">
+                <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.015.75.75 0 00-1.06 1.06 7 7 0 0011.67-2.557.75.75 0 00-1.409-.518zM4.688 8.576a5.5 5.5 0 019.201-2.015.75.75 0 101.06-1.06A7 7 0 003.279 8.058a.75.75 0 001.409.518z" clip-rule="evenodd"/><path d="M3.5 3.75a.75.75 0 011.5 0v3.5a.75.75 0 01-.75.75h-3a.75.75 0 010-1.5H3.5v-2.75zm13 12.5a.75.75 0 01-1.5 0v-3.5a.75.75 0 01.75-.75h3a.75.75 0 010 1.5H16.5v2.75z"/></svg>
+                <span>Refresh data</span>
+              </button>
+              <div class="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200">
+                <span id="adminProfileInitials" class="flex h-8 w-8 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold text-slate-950">AD</span>
+                <span id="adminProfileName" class="max-w-36 truncate">Administrator</span>
+              </div>
+            </div>
+          </header>
+
+          <div id="dashboardNotice" role="alert" class="mt-4 hidden items-center justify-between gap-4 rounded-2xl border border-rose-400/25 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+            <span id="dashboardNoticeText">Dashboard data is unavailable. Try refreshing.</span>
+            <button id="retryDashboardButton" type="button" class="shrink-0 rounded-lg border border-rose-200/20 px-3 py-1.5 font-semibold text-rose-50 transition hover:bg-rose-200/10">Try again</button>
+          </div>
+
+          <section id="overview" class="mt-6 grid gap-4 xl:grid-cols-[1.3fr_0.7fr]">
+            <div class="min-w-0">
+              <div class="px-1">
+                <h3 id="platformDemandHeading" class="text-xl font-semibold text-white">Usage and account health</h3>
+              </div>
+
+              <div class="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-3">
+                <div class="dashboard-glass-cell p-4">
+                  <p class="text-sm text-slate-400">Customers</p>
+                  <p id="metricCustomers" class="mt-3 font-mono text-2xl font-semibold tracking-tight text-white">—</p>
+                  <p id="metricCustomersSub" class="mt-1 text-xs text-slate-500">Accounts on the platform</p>
+                </div>
+                <div class="dashboard-glass-cell p-4">
+                  <p class="text-sm text-slate-400">Enterprise accounts</p>
+                  <p id="metricEnterprise" class="mt-3 font-mono text-2xl font-semibold tracking-tight text-white">—</p>
+                  <p class="mt-1 text-xs text-slate-500">Dedicated plan customers</p>
+                </div>
+                <div class="dashboard-glass-cell p-4">
+                  <p class="text-sm text-slate-400">Usage tracked</p>
+                  <p id="metricUsage" class="mt-3 font-mono text-2xl font-semibold tracking-tight text-white">—</p>
+                  <p class="mt-1 text-xs text-slate-500">Total requests from all users</p>
+                </div>
+              </div>
+            </div>
+
+            <div id="billing" class="dashboard-glass-panel p-5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-slate-400">Live status</p>
+                  <h3 class="mt-1 text-lg font-semibold text-white">Control plane</h3>
+                </div>
+                <span id="billingStatusBadge" class="inline-flex items-center gap-2 rounded-full border border-mint-500/20 bg-mint-500/10 px-2.5 py-1 text-sm font-medium text-mint-300">
+                  <span class="h-2 w-2 rounded-full bg-mint-500"></span>
+                  <span id="billingStatusText">Connecting…</span>
+                </span>
+              </div>
+              <ul class="mt-5 space-y-3 text-sm text-slate-300">
+                <li class="dashboard-glass-cell flex items-center justify-between px-3 py-2">
+                  <span>Billing connector</span>
+                  <span id="billingConnector" class="font-medium text-white">—</span>
+                </li>
+                <li class="dashboard-glass-cell flex items-center justify-between px-3 py-2">
+                  <span>Exchange rate</span>
+                  <span id="exchangeRateValue" class="font-medium text-white">—</span>
+                </li>
+              </ul>
+
+            </div>
+          </section>
+
+          <section id="modelRequestTracking" class="mt-6 dashboard-glass-panel p-5" aria-labelledby="modelRequestHeading">
+            <div class="flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <p class="text-sm font-medium text-slate-400">Model activity</p>
+                <h3 id="modelRequestHeading" class="mt-1 text-lg font-semibold text-white">Requests by model</h3>
+                <p class="mt-1 text-sm text-slate-500">Models currently listed on the Models page; newly added models appear automatically</p>
+              </div>
+              <p id="modelRequestTotal" class="font-mono text-sm text-slate-300">— requests</p>
+            </div>
+            <div class="dashboard-glass-table-wrap mt-4 max-h-80 overflow-auto">
+              <table class="dashboard-glass-table text-left text-sm">
+                <thead class="sticky top-0 z-10 text-slate-400">
+                  <tr><th scope="col">Model</th><th scope="col">Category</th><th scope="col">Status</th><th scope="col">Requests</th></tr>
+                </thead>
+                <tbody id="modelRequestTableBody">
+                  <tr><td colspan="4" class="text-slate-400">Loading model request counts…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="platform" class="mt-6 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+            <div class="dashboard-glass-panel p-5 lg:col-span-2">
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p class="text-sm font-medium text-slate-400">Platform activity</p>
+                  <h3 class="mt-1 text-lg font-semibold text-white">API request volume</h3>
+                  <p id="usageTrendRangeLabel" class="mt-1 text-sm text-slate-500">Daily requests · Last 7 days</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs uppercase tracking-[0.16em] text-slate-500">Requests today</p>
+                  <p id="usageCurrentValue" class="mt-1 font-mono text-2xl font-semibold text-white">—</p>
+                </div>
+              </div>
+
+              <div class="dashboard-glass-cell mt-5 overflow-hidden px-2 py-3 sm:px-4">
+                <p id="usageChartStatus" role="status" aria-live="polite" class="min-h-5 px-2 text-xs text-slate-400"></p>
+                <svg id="usageChartSvg" class="h-64 w-full sm:h-72" viewBox="0 0 960 320" preserveAspectRatio="none" role="img" aria-label="Daily API request volume over the last 7 days"></svg>
+              </div>
+
+              <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div role="group" aria-label="Usage chart time range" class="inline-flex w-fit max-w-full flex-wrap gap-1 rounded-xl border border-white/10 bg-slate-950/60 p-1">
+                  <button type="button" id="usageTimeframe7D" data-usage-timeframe="7D" aria-pressed="true" class="usage-timeframe-btn rounded-lg border border-transparent bg-brand-500/15 px-3 py-2 text-sm font-medium text-brand-100 transition hover:bg-brand-500/20 focus-visible:outline-none">Current 7D</button>
+                  <button type="button" id="usageTimeframe1M" data-usage-timeframe="1M" aria-pressed="false" class="usage-timeframe-btn rounded-lg border border-transparent px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-white focus-visible:outline-none">Past 1M</button>
+                  <button type="button" id="usageTimeframe6M" data-usage-timeframe="6M" aria-pressed="false" class="usage-timeframe-btn rounded-lg border border-transparent px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-white focus-visible:outline-none">Past 6M</button>
+                  <button type="button" id="usageTimeframe12M" data-usage-timeframe="12M" aria-pressed="false" class="usage-timeframe-btn rounded-lg border border-transparent px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-white focus-visible:outline-none">Past 12M</button>
+                </div>
+                <p class="flex items-center gap-2 text-xs text-slate-500"><span class="h-2 w-2 rounded-full bg-brand-400"></span>Requests per day</p>
+              </div>
+            </div>
+
+          </section>
+
+        </main>
+      </div>
+    </div>
+    <script>
+      const API_BASE = (
+        window.KIELTECH_API_BASE_URL
+        || (['localhost', '127.0.0.1', ''].includes(window.location.hostname)
+          ? `http://${window.location.hostname || 'localhost'}:8000`
+          : 'https://kieltech-backend.onrender.com')
+      ).replace(/\/+$/, '');
+      const nativeFetch = window.fetch.bind(window);
+      window.fetch = (input, init = {}) => nativeFetch(input, { ...init, credentials: 'include' });
+      const adminToken = '';
+      const sidebar = document.getElementById('sidebar');
+      const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+      const sidebarToggle = document.getElementById('sidebarToggle');
+      let sidebarOpen = false;
+
+      function updateSidebarLayout() {
+        sidebar.classList.toggle('-translate-x-full', !sidebarOpen);
+        sidebar.classList.toggle('translate-x-0', sidebarOpen);
+        sidebarBackdrop.classList.toggle('hidden', !sidebarOpen);
+        sidebarToggle?.setAttribute('aria-expanded', String(sidebarOpen));
+      }
+
+      sidebarToggle?.addEventListener('click', () => {
+        sidebarOpen = !sidebarOpen;
+        updateSidebarLayout();
+      });
+
+      sidebarBackdrop?.addEventListener('click', () => {
+        sidebarOpen = false;
+        updateSidebarLayout();
+      });
+
+      sidebar.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => {
+          sidebarOpen = false;
+          updateSidebarLayout();
+        });
+      });
+
+      window.addEventListener('resize', updateSidebarLayout);
+
+      function formatCompact(value) {
+        const number = Number(value || 0);
+        return new Intl.NumberFormat('en-US', {
+          notation: 'compact',
+          maximumFractionDigits: 1
+        }).format(number);
+      }
+
+      function setStatus(element, text, tone) {
+        if (!element) return;
+        const label = element.querySelector('span:last-child');
+        if (label) label.textContent = text;
+        else element.textContent = text;
+        element.className = 'inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-sm font-medium';
+        const indicator = element.firstElementChild;
+        indicator?.classList.remove('bg-slate-400', 'bg-amber-500', 'bg-mint-500');
+        if (tone === 'success') {
+          element.classList.add('border-mint-500/20', 'bg-mint-500/10', 'text-mint-300');
+          indicator?.classList.add('bg-mint-500');
+        } else if (tone === 'warning') {
+          element.classList.add('border-amber-500/20', 'bg-amber-500/10', 'text-amber-300');
+          indicator?.classList.add('bg-amber-500');
+        } else {
+          element.classList.add('border-slate-500/20', 'bg-slate-500/10', 'text-slate-300');
+          indicator?.classList.add('bg-slate-400');
+        }
+      }
+
+      function adminHeaders() {
+        return {};
+      }
+
+      function showDashboardNotice(message) {
+        const notice = document.getElementById('dashboardNotice');
+        const noticeText = document.getElementById('dashboardNoticeText');
+        if (!notice || !noticeText) return;
+        noticeText.textContent = message;
+        notice.classList.remove('hidden');
+        notice.classList.add('flex');
+      }
+
+      function clearDashboardNotice() {
+        const notice = document.getElementById('dashboardNotice');
+        if (!notice) return;
+        notice.classList.add('hidden');
+        notice.classList.remove('flex');
+      }
+
+      const USAGE_TIMEFRAMES = {
+        '7D': 7,
+        '1M': 30,
+        '6M': 180,
+        '12M': 365,
+      };
+      let selectedUsageTimeframe = '7D';
+      let usageTrendRequestId = 0;
+      let usageTrendController = null;
+
+      function formatUsageValue(value) {
+        return `${Number(value || 0).toLocaleString()} req`;
+      }
+
+      function getWorkflowStageStyle(stageKey) {
+        switch (stageKey) {
+          case 'queued':
+            return 'bg-amber-500/10 border-amber-500/15 text-amber-200';
+          case 'reviewing':
+            return 'bg-sky-500/10 border-sky-500/15 text-sky-200';
+          case 'draft-ready':
+            return 'bg-violet-500/10 border-violet-500/15 text-violet-200';
+          case 'delivery-ready':
+            return 'bg-mint-500/10 border-mint-500/15 text-mint-200';
+          case 'failed':
+            return 'bg-rose-500/10 border-rose-500/15 text-rose-200';
+          case 'completed':
+            return 'bg-green-500/10 border-green-500/15 text-green-200';
+          default:
+            return 'bg-slate-500/10 border-slate-500/15 text-slate-200';
+        }
+      }
+
+      function formatRequestDate(value) {
+        if (!value) return 'Unknown';
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+
+      function renderWorkflowStageCards(stages) {
+        const container = document.getElementById('workflowStageContainer');
+        if (!container) return;
+        container.innerHTML = stages.map((stage) => {
+          const items = Array.isArray(stage.requests) ? stage.requests.slice(0, 4) : [];
+          const stageStyle = getWorkflowStageStyle(stage.key);
+          return `
+            <section class="dashboard-glass-panel min-w-[320px] p-4">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-sm font-medium text-slate-400">${stage.title}</p>
+                  <p class="mt-2 text-2xl font-semibold text-white">${stage.requests.length}</p>
+                </div>
+                <span class="rounded-full border px-2.5 py-1 text-xs font-semibold ${stageStyle}">${stage.requests.length} items</span>
+              </div>
+              <p class="mt-3 text-sm leading-6 text-slate-500">${stage.description}</p>
+              <div class="mt-4 space-y-3">
+                ${items.length ? items.map((request) => `
+                  <div class="dashboard-glass-cell p-3 text-sm text-slate-300">
+                    <div class="flex items-center justify-between gap-3">
+                      <p class="font-semibold text-white">${request.project_name}</p>
+                      <span class="text-[11px] uppercase text-slate-400">${formatRequestDate(request.created_at)}</span>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500">${request.email} • ${request.delivery_preference || 'publish'}</p>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                      <span class="rounded-full bg-slate-800/80 px-2 py-1 text-[11px] uppercase text-slate-300">${request.review_status || 'pending'}</span>
+                      <span class="rounded-full bg-slate-800/80 px-2 py-1 text-[11px] uppercase text-slate-300">${request.billing_payment_status || 'pending'}</span>
+                      <span class="rounded-full bg-slate-800/80 px-2 py-1 text-[11px] uppercase text-slate-300">${request.billing_invoice_status || 'pending'}</span>
+                    </div>
+                    <p class="mt-3 line-clamp-2 text-xs text-slate-500">${request.review_note || 'No admin notes yet.'}</p>
+                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                      ${stage.key === 'failed' ? `<button data-workflow-retry-id="${request.id}" class="workflow-action-btn rounded-full border border-brand-500/20 bg-brand-500/10 px-3 py-1 text-xs font-semibold text-brand-200">Retry</button>` : ''}
+                      ${stage.key === 'queued' ? `<button data-admin-action-id="${request.id}" data-admin-action="approve" class="workflow-action-btn rounded-full border border-mint-500/20 bg-mint-500/10 px-3 py-1 text-xs font-semibold text-mint-200">Approve</button>` : ''}
+                      ${stage.key === 'reviewing' ? `<button data-admin-action-id="${request.id}" data-admin-action="approve" class="workflow-action-btn rounded-full border border-mint-500/20 bg-mint-500/10 px-3 py-1 text-xs font-semibold text-mint-200">Approve</button><button data-admin-action-id="${request.id}" data-admin-action="reject" class="workflow-action-btn rounded-full border border-rose-500/20 bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-200">Reject</button>` : ''}
+                      ${stage.key === 'draft-ready' ? `<button data-admin-action-id="${request.id}" data-admin-action="delivery-ready" class="workflow-action-btn rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-xs font-semibold text-sky-200">Send to delivery</button>` : ''}
+                      <button data-workflow-view-id="${request.id}" class="workflow-view-btn rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-200">View</button>
+                    </div>
+                  </div>
+                `).join('') : '<p class="mt-4 text-sm text-slate-500">No requests in this stage.</p>'}
+              </div>
+            </section>
+          `;
+        }).join('');
+      }
+
+      async function performAdminAction(requestId, actionType, button) {
+        const apiBase = API_BASE;
+        const payload = {
+          review_status: actionType === 'reject' ? 'rejected' : 'approved',
+          status: actionType === 'delivery-ready' ? 'delivery-ready' : 'queued',
+          review_note: actionType === 'reject' ? 'Rejected by admin' : 'Approved by admin',
+        };
+        if (actionType === 'reject') {
+          payload.status = 'failed';
+        }
+
+        try {
+          const response = await fetch(`${apiBase}/v1/admin/web-development/requests/${requestId}`, {
+            method: 'PATCH',
+            headers: { ...adminHeaders(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (!response.ok) {
+            throw new Error('Unable to update request');
+          }
+          if (button) {
+            button.disabled = false;
+            button.textContent = actionType === 'reject' ? 'Rejected' : 'Updated';
+          }
+        } catch (error) {
+          console.error('Admin action failed', error);
+          window.alert('Unable to perform admin action.');
+          if (button) {
+            button.disabled = false;
+            button.textContent = actionType === 'reject' ? 'Reject' : 'Approve';
+          }
+        }
+      }
+
+      async function loadWorkflowData() {
+        const apiBase = API_BASE;
+        const headers = adminHeaders();
+        try {
+          const response = await fetch(`${apiBase}/v1/admin/web-development/workflow`, { headers });
+          if (!response.ok) {
+            throw new Error('Unable to load workflow data');
+          }
+          const payload = await response.json();
+          const stages = Array.isArray(payload.stages) ? payload.stages : [];
+          const summary = payload.summary || {};
+          document.getElementById('workflowQueuedCount').textContent = String(summary.queued || 0);
+          document.getElementById('workflowReviewingCount').textContent = String(summary.reviewing || 0);
+          document.getElementById('workflowFailedCount').textContent = String(summary.failed || 0);
+          renderWorkflowStageCards(stages);
+
+          const workflowSummary = [`Queued ${summary.queued || 0}`, `Reviewing ${summary.reviewing || 0}`, `Failed ${summary.failed || 0}`];
+          const webDevSubEl = document.getElementById('metricWebDevSub');
+          if (webDevSubEl) {
+            webDevSubEl.textContent = workflowSummary.join(' • ');
+          }
+          attachWorkflowActions();
+        } catch (error) {
+          console.warn('Workflow load failed', error);
+        }
+      }
+
+      function attachWorkflowActions() {
+        document.querySelectorAll('.workflow-action-btn').forEach((button) => {
+          button.addEventListener('click', async () => {
+            const requestId = button.getAttribute('data-workflow-retry-id') || button.getAttribute('data-admin-action-id');
+            const actionType = button.getAttribute('data-admin-action');
+            if (!requestId) return;
+            button.disabled = true;
+            button.textContent = 'Working…';
+
+            if (actionType) {
+              await performAdminAction(requestId, actionType, button);
+            } else {
+              try {
+                const retryResponse = await fetch(`${API_BASE}/v1/web-development/requests/${requestId}/retry`, {
+                  method: 'POST',
+                  headers: { ...adminHeaders(), 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ action: 'download' }),
+                });
+                if (!retryResponse.ok) throw new Error('Retry request failed');
+                window.alert('Retry submitted. Refreshing workflow board.');
+              } catch (err) {
+                console.error(err);
+                window.alert('Failed to submit retry. See console for details.');
+              }
+            }
+          });
+        });
+
+        document.querySelectorAll('.workflow-view-btn').forEach((button) => {
+          button.addEventListener('click', () => {
+            const requestId = button.getAttribute('data-workflow-view-id');
+            if (!requestId) return;
+            window.open(`https://admin.example.com/requests/${requestId}`, '_blank');
+          });
+        });
+      }
+
+      function renderUsageChart(series) {
+        const svg = document.getElementById('usageChartSvg');
+        if (!svg) return;
+
+        const width = 960;
+        const height = 320;
+        const padding = { left: 76, right: 22, top: 18, bottom: 38 };
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
+        const namespace = 'http://www.w3.org/2000/svg';
+        const addSvgElement = (parent, tag, attributes = {}) => {
+          const element = document.createElementNS(namespace, tag);
+          Object.entries(attributes).forEach(([name, value]) => element.setAttribute(name, String(value)));
+          parent.append(element);
+          return element;
+        };
+        const addText = (parent, text, attributes) => {
+          const element = addSvgElement(parent, 'text', attributes);
+          element.textContent = text;
+          return element;
+        };
+
+        svg.replaceChildren();
+        if (!series.length) {
+          addText(svg, 'No request data for this period', {
+            x: width / 2,
+            y: height / 2,
+            fill: '#94a3b8',
+            'font-size': 15,
+            'text-anchor': 'middle',
+          });
+          svg.setAttribute('aria-label', 'No API request data for the selected period');
+          return;
+        }
+
+        const values = series.map((point) => Math.max(0, Number(point.value) || 0));
+        const maxValue = Math.max(...values);
+        const roughStep = Math.max(maxValue / 4, 1);
+        const stepMagnitude = 10 ** Math.floor(Math.log10(roughStep));
+        const normalizedStep = roughStep / stepMagnitude;
+        const step = (normalizedStep <= 1 ? 1 : normalizedStep <= 2 ? 2 : normalizedStep <= 5 ? 5 : 10) * stepMagnitude;
+        const axisMax = Math.max(step * 4, step);
+        const xPos = (index) => padding.left + (chartWidth * index) / Math.max(series.length - 1, 1);
+        const yPos = (value) => padding.top + chartHeight - (value / axisMax) * chartHeight;
+
+        const defs = addSvgElement(svg, 'defs');
+        const gradient = addSvgElement(defs, 'linearGradient', { id: 'usageTrendGradient', x1: '0', x2: '0', y1: '0', y2: '1' });
+        addSvgElement(gradient, 'stop', { offset: '0%', 'stop-color': '#35c9f4', 'stop-opacity': '0.22' });
+        addSvgElement(gradient, 'stop', { offset: '100%', 'stop-color': '#35c9f4', 'stop-opacity': '0' });
+
+        const chartGroup = addSvgElement(svg, 'g', { 'aria-hidden': 'true' });
+        for (let tick = 0; tick <= 4; tick += 1) {
+          const value = axisMax - tick * step;
+          const y = padding.top + tick * (chartHeight / 4);
+          addSvgElement(chartGroup, 'line', {
+            x1: padding.left,
+            y1: y,
+            x2: width - padding.right,
+            y2: y,
+            stroke: 'rgba(148,163,184,0.14)',
+            'stroke-dasharray': tick === 4 ? '0' : '3 7',
+          });
+          addText(chartGroup, formatCompact(value), {
+            x: padding.left - 14,
+            y: y + 4,
+            fill: '#94a3b8',
+            'font-size': 12,
+            'text-anchor': 'end',
+          });
+        }
+
+        const baseline = height - padding.bottom;
+        const linePath = series.map((point, index) => `${index === 0 ? 'M' : 'L'} ${xPos(index)} ${yPos(values[index])}`).join(' ');
+        const areaPath = `${linePath} L ${xPos(series.length - 1)} ${baseline} L ${xPos(0)} ${baseline} Z`;
+        addSvgElement(chartGroup, 'path', { d: areaPath, fill: 'url(#usageTrendGradient)' });
+        addSvgElement(chartGroup, 'path', {
+          d: linePath,
+          fill: 'none',
+          stroke: '#35c9f4',
+          'stroke-width': 3,
+          'stroke-linecap': 'round',
+          'stroke-linejoin': 'round',
+          'vector-effect': 'non-scaling-stroke',
+        });
+
+        const markerInterval = Math.max(1, Math.ceil(series.length / 24));
+        series.forEach((point, index) => {
+          if (index % markerInterval !== 0 && index !== series.length - 1) return;
+          const marker = addSvgElement(chartGroup, 'circle', {
+            cx: xPos(index),
+            cy: yPos(values[index]),
+            r: 3.5,
+            fill: '#071726',
+            stroke: '#67d9fa',
+            'stroke-width': 2,
+            'vector-effect': 'non-scaling-stroke',
+          });
+          const tooltip = document.createElementNS(namespace, 'title');
+          tooltip.textContent = `${point.label}: ${formatUsageValue(values[index])}`;
+          marker.append(tooltip);
+        });
+
+        const labelCount = Math.min(7, series.length);
+        const labelIndexes = new Set(Array.from({ length: labelCount }, (_, index) =>
+          Math.round((index * (series.length - 1)) / Math.max(labelCount - 1, 1))));
+        labelIndexes.forEach((index) => {
+          const anchor = index === 0 ? 'start' : index === series.length - 1 ? 'end' : 'middle';
+          addText(chartGroup, series[index].label, {
+            x: xPos(index),
+            y: height - 10,
+            fill: '#94a3b8',
+            'font-size': 12,
+            'text-anchor': anchor,
+          });
+        });
+        svg.setAttribute('aria-label', `Daily API request volume chart with ${series.length} days of data`);
+      }
+
+      async function loadModelRequestCounts() {
+        const tableBody = document.getElementById('modelRequestTableBody');
+        const totalElement = document.getElementById('modelRequestTotal');
+        try {
+          const response = await fetch(`${API_BASE}/admin/model-request-counts`, {
+            headers: adminHeaders(),
+            cache: 'no-store',
+          });
+          if (!response.ok) throw new Error(`Model request counts could not be loaded (${response.status}).`);
+          const payload = await response.json();
+          const models = Array.isArray(payload.models) ? payload.models : [];
+          const total = models.reduce((sum, model) => sum + Number(model.request_count || 0), 0);
+          totalElement.textContent = `${total.toLocaleString()} ${total === 1 ? 'request' : 'requests'}`;
+          tableBody.replaceChildren();
+          if (!models.length) {
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.colSpan = 4;
+            cell.className = 'text-slate-400';
+            cell.textContent = 'No catalog models or requests have been recorded.';
+            row.append(cell);
+            tableBody.append(row);
+            return;
+          }
+          models.forEach((model) => {
+            const row = document.createElement('tr');
+            row.className = 'text-slate-200';
+            [model.display_name, model.category, model.status, Number(model.request_count || 0).toLocaleString()].forEach((value, index) => {
+              const cell = document.createElement('td');
+              cell.textContent = String(value);
+              if (index === 2) cell.className = 'font-mono';
+              row.append(cell);
+            });
+            tableBody.append(row);
+          });
+        } catch (error) {
+          console.error('Unable to load model request counts', error);
+          totalElement.textContent = 'Unavailable';
+          tableBody.innerHTML = '<tr><td colspan="4" class="text-rose-300">Model request counts could not be loaded.</td></tr>';
+        }
+      }
+
+      function refreshUsageButtons() {
+        document.querySelectorAll('.usage-timeframe-btn').forEach((button) => {
+          const isSelected = button.dataset.usageTimeframe === selectedUsageTimeframe;
+          button.setAttribute('aria-pressed', String(isSelected));
+          button.classList.toggle('bg-brand-500/15', isSelected);
+          button.classList.toggle('text-brand-100', isSelected);
+          button.classList.toggle('text-slate-400', !isSelected);
+          button.classList.toggle('hover:bg-brand-500/20', isSelected);
+          button.classList.toggle('hover:bg-white/5', !isSelected);
+          button.classList.toggle('hover:text-white', !isSelected);
+        });
+      }
+
+      async function loadUsageTrend() {
+        const requestId = ++usageTrendRequestId;
+        const timeframe = selectedUsageTimeframe;
+        const days = USAGE_TIMEFRAMES[timeframe];
+        const svg = document.getElementById('usageChartSvg');
+        const chartStatus = document.getElementById('usageChartStatus');
+        const rangeLabels = { '7D': 'Last 7 days', '1M': 'Last 30 days', '6M': 'Last 6 months', '12M': 'Last 12 months' };
+
+        usageTrendController?.abort();
+        usageTrendController = new AbortController();
+        const controller = usageTrendController;
+        if (chartStatus) chartStatus.textContent = `Loading ${rangeLabels[timeframe].toLowerCase()}…`;
+        if (svg) svg.setAttribute('aria-busy', 'true');
+        refreshUsageButtons();
+        const rangeLabel = document.getElementById('usageTrendRangeLabel');
+        if (rangeLabel) rangeLabel.textContent = `Daily requests · ${rangeLabels[timeframe]}`;
+        if (svg) svg.replaceChildren();
+
+        try {
+          const response = await fetch(`${API_BASE}/admin/dashboard-data?days=${days}`, {
+            headers: adminHeaders(),
+            cache: 'no-store',
+            signal: controller.signal,
+          });
+          if (!response.ok) throw new Error(`Usage trend request failed (${response.status})`);
+          const payload = await response.json();
+          if (requestId !== usageTrendRequestId) return;
+
+          const traffic = Array.isArray(payload.traffic) ? payload.traffic : [];
+          const series = traffic.map((item) => {
+            const value = Number(item.value);
+            const date = item.date ? new Date(`${item.date}T00:00:00`) : null;
+            return {
+              label: date && !Number.isNaN(date.getTime())
+                ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                : '',
+              value: Number.isFinite(value) ? Math.max(0, value) : 0,
+            };
+          });
+          const latest = series.length ? series[series.length - 1].value : 0;
+          const currentValue = document.getElementById('usageCurrentValue');
+          if (currentValue) currentValue.textContent = formatUsageValue(latest);
+          renderUsageChart(series);
+          if (chartStatus) chartStatus.textContent = series.length ? '' : 'No request data for this period.';
+        } catch (error) {
+          if (error.name === 'AbortError') return;
+          if (requestId !== usageTrendRequestId) return;
+          console.error('Unable to load usage trend', error);
+          if (chartStatus) chartStatus.textContent = 'Unable to load this range. Select it again to retry.';
+          if (svg) {
+            svg.replaceChildren();
+            svg.setAttribute('aria-label', 'Unable to load API request volume chart');
+          }
+        } finally {
+          if (requestId === usageTrendRequestId) {
+            if (svg) svg.setAttribute('aria-busy', 'false');
+            usageTrendController = null;
+            refreshUsageButtons();
+          }
+        }
+      }
+
+      let dashboardCustomers = [];
+      let dashboardFilter = 'all';
+      let dashboardSearch = '';
+      let dashboardPage = 1;
+      const dashboardPageSize = 8;
+
+      function getFilteredCustomers(users) {
+        const query = dashboardSearch.trim().toLowerCase();
+        return users.filter((user) => {
+          const haystack = `${user.name || ''} ${user.email || ''}`.toLowerCase();
+          const matchesQuery = !query || haystack.includes(query);
+          const matchesFilter = dashboardFilter === 'all'
+            ? true
+            : dashboardFilter === 'enterprise'
+              ? Boolean(user.is_enterprise_dedicated)
+              : !Boolean(user.is_enterprise_dedicated);
+          return matchesQuery && matchesFilter;
+        });
+      }
+
+      function renderCustomerTable() {
+        const customerTableBody = document.getElementById('customerTableBody');
+        const tableSummary = document.getElementById('tableSummary');
+        const pageButton = document.getElementById('customerPageButton');
+        const prevButton = document.getElementById('prevCustomersButton');
+        const nextButton = document.getElementById('nextCustomersButton');
+        if (!customerTableBody || !tableSummary) return;
+
+        const filteredCustomers = getFilteredCustomers(dashboardCustomers);
+        const pageCount = Math.max(1, Math.ceil(filteredCustomers.length / dashboardPageSize));
+        if (dashboardPage > pageCount) {
+          dashboardPage = pageCount;
+        }
+        const start = (dashboardPage - 1) * dashboardPageSize;
+        const pageUsers = filteredCustomers.slice(start, start + dashboardPageSize);
+
+        customerTableBody.innerHTML = pageUsers.length
+          ? pageUsers.map((user) => `
+            <tr class="rounded-2xl bg-white/5 text-slate-200">
+              <td class="rounded-l-2xl px-3 py-3 font-medium">${user.name || user.email || 'Unknown user'}</td>
+              <td class="px-3 py-3">${user.is_enterprise_dedicated ? 'Enterprise' : 'Standard'}</td>
+              <td class="px-3 py-3 font-mono">${Number(user.usage_current || 0).toLocaleString()} req</td>
+              <td class="rounded-r-2xl px-3 py-3"><span class="rounded-full ${user.is_blocked ? 'bg-amber-500/10 text-amber-300' : 'bg-mint-500/10 text-mint-300'} px-2.5 py-1 text-xs font-medium">${user.is_blocked ? 'Blocked' : 'Active'}</span></td>
+            </tr>
+          `).join('')
+          : '<tr><td colspan="4" class="px-3 py-3 text-slate-400">No matching customer records.</td></tr>';
+
+        tableSummary.textContent = `Showing ${Math.min(filteredCustomers.length, start + pageUsers.length)} of ${filteredCustomers.length} matching accounts`;
+        pageButton.textContent = String(dashboardPage);
+        prevButton.disabled = dashboardPage <= 1;
+        nextButton.disabled = dashboardPage >= pageCount;
+      }
+
+      function attachDashboardControls() {
+        const refreshDashboardButton = document.getElementById('refreshDashboardButton');
+        const retryDashboardButton = document.getElementById('retryDashboardButton');
+        const filterButtons = document.querySelectorAll('[data-dashboard-filter]');
+        const prevButton = document.getElementById('prevCustomersButton');
+        const nextButton = document.getElementById('nextCustomersButton');
+        const exportButton = document.getElementById('exportCustomersButton');
+        const refreshWorkflowButton = document.getElementById('refreshWorkflowButton');
+
+        refreshDashboardButton?.addEventListener('click', loadDashboardData);
+        retryDashboardButton?.addEventListener('click', loadDashboardData);
+
+        refreshWorkflowButton?.addEventListener('click', async () => {
+          refreshWorkflowButton.disabled = true;
+          refreshWorkflowButton.textContent = 'Refreshing…';
+          try {
+            await loadWorkflowData();
+          } finally {
+            refreshWorkflowButton.disabled = false;
+            refreshWorkflowButton.textContent = 'Refresh workflow';
+          }
+        });
+
+        filterButtons.forEach((button) => {
+          button.addEventListener('click', () => {
+            dashboardFilter = button.getAttribute('data-dashboard-filter') || 'all';
+            dashboardPage = 1;
+            filterButtons.forEach((item) => item.classList.toggle('bg-white/5', item !== button));
+            filterButtons.forEach((item) => item.classList.toggle('bg-brand-500/20', item === button));
+            renderCustomerTable();
+          });
+        });
+
+        prevButton?.addEventListener('click', () => {
+          if (dashboardPage > 1) {
+            dashboardPage -= 1;
+            renderCustomerTable();
+          }
+        });
+
+        nextButton?.addEventListener('click', () => {
+          const filteredCustomers = getFilteredCustomers(dashboardCustomers);
+          const pageCount = Math.max(1, Math.ceil(filteredCustomers.length / dashboardPageSize));
+          if (dashboardPage < pageCount) {
+            dashboardPage += 1;
+            renderCustomerTable();
+          }
+        });
+
+        exportButton?.addEventListener('click', () => {
+          const filteredCustomers = getFilteredCustomers(dashboardCustomers);
+          const rows = filteredCustomers.map((user) => [user.name || user.email || 'Unknown user', user.is_enterprise_dedicated ? 'Enterprise' : 'Standard', Number(user.usage_current || 0), user.is_blocked ? 'Blocked' : 'Active']);
+          const csv = [['Customer', 'Tier', 'Usage', 'Status'], ...rows].map((row) => row.join(',')).join('\n');
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'kieltech-admin-customers.csv';
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          URL.revokeObjectURL(url);
+        });
+
+        const timeframeButtons = document.querySelectorAll('.usage-timeframe-btn');
+        timeframeButtons.forEach((button) => {
+          button.addEventListener('click', () => {
+            const timeframe = button.dataset.usageTimeframe;
+            if (!timeframe || !USAGE_TIMEFRAMES[timeframe]) return;
+            selectedUsageTimeframe = timeframe;
+            refreshUsageButtons();
+            loadUsageTrend();
+          });
+        });
+
+        refreshUsageButtons();
+      }
+
+      let apiUsagePayload = { normal_users: [], enterprise_users: [] };
+      let apiUsageCategory = 'normal_users';
+
+      function renderApiUsageUsers() {
+        const list = document.getElementById('apiUsageUserList');
+        if (!list) return;
+        const users = apiUsagePayload[apiUsageCategory] || [];
+        list.innerHTML = users.length ? users.map((user) => `
+          <button type="button" data-api-usage-email="${encodeURIComponent(user.email)}" class="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10">
+            <span><span class="block font-medium text-white">${user.name || user.email}</span><span class="block text-xs text-slate-400">${user.email} • ${user.api_key_count} keys • ${user.request_count} requests</span></span>
+            <span class="text-right"><span class="block font-mono text-sm text-brand-300">$${Number(user.total_cost_usd || 0).toFixed(6)}</span><span class="block text-xs text-slate-500">${Number(user.total_tokens || 0).toLocaleString()} tokens</span></span>
+          </button>`).join('') : '<p class="text-sm text-slate-400">No users in this category.</p>';
+        list.querySelectorAll('[data-api-usage-email]').forEach((button) => button.addEventListener('click', () => loadApiUsageDetail(decodeURIComponent(button.dataset.apiUsageEmail))));
+      }
+
+      async function loadApiUsageDetail(email, page = 1, filters = {}) {
+        const detail = document.getElementById('apiUsageDetail');
+        if (!detail) return;
+        detail.classList.remove('hidden');
+        detail.innerHTML = '<p class="text-sm text-slate-400">Loading usage detail…</p>';
+        const response = await fetch(`${API_BASE}/v1/admin/api-key-usage/${encodeURIComponent(email)}?page=${encodeURIComponent(page)}&page_size=50${filters.model ? `&model=${encodeURIComponent(filters.model)}` : ''}${filters.start ? `&start=${encodeURIComponent(filters.start)}` : ''}${filters.end ? `&end=${encodeURIComponent(filters.end)}` : ''}`, { headers: adminHeaders(), cache: 'no-store' });
+        if (!response.ok) { detail.innerHTML = '<p class="text-sm text-rose-300">Unable to load usage detail.</p>'; return; }
+        const payload = await response.json();
+        detail.innerHTML = `<div class="rounded-2xl border border-white/10 bg-slate-950/60 p-4"><div class="flex items-center justify-between"><div><p class="text-sm text-slate-400">Selected user</p><h4 class="text-lg font-semibold text-white">${payload.user.name || payload.user.email}</h4><p class="text-xs text-slate-400">${payload.user.email}</p></div><button type="button" id="closeApiUsageDetail" class="rounded-full border border-white/10 px-3 py-1 text-sm text-slate-300">Close</button></div><div class="mt-4 grid gap-3 sm:grid-cols-3"><div><p class="text-xs text-slate-500">Keys</p><p class="font-mono text-white">${payload.api_keys.length}</p></div><div><p class="text-xs text-slate-500">Requests</p><p class="font-mono text-white">${payload.api_keys.reduce((sum, key) => sum + key.request_count, 0)}</p></div><div><p class="text-xs text-slate-500">Total consumed</p><p class="font-mono text-brand-300">$${payload.api_keys.reduce((sum, key) => sum + Number(key.total_cost_usd || 0), 0).toFixed(6)}</p></div></div><div class="mt-4 grid gap-2">${payload.api_keys.length ? payload.api_keys.map((key) => `<div class="rounded-xl border border-white/10 bg-white/5 p-3"><div class="flex justify-between gap-3"><span class="font-medium text-white">${key.name}</span><span class="font-mono text-brand-300">$${Number(key.total_cost_usd || 0).toFixed(6)}</span></div><p class="mt-1 text-xs text-slate-400">${key.masked} • ${key.request_count} requests • ${Number(key.total_tokens || 0).toLocaleString()} tokens • Last used ${key.last_used_at || 'never'}</p></div>`).join('') : '<p class="text-sm text-slate-400">No API keys created.</p>'}</div></div>`;
+        const auditRows = payload.api_keys.flatMap((key) => (key.usage || []).map((item) => ({ ...item, key_name: key.name })));
+        detail.insertAdjacentHTML('beforeend', `<div class="dashboard-glass-table-wrap mt-4 p-4"><h5 class="font-medium text-white">Request audit log</h5><table class="dashboard-glass-table mt-3 text-left text-xs"><thead class="text-slate-400"><tr><th>Time</th><th>API key</th><th>Endpoint</th><th>Model</th><th>Tokens</th><th>Consumed</th><th>Status</th></tr></thead><tbody>${auditRows.length ? auditRows.map((item) => `<tr class="text-slate-300"><td class="whitespace-nowrap">${new Date(item.requested_at).toLocaleString()}</td><td>${item.key_name}</td><td>${item.endpoint}</td><td>${item.model}</td><td class="font-mono">${Number(item.total_tokens || 0).toLocaleString()}</td><td class="font-mono text-brand-300">$${Number(item.cost_usd || 0).toFixed(6)}</td><td>${item.status_code}</td></tr>`).join('') : '<tr><td colspan="7" class="text-slate-400">No individual requests recorded.</td></tr>'}</tbody></table></div>`);
+        detail.insertAdjacentHTML('beforeend', `<div class="mt-3 flex flex-wrap items-end gap-2"><label class="text-xs text-slate-400">Model<input id="apiUsageModelFilter" class="ml-1 rounded border border-white/10 bg-slate-900 px-2 py-1 text-xs text-white" value="${filters.model || ''}" placeholder="all models"></label><label class="text-xs text-slate-400">From<input id="apiUsageStartFilter" type="datetime-local" class="ml-1 rounded border border-white/10 bg-slate-900 px-2 py-1 text-xs text-white" value="${filters.start || ''}"></label><label class="text-xs text-slate-400">To<input id="apiUsageEndFilter" type="datetime-local" class="ml-1 rounded border border-white/10 bg-slate-900 px-2 py-1 text-xs text-white" value="${filters.end || ''}"></label><button id="apiUsageApplyFilter" class="rounded-full bg-brand-500/20 px-3 py-1 text-xs text-white">Filter</button><button id="apiUsagePrev" class="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300" ${payload.usage_page.page <= 1 ? 'disabled' : ''}>Prev</button><span class="px-1 text-xs text-slate-400">Page ${payload.usage_page.page} of ${payload.usage_page.pages}</span><button id="apiUsageNext" class="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300" ${payload.usage_page.page >= payload.usage_page.pages ? 'disabled' : ''}>Next</button></div>`);
+        document.getElementById('closeApiUsageDetail')?.addEventListener('click', () => detail.classList.add('hidden'));
+        document.getElementById('apiUsageApplyFilter')?.addEventListener('click', () => loadApiUsageDetail(email, 1, { model: document.getElementById('apiUsageModelFilter')?.value.trim(), start: document.getElementById('apiUsageStartFilter')?.value, end: document.getElementById('apiUsageEndFilter')?.value }));
+        document.getElementById('apiUsagePrev')?.addEventListener('click', () => loadApiUsageDetail(email, payload.usage_page.page - 1, filters));
+        document.getElementById('apiUsageNext')?.addEventListener('click', () => loadApiUsageDetail(email, payload.usage_page.page + 1, filters));
+      }
+
+      async function loadApiUsageData() {
+        const response = await fetch(`${API_BASE}/v1/admin/api-key-usage`, { headers: adminHeaders(), cache: 'no-store' });
+        if (!response.ok) throw new Error('Unable to load API key usage');
+        apiUsagePayload = await response.json();
+        renderApiUsageUsers();
+      }
+
+      let dashboardRequestInProgress = false;
+
+      async function loadDashboardData() {
+        if (dashboardRequestInProgress) return;
+        dashboardRequestInProgress = true;
+        const refreshButton = document.getElementById('refreshDashboardButton');
+        const refreshLabel = refreshButton?.querySelector('span');
+        const statusBadge = document.getElementById('billingStatusBadge');
+        if (refreshButton) refreshButton.disabled = true;
+        if (refreshLabel) refreshLabel.textContent = 'Refreshing…';
+        setStatus(statusBadge, 'Connecting…', 'warning');
+
+        const headers = adminHeaders();
+        try {
+          const [summaryResponse, configResponse] = await Promise.all([
+            fetch(`${API_BASE}/admin/dashboard-data`, { headers, cache: 'no-store' }),
+            fetch(`${API_BASE}/v1/billing/config`, { cache: 'no-store' })
+          ]);
+
+          if (!summaryResponse.ok || !configResponse.ok) {
+            throw new Error(`Dashboard API returned ${summaryResponse.status}/${configResponse.status}`);
+          }
+          const [summaryPayload, configPayload] = await Promise.all([
+            summaryResponse.json(),
+            configResponse.json()
+          ]);
+          const users = Array.isArray(summaryPayload.customers) ? summaryPayload.customers : [];
+          const metrics = summaryPayload.metrics || {};
+          const adminProfile = summaryPayload.admin || {};
+
+          const adminName = adminProfile.name || adminProfile.email || 'Administrator';
+          const adminInitials = adminProfile.name
+            ? adminProfile.name.split(' ').filter(Boolean).map((part) => part[0]).join('').slice(0, 2).toUpperCase()
+            : (adminProfile.email ? adminProfile.email.slice(0, 2).toUpperCase() : 'AD');
+          const adminProfileNameEl = document.getElementById('adminProfileName');
+          const adminProfileInitialsEl = document.getElementById('adminProfileInitials');
+          if (adminProfileNameEl) {
+            adminProfileNameEl.textContent = adminName;
+          }
+          if (adminProfileInitialsEl) {
+            adminProfileInitialsEl.textContent = adminInitials;
+          }
+
+          dashboardCustomers = users;
+          dashboardPage = 1;
+
+          const totalUsers = Number(metrics.customers || users.length || 0);
+          const activeUsers = Number(metrics.active || users.filter((user) => !user.is_blocked).length || 0);
+          const enterpriseUsers = Number(metrics.enterprise || users.filter((user) => user.is_enterprise_dedicated).length || 0);
+          const usageTracked = Number(metrics.usage_tracked ?? 0);
+
+          document.getElementById('metricCustomers').textContent = totalUsers.toLocaleString();
+          document.getElementById('metricCustomersSub').textContent = `${activeUsers.toLocaleString()} active accounts`;
+          document.getElementById('metricEnterprise').textContent = enterpriseUsers.toLocaleString();
+          document.getElementById('metricUsage').textContent = `${formatCompact(usageTracked)} req`;
+          document.getElementById('billingConnector').textContent = configPayload.paystack_enabled ? 'Paystack live' : 'Offline mode';
+          const exchangeEl = document.getElementById('exchangeRateValue');
+          const formattedRate = `${Number(configPayload.usd_to_ngn_rate || 0).toFixed(2)} NGN/USD`;
+          if (exchangeEl) {
+            exchangeEl.textContent = formattedRate;
+            exchangeEl.title = `Live USD→NGN rate: ${formattedRate}`;
+          }
+          await loadUsageTrend();
+          await loadModelRequestCounts();
+
+          const systemStatusText = document.getElementById('systemStatusText');
+          if (configPayload.paystack_enabled) {
+            setStatus(statusBadge, 'Live', 'success');
+            if (systemStatusText) systemStatusText.textContent = `Live billing and admin data are synced for ${activeUsers} active accounts.`;
+          } else {
+            setStatus(statusBadge, 'Offline', 'warning');
+            if (systemStatusText) systemStatusText.textContent = 'Billing connector is offline; admin data remains available from the backend.';
+          }
+
+          renderCustomerTable();
+          clearDashboardNotice();
+          document.getElementById('dashboardUpdatedAt').textContent = new Date().toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+        } catch (error) {
+          console.error('Unable to load live dashboard data', error);
+          showDashboardNotice('Dashboard data could not be refreshed. Check your connection or session, then try again.');
+          setStatus(statusBadge, 'Unavailable', 'warning');
+          const systemStatusText = document.getElementById('systemStatusText');
+          if (systemStatusText) systemStatusText.textContent = 'Live admin and billing data are currently unavailable.';
+        } finally {
+          dashboardRequestInProgress = false;
+          if (refreshButton) refreshButton.disabled = false;
+          if (refreshLabel) refreshLabel.textContent = 'Refresh data';
+        }
+      }
+
+      updateSidebarLayout();
+      attachDashboardControls();
+      loadDashboardData();
+      window.setInterval(() => {
+        loadDashboardData();
+      }, 30000);
+    </script>
+  </body>
+</html>

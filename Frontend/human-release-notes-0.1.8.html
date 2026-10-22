@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Human Language v0.1.8 Release Notes | KielTech</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero hero-small">
+      <nav class="nav container">
+        <div class="brand-row">
+          <a class="brand" href="index.html" aria-label="KielTech home">
+            <img src="KielTech-logo.png" alt="KielTech logo" class="logo-mark" />
+            <span class="brand-text">KielTech</span>
+          </a>
+        </div>
+        <div class="nav-actions">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">🌙</button>
+        </div>
+      </nav>
+      <div class="container page-intro">
+        <div class="service-nav-shell">
+          <button id="serviceDrawerToggle" class="service-drawer-toggle" type="button" aria-expanded="false">☰ Services</button>
+        </div>
+        <p class="eyebrow">Release notes</p>
+        <h1>Human Language v0.1.8</h1>
+        <p class="hero-copy">A major step forward for Human with full-stack runtime capabilities, richer web features, and stronger developer tooling.</p>
+      </div>
+    </header>
+
+    <main class="container section service-page">
+      <section class="card release-notes-card">
+        <div class="release-notes-content">
+          <h2>Overview</h2>
+          <p>Human v0.1.8 marks a significant expansion of the runtime with production-ready web framework features, browser-competitive frontend capabilities, and professional backend tooling. This release positions Human as a full-stack, runtime-native platform for building complete applications without external framework scaffolding.</p>
+
+          <h2>What&apos;s New</h2>
+
+          <h3>Web Framework &amp; Backend</h3>
+          <ul>
+            <li><strong>Built-in HTTP routing</strong> with GET, POST, PUT, DELETE, and other HTTP methods</li>
+            <li><strong>Middleware support</strong> for request processing, validation, and error handling</li>
+            <li><strong>Session and authentication</strong> helpers with secure cookie handling</li>
+            <li><strong>Request/response handling</strong> with JSON, form data, and file upload support</li>
+            <li><strong>Validation middleware</strong> for schema validation and type checking</li>
+            <li><strong>Rate limiting and request logging</strong> for production applications</li>
+            <li><strong>OpenAPI documentation</strong> auto-generation and swagger UI</li>
+            <li><strong>ASGI compatibility</strong> for deployment to production servers</li>
+          </ul>
+
+          <h3>Frontend Layer</h3>
+          <ul>
+            <li><strong>DOM API</strong> for creating and manipulating elements</li>
+            <li><strong>Event system</strong> with event listeners and propagation</li>
+            <li><strong>CSS-like styling</strong> with cascade and inheritance</li>
+            <li><strong>Layout primitives</strong> for responsive design</li>
+            <li><strong>Reactivity</strong> for automatic UI updates</li>
+            <li><strong>Browser storage helpers</strong> for localStorage and sessionStorage</li>
+            <li><strong>History API</strong> for navigation and back/forward support</li>
+            <li><strong>Hot reload support</strong> in development mode</li>
+          </ul>
+
+          <h3>Data &amp; Database</h3>
+          <ul>
+            <li><strong>SQLite integration</strong> with ORM-style helpers</li>
+            <li><strong>Model registration</strong> and schema definition</li>
+            <li><strong>CRUD operations</strong> (create, read, update, delete)</li>
+            <li><strong>Transaction support</strong> for data consistency</li>
+            <li><strong>Migration helpers</strong> for schema evolution</li>
+            <li><strong>Query builders</strong> for common operations</li>
+          </ul>
+
+          <h3>Developer Experience</h3>
+          <ul>
+            <li><strong>Improved REPL</strong> with module catalog and helper discovery</li>
+            <li><strong>CLI enhancements</strong> for running scripts and starting dev servers</li>
+            <li><strong>Windows installers</strong> (64-bit, 32-bit, and web-based)</li>
+            <li><strong>Comprehensive error messages</strong> and debugging output</li>
+            <li><strong>Hot-reload dev server</strong> for rapid development</li>
+          </ul>
+
+          <h3>Runtime Quality</h3>
+          <ul>
+            <li><strong>Expanded test suite</strong> with 83+ regression tests</li>
+            <li><strong>Backend ergonomics tests</strong> for framework consistency</li>
+            <li><strong>Auth and session behavior validation</strong></li>
+            <li><strong>Validation middleware testing</strong></li>
+            <li><strong>DB and ORM integration tests</strong></li>
+          </ul>
+
+          <h2>Installation</h2>
+          <h3>Windows</h3>
+          <p>Download the appropriate installer for your system:</p>
+          <ul>
+            <li><strong>64-bit</strong>: <code>human-language-0.1.7-x64-setup.exe</code></li>
+            <li><strong>32-bit</strong>: <code>human-language-0.1.7-x86-setup.exe</code></li>
+            <li><strong>Web-based</strong>: <code>human-language-0.1.7-web-setup.exe</code></li>
+          </ul>
+
+          <h3>From PyPI</h3>
+          <ul>
+            <li><code>pip install human-language</code></li>
+            <li><code>python -m pip install human-language</code></li>
+          </ul>
+
+          <h3>From source</h3>
+          <ul>
+            <li><code>git clone https://github.com/kieltech2/Human.git</code></li>
+            <li><code>cd Human</code></li>
+            <li><code>python -m pip install -e .</code></li>
+          </ul>
+
+          <h2>Key Features</h2>
+          <h3>Full-Stack in One Runtime</h3>
+          <p>Instead of splitting work across separate HTML, CSS, JavaScript, and backend frameworks, Human brings routing, state, DOM updates, styling, and interaction together in one coherent platform.</p>
+
+          <h3>Production-Ready Defaults</h3>
+          <ul>
+            <li>Secure session handling with configurable timeouts</li>
+            <li>Built-in rate limiting and request logging</li>
+            <li>Input validation and error handling</li>
+            <li>OpenAPI documentation for API introspection</li>
+          </ul>
+
+          <h3>Easy to Learn</h3>
+          <p>Human&apos;s English-like syntax remains beginner-friendly while supporting professional runtime capabilities.</p>
+
+          <h2>Breaking Changes</h2>
+          <p>None. This is a forward-compatible release.</p>
+
+          <h2>Known Limitations</h2>
+          <ul>
+            <li>32-bit Windows installer is for legacy systems only; 64-bit is recommended</li>
+            <li>Web-based installer requires internet connectivity during setup</li>
+            <li>Some advanced features may differ from established Python web frameworks</li>
+          </ul>
+
+          <h2>What&apos;s Coming in v0.1.9</h2>
+          <ul>
+            <li>Performance optimizations for the VM</li>
+            <li>Additional frontend components</li>
+            <li>Enhanced error reporting</li>
+            <li>Expanded standard library</li>
+          </ul>
+
+          <h2>Support</h2>
+          <p>For questions, issues, or contributions, refer to the repository documentation or the community channels.</p>
+
+          <hr />
+          <p><strong>Release Date</strong>: July 2026<br />
+          <strong>Version</strong>: 0.1.8<br />
+          <strong>Status</strong>: Stable</p>
+        </div>
+      </section>
+    </main>
+
+    <div id="serviceDrawer" class="service-drawer" aria-hidden="true">
+      <div class="service-drawer__backdrop" data-close-drawer></div>
+      <aside class="service-drawer__panel" role="navigation" aria-label="Services menu">
+        <div class="service-drawer__header">
+          <div class="service-drawer__brand">
+            <span class="service-drawer__brand-mark">K</span>
+            <span class="service-drawer__brand-text">KielTech</span>
+          </div>
+          <button id="serviceDrawerClose" class="service-drawer__close" type="button" aria-label="Close services menu">×</button>
+        </div>
+        <nav class="service-drawer__nav">
+          <a class="service-drawer__link" href="tokens.html">API Token</a>
+          <a class="service-drawer__link" href="api-integration.html">API Integration</a>
+        </nav>
+      </aside>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

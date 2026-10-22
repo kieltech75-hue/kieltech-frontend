@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Tokens | KielTech</title>
+    <link rel="stylesheet" href="../../styles.css" />
+  </head>
+  <body>
+    <header class="hero hero-small">
+      <nav class="nav container">
+        <div class="brand-row">
+          <a class="brand" href="../../index.html" aria-label="KielTech home">
+            <img src="../../KielTech-logo.png" alt="KielTech logo" class="logo-mark" />
+            <span class="brand-text">KielTech</span>
+          </a>
+        </div>
+        <div class="nav-actions">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">🌙</button>
+        </div>
+      </nav>
+      <div class="container page-intro">
+        <p class="eyebrow">Developer dashboard</p>
+        <h1>API Tokens</h1>
+        <p class="hero-copy">Create, copy, and revoke your API tokens with a secure dashboard experience.</p>
+      </div>
+    </header>
+
+    <main class="container section dashboard-layout">
+      <aside class="dashboard-sidebar">
+        <nav class="dashboard-nav" aria-label="Dashboard navigation">
+          <a href="../../dashboard.html" class="dashboard-nav__item">
+            <span class="dashboard-nav__icon">🏠</span>
+            Overview
+          </a>
+          <a href="./index.html" class="dashboard-nav__item is-active">
+            <span class="dashboard-nav__icon">🔑</span>
+            API Tokens
+          </a>
+        </nav>
+      </aside>
+      <section class="dashboard-content">
+        <div class="dashboard-grid">
+          <div class="dashboard-card">
+            <div class="dashboard-header-row">
+              <div>
+                <p class="eyebrow">Authentication</p>
+                <h2>Manage API tokens</h2>
+              </div>
+              <button id="createTokenButton" class="btn btn-primary">
+                <span>🔑</span> Create new token
+              </button>
+            </div>
+
+            <div class="token-page-copy">
+              <p>New tokens are shown once. Copy the token immediately and store it securely.</p>
+            </div>
+
+            <div class="token-table-container">
+              <table class="token-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Created</th>
+                    <th>Last used</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="tokenTableBody">
+                  <tr>
+                    <td colspan="5" class="text-muted">Loading tokens...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="best-practices-card">
+              <p class="best-practices-title">Best practices</p>
+              <ul class="best-practices-list">
+                <li>Don't commit your keys to GitHub.</li>
+                <li>Use environment variables for runtime secrets.</li>
+                <li>Rotate your keys periodically and revoke unused keys.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="tokenModal" class="modal" aria-hidden="true">
+      <div class="modal__backdrop" data-close-modal></div>
+      <div class="modal__content" role="dialog" aria-modal="true" aria-labelledby="tokenModalTitle">
+        <div class="modal__header">
+          <div>
+            <h2 id="tokenModalTitle">Create API token</h2>
+            <p class="modal__subtitle">Give this token a name so you can identify it later.</p>
+          </div>
+          <button class="modal__close" data-close-modal aria-label="Close">×</button>
+        </div>
+        <div class="modal__body">
+          <div id="tokenCreateForm" class="modal-form-card">
+            <label class="modal-label" for="tokenNameInput">Token name / description</label>
+            <input id="tokenNameInput" class="modal-input" type="text" placeholder="Production Mobile App" />
+            <p class="modal-note">This name is used to help you identify this key in the dashboard.</p>
+            <div class="modal__actions modal-actions-row">
+              <button id="submitCreateToken" class="btn btn-primary">Create token</button>
+              <button class="btn btn-secondary" data-close-modal>Cancel</button>
+            </div>
+          </div>
+
+          <div id="tokenSuccessPanel" class="modal-success-panel hidden">
+            <div class="modal-success-header">
+              <span class="success-pill">Success</span>
+              <p>Copy your token now. This value will not be shown again.</p>
+            </div>
+            <div class="modal-token-card">
+              <label class="modal-label" for="modalTokenValue">Secret token</label>
+              <div class="modal-token-copy-row">
+                <code id="modalTokenValue" class="modal-token-value">kt-••••••••••••••••••</code>
+                <button id="copyModalToken" class="icon-btn" aria-label="Copy token to clipboard">📋</button>
+              </div>
+            </div>
+            <p class="modal-disclaimer">This token is shown only once. Please store it securely.</p>
+            <div class="modal__actions modal-actions-row">
+              <button id="doneCreateToken" class="btn btn-primary">Done</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="revokeModal" class="modal" aria-hidden="true">
+      <div class="modal__backdrop" data-close-modal></div>
+      <div class="modal__content" role="dialog" aria-modal="true" aria-labelledby="revokeModalTitle">
+        <div class="modal__header">
+          <div>
+            <h2 id="revokeModalTitle">Revoke API token</h2>
+            <p class="modal__subtitle">This action cannot be undone and will immediately break any application using this key.</p>
+          </div>
+          <button class="modal__close" data-close-modal aria-label="Close">×</button>
+        </div>
+        <div class="modal__body">
+          <p class="modal-note revoke-note">Are you sure you want to revoke this token? This action cannot be undone and will immediately break any application using this key.</p>
+          <div class="modal__actions modal-actions-row">
+            <button id="confirmRevokeToken" class="btn btn-danger">Revoke token</button>
+            <button id="cancelRevokeToken" class="btn btn-secondary" data-close-modal>Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="../../script.js"></script>
+  </body>
+</html>

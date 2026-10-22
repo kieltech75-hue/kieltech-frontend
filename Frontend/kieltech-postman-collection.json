@@ -1,0 +1,105 @@
+{
+  "info": {
+    "_postman_id": "4f2d3893-23a0-48ec-9ea5-26bd4d64be56",
+    "name": "KielTech Public API",
+    "description": "Public model discovery and server-side chat completion examples for the KielTech API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{apiKey}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.kieltech.com"
+    },
+    {
+      "key": "apiKey",
+      "value": ""
+    },
+    {
+      "key": "modelId",
+      "value": "YOUR_READY_MODEL_ID"
+    }
+  ],
+  "item": [
+    {
+      "name": "Models",
+      "item": [
+        {
+          "name": "List public models",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/models/catalog",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "models",
+                "catalog"
+              ]
+            },
+            "description": "Check each model's public availability before making a request."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "Create chat completion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"{{modelId}}\",\n  \"prompt\": \"Summarize the benefits of a reliable API.\",\n  \"stream\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/chat/completions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "chat",
+                "completions"
+              ]
+            },
+            "description": "Requires a valid API key and an available model. Add your key to the collection's apiKey variable."
+          }
+        }
+      ]
+    }
+  ]
+}

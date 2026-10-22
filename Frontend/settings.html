@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings | KielTech</title>
+    <link rel="stylesheet" href="styles.css?v=20261021-signout-google-modal" />
+  </head>
+  <body class="settings-page">
+    <header class="hero hero-small">
+      <nav class="nav container">
+        <div class="brand-row">
+          <div class="brand-block">
+            <a class="brand" href="index.html" aria-label="KielTech home">
+              <img src="KielTech-logo.png" alt="KielTech logo" class="logo-mark" />
+              <span class="brand-text">KielTech</span>
+            </a>
+            <button id="serviceDrawerToggle" class="service-drawer-toggle service-drawer-toggle--inline" type="button" aria-expanded="false">☰ Services</button>
+          </div>
+        </div>
+        <div class="nav-actions">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">🌙</button>
+        </div>
+      </nav>
+      <div class="container page-intro">
+        <p class="eyebrow">Settings</p>
+        <h1>Manage your account settings</h1>
+      </div>
+    </header>
+
+    <main class="container section">
+      <div class="settings-shell">
+        <section class="settings-hero card">
+          <div class="settings-hero__identity">
+            <div class="settings-hero__mark" aria-hidden="true">⚙</div>
+            <div>
+              <p class="eyebrow">Account settings</p>
+              <h2>Control your KielTech workspace</h2>
+              <p class="settings-copy">Manage access, credentials, developer tools, and wallet protection from one secure workspace.</p>
+            </div>
+          </div>
+          <div class="settings-hero__status"><span class="settings-status-dot" aria-hidden="true"></span><span>Workspace secured</span></div>
+        </section>
+
+        <nav class="settings-section-nav" aria-label="Settings sections">
+          <a href="#profile">Profile</a><a href="#developer-access">Developer access</a><a href="#billing-protection">Billing protection</a><a href="#security">Security</a>
+        </nav>
+
+        <section class="settings-grid">
+          <article id="profile" class="card settings-card">
+            <p class="eyebrow">Profile</p>
+            <h3>Account information</h3>
+            <div class="settings-card__meta">
+              <div><strong>Name</strong><p id="settingsProfileName">Loading...</p></div>
+              <div><strong>Email</strong><p id="settingsProfileEmail">Loading...</p></div>
+              <div><strong>Verification</strong><p id="settingsProfileVerification">Checking...</p></div>
+              <div><strong>Member since</strong><p id="settingsProfileCreated">—</p></div>
+            </div>
+            <div id="settingsProfileMessage" class="form-status" aria-live="polite"></div>
+          </article>
+
+          <article id="developer-access" class="card settings-card">
+            <p class="eyebrow">Developer access</p>
+            <h3>API security</h3>
+            <p class="settings-card__text">API keys are shown once, can be revoked immediately, and should be stored only in your server-side secret manager.</p>
+            <div class="settings-actions">
+              <a class="btn btn-primary" href="tokens.html">Manage API keys</a>
+              <a class="btn btn-secondary" href="api-integration.html#documentation">API documentation</a>
+            </div>
+          </article>
+
+          <article class="card settings-card settings-card--wide">
+            <p class="eyebrow">Credentials</p>
+            <h3>Edit account credentials</h3>
+            <p class="settings-card__text">We will email a single-use secure link to your account email. Use it to set up or update your password, username, email, or any combination of them.</p>
+            <button class="btn btn-primary" id="requestCredentialEditButton" type="button">Edit credentials</button>
+            <div id="credentialEditMessage" class="form-status" aria-live="polite"></div>
+          </article>
+
+          <article id="billing-protection" class="card settings-card settings-card--wide">
+            <div class="settings-card__header">
+              <div><p class="eyebrow">Billing protection</p><h3>Wallet overage authorization</h3></div>
+              <div class="settings-status-pill" id="settingsStatusPill">Off</div>
+            </div>
+            <p class="settings-card__text">Authorize or replace the payment method used only for overage charges. Paystack will show the configured NGN 100 authorization plus its processing fee, currently displayed as approximately NGN 101.53. This flow does not top up your wallet or start a recurring plan. KielTech never collects raw card details.</p>
+            <div class="settings-card__meta">
+              <div><strong>Payment method</strong><p id="cardStatusText">No authorization on file</p></div>
+              <div><strong>Billing order</strong><p>Wallet first, authorized card second</p></div>
+            </div>
+            <label class="settings-toggle" for="cancelOverageCheckbox">
+              <input id="cancelOverageCheckbox" type="checkbox" />
+              <span class="settings-toggle__track"><span class="settings-toggle__thumb"></span></span>
+              <span id="toggleHintText" class="settings-toggle-hint">Authorize a card to enable overage</span>
+            </label>
+            <div class="settings-actions">
+              <button class="btn btn-primary" id="saveCancelOverageButton" type="button">Authorize payment method</button>
+              <a class="btn btn-secondary" href="billing.html">Back to billing</a>
+            </div>
+            <div id="cancelOverageMessage" class="form-status" aria-live="polite"></div>
+          </article>
+
+          <article id="security" class="card settings-card settings-card--info">
+            <p class="eyebrow">Security notes</p>
+            <h3>Built for account control</h3>
+            <ul class="settings-list">
+              <li>Your session is stored in an HttpOnly cookie and revoked when you log out.</li>
+              <li>Payment details are collected by Paystack, not by KielTech forms.</li>
+              <li>Updating the payment method replaces the previous authorization; it does not add wallet credit.</li>
+              <li>Revoke any exposed API key immediately from the API key manager.</li>
+            </ul>
+          </article>
+
+          <article class="card settings-card settings-card--danger">
+            <div><p class="eyebrow">Session</p><h3>Sign out everywhere</h3><p class="settings-card__text">End this browser session and require authentication before accessing your workspace again.</p></div>
+            <button class="btn btn-secondary" id="settingsLogoutButton" type="button">Log out</button>
+          </article>
+        </section>
+      </div>
+    </main>
+
+    <script src="https://js.paystack.co/v2/inline.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customers | KielTech</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      .customers-list-panel {
+        min-width: 0;
+      }
+
+      body.admin-customers-theme {
+        background: #060b12;
+        color: #e5edf7;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .admin-customers-theme .admin-slide-shell {
+        background: radial-gradient(circle at top left, rgba(47, 111, 237, 0.18), transparent 28%), linear-gradient(135deg, #060b12 0%, #0d1726 100%);
+        min-height: 100vh;
+      }
+
+      .admin-customers-theme .page-shell {
+        margin: 0 auto;
+        max-width: 1440px;
+        min-height: 100vh;
+        width: 100%;
+      }
+
+      .admin-customers-theme .content {
+        margin: 0 auto;
+        max-width: 1180px;
+        padding: 1.5rem;
+      }
+
+      .admin-customers-theme .card,
+      .admin-customers-theme .panel,
+      .admin-customers-theme .hero-card {
+        background: rgba(12, 20, 32, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1.25rem;
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.16);
+        color: #e5edf7;
+      }
+
+      .admin-customers-theme .hero-card {
+        margin-bottom: 1rem;
+      }
+
+      body.admin-customers-theme.kt-admin-theme .card,
+      body.admin-customers-theme.kt-admin-theme .panel,
+      body.admin-customers-theme.kt-admin-theme .hero-card {
+        background: linear-gradient(145deg, rgba(20, 54, 79, 0.58), rgba(8, 25, 43, 0.64)) !important;
+        border-color: rgba(112, 220, 255, 0.2) !important;
+        box-shadow:
+          inset 0 1px 0 rgba(224, 248, 255, 0.08),
+          0 14px 36px rgba(0, 0, 0, 0.18),
+          0 0 24px rgba(53, 201, 244, 0.055);
+        -webkit-backdrop-filter: blur(18px) saturate(135%);
+        backdrop-filter: blur(18px) saturate(135%);
+      }
+
+      body.admin-customers-theme.kt-admin-theme .card:hover,
+      body.admin-customers-theme.kt-admin-theme .panel:hover {
+        border-color: rgba(112, 220, 255, 0.3) !important;
+        box-shadow:
+          inset 0 1px 0 rgba(224, 248, 255, 0.1),
+          0 18px 40px rgba(0, 0, 0, 0.2),
+          0 0 28px rgba(53, 201, 244, 0.09);
+      }
+
+      .admin-customers-theme h1,
+      .admin-customers-theme h2,
+      .admin-customers-theme h3,
+      .admin-customers-theme strong {
+        color: #f8fafc;
+      }
+
+      .admin-customers-theme .hint,
+      .admin-customers-theme .customers-list-count,
+      .admin-customers-theme small {
+        color: #94a3b8;
+      }
+
+      .admin-customers-theme .eyebrow {
+        color: #7dd3fc;
+        letter-spacing: 0.16em;
+      }
+
+      .admin-customers-theme .section-grid {
+        gap: 1rem;
+      }
+
+      .admin-customers-theme .field label {
+        color: #94a3b8;
+        font-size: 0.82rem;
+      }
+
+      .admin-customers-theme input {
+        background: rgba(6, 11, 18, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 0.7rem;
+        color: #f8fafc;
+      }
+
+      .admin-customers-theme input::placeholder {
+        color: #64748b;
+      }
+
+      .admin-customers-theme input:focus {
+        border-color: rgba(96, 165, 250, 0.75);
+        box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.16);
+        outline: none;
+      }
+
+      .customer-search-field {
+        position: relative;
+      }
+
+      .customer-search-field label {
+        display: block;
+        margin-bottom: 0.45rem;
+      }
+
+      .customer-search-control {
+        position: relative;
+      }
+
+      .customer-search-icon {
+        color: #64748b;
+        height: 1.05rem;
+        left: 0.85rem;
+        pointer-events: none;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 1.05rem;
+      }
+
+      .customer-search-control input {
+        height: 2.9rem;
+        padding-left: 2.65rem;
+        padding-right: 2.75rem;
+        width: 100%;
+      }
+
+      .customer-search-control input:focus + .customer-search-clear {
+        color: #94a3b8;
+      }
+
+      .customer-search-clear {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 0.45rem;
+        color: #64748b;
+        cursor: pointer;
+        display: inline-flex;
+        height: 1.8rem;
+        justify-content: center;
+        padding: 0;
+        position: absolute;
+        right: 0.55rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 1.8rem;
+      }
+
+      .customer-search-clear:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #f8fafc;
+      }
+
+      .customers-list-toolbar {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .customers-list-count {
+        color: #94a3b8;
+        font-size: 0.78rem;
+        white-space: nowrap;
+      }
+
+      .customer-filter-group {
+        display: flex;
+        gap: 0.45rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .customer-filter-button {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 999px;
+        color: #94a3b8;
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 650;
+        padding: 0.45rem 0.75rem;
+      }
+
+      .customer-filter-button.is-active,
+      .customer-filter-button:hover {
+        background: rgba(47, 111, 237, 0.16);
+        border-color: rgba(96, 165, 250, 0.45);
+        color: #dbeafe;
+      }
+
+      .customers-list-scroll {
+        max-height: 31rem;
+        overflow-y: auto;
+        padding-right: 0.35rem;
+        scrollbar-color: #475569 transparent;
+        scrollbar-width: thin;
+      }
+
+      .customers-list-scroll::-webkit-scrollbar {
+        width: 0.45rem;
+      }
+
+      .customers-list-scroll::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: #475569;
+      }
+
+      .customers-list-scroll .user-item {
+        align-items: center;
+        background: linear-gradient(145deg, rgba(26, 67, 96, 0.48), rgba(10, 31, 52, 0.52));
+        border: 1px solid rgba(112, 220, 255, 0.14);
+        border-radius: 0.8rem;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: space-between;
+        margin-bottom: 0.55rem;
+        min-height: 4.2rem;
+        padding: 0.75rem 0.85rem;
+        transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+      }
+
+      .customers-list-scroll .user-item:hover {
+        background: linear-gradient(145deg, rgba(35, 91, 128, 0.56), rgba(12, 41, 67, 0.62));
+        border-color: rgba(112, 220, 255, 0.35);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2), 0 0 16px rgba(53, 201, 244, 0.08);
+        transform: translateY(-1px);
+      }
+
+      .customer-list-entry {
+        margin-bottom: 0.55rem;
+      }
+
+      .customer-list-entry .user-item {
+        margin-bottom: 0;
+      }
+
+      .customer-inline-detail {
+        border: 1px solid rgba(112, 220, 255, 0.2);
+        border-top: 0;
+        border-radius: 0 0 0.8rem 0.8rem;
+        background: linear-gradient(145deg, rgba(20, 54, 79, 0.62), rgba(8, 25, 43, 0.7));
+        margin: -0.55rem 0.55rem 0;
+        padding: 0.75rem;
+        -webkit-backdrop-filter: blur(16px) saturate(130%);
+        backdrop-filter: blur(16px) saturate(130%);
+      }
+
+      .customer-inline-detail-card {
+        border: 0 !important;
+        box-shadow: none !important;
+        padding: 0.15rem !important;
+      }
+
+      .customer-inline-loading {
+        color: #94a3b8;
+        font-size: 0.82rem;
+        padding: 0.5rem;
+      }
+
+      .customer-identity {
+        align-items: center;
+        display: flex;
+        gap: 0.7rem;
+        min-width: 0;
+      }
+
+      .customer-avatar {
+        align-items: center;
+        background: rgba(47, 111, 237, 0.18);
+        border: 1px solid rgba(96, 165, 250, 0.35);
+        border-radius: 0.65rem;
+        color: #93c5fd;
+        display: inline-flex;
+        flex: 0 0 2.25rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        height: 2.25rem;
+        justify-content: center;
+        text-transform: uppercase;
+      }
+
+      .customer-identity strong,
+      .customer-identity a {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .customer-identity strong {
+        color: #f8fafc;
+        font-size: 0.92rem;
+      }
+
+      .customer-identity a {
+        color: #94a3b8 !important;
+        font-size: 0.78rem;
+        margin-top: 0.18rem;
+      }
+
+      .customer-view-button {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 0.55rem;
+        color: #cbd5e1;
+        cursor: pointer;
+        flex: 0 0 auto;
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 0.45rem 0.7rem;
+      }
+
+      .customer-view-button:hover {
+        background: rgba(47, 111, 237, 0.18);
+        border-color: rgba(96, 165, 250, 0.55);
+        color: #bfdbfe;
+      }
+
+      .admin-customers-theme .detail-card {
+        background: linear-gradient(145deg, rgba(26, 67, 96, 0.48), rgba(10, 31, 52, 0.52));
+        border: 1px solid rgba(112, 220, 255, 0.14);
+        color: #cbd5e1;
+      }
+
+      .admin-customers-theme table {
+        color: #cbd5e1;
+      }
+
+      .admin-customers-theme th {
+        color: #94a3b8;
+        font-size: 0.76rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .admin-customers-theme td {
+        border-color: rgba(255, 255, 255, 0.08) !important;
+      }
+
+      .admin-customers-theme .status-pill {
+        background: rgba(18, 184, 134, 0.1);
+        border: 1px solid rgba(18, 184, 134, 0.24);
+        color: #6ee7b7;
+      }
+
+      .admin-customers-theme .session-status-live {
+        background: rgba(34, 197, 94, 0.12);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #86efac;
+      }
+
+      .admin-customers-theme .session-status-blocked {
+        background: rgba(220, 38, 38, 0.12);
+        border-color: rgba(248, 113, 113, 0.3);
+        color: #fca5a5;
+      }
+
+      .admin-customers-theme .session-status-inactive {
+        background: rgba(245, 158, 11, 0.12);
+        border-color: rgba(251, 191, 36, 0.3);
+        color: #fcd34d;
+      }
+
+      .sessions-table-scroll {
+        max-height: 24rem;
+        overflow: auto;
+        scrollbar-color: #475569 transparent;
+        scrollbar-width: thin;
+      }
+
+      .sessions-table-scroll::-webkit-scrollbar {
+        height: 0.45rem;
+        width: 0.45rem;
+      }
+
+      .sessions-table-scroll::-webkit-scrollbar-thumb {
+        background: #475569;
+        border-radius: 999px;
+      }
+
+      @media (max-width: 720px) {
+        .customers-list-toolbar {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 0.35rem;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .admin-customers-theme .card,
+        .customers-list-scroll .user-item {
+          transition: none;
+        }
+        .admin-customers-theme .card:hover,
+        .customers-list-scroll .user-item:hover {
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <script src="/admin-sidebar.js?v=20261021-firestore-role-cookie-route" defer></script>
+  <body class="admin-customers-theme">
+    <div class="admin-slide-shell">
+      <main class="page-shell">
+        <section class="content">
+          <section class="card hero-card" style="padding: 1.25rem 1.25rem 2rem;">
+            <p class="eyebrow">Admin workspace</p>
+            <h1 style="margin-top: 0.25rem;">Customers</h1>
+            <p class="hint">List and inspect individual customer accounts.</p>
+          </section>
+
+          <section class="section-grid">
+            <div class="card panel customers-list-panel">
+              <div class="customers-list-toolbar">
+                <h2 style="margin: 0;">Customers</h2>
+                <span id="customerListCount" class="customers-list-count">Loading...</span>
+              </div>
+              <div class="field customer-search-field" style="margin-bottom: 0.6rem;">
+                <label for="customerSearch">Search users</label>
+                <div class="customer-search-control">
+                  <svg class="customer-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path d="m20 20-4-4"></path>
+                  </svg>
+                  <input id="customerSearch" placeholder="Search by name or email" autocomplete="off" />
+                  <button id="customerSearchClear" class="customer-search-clear" type="button" aria-label="Clear customer search" title="Clear search" hidden>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M6 6l12 12M18 6 6 18"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div id="customerList" class="compact-list customers-list-scroll"></div>
+            </div>
+            <div class="card panel customers-list-panel">
+              <div class="customers-list-toolbar">
+                <h2 style="margin: 0;">Enterprise Customers</h2>
+                <span id="enterpriseCustomerListCount" class="customers-list-count">Loading...</span>
+              </div>
+              <div id="enterpriseCustomerList" class="compact-list customers-list-scroll"></div>
+            </div>
+          </section>
+
+          <section class="card panel" style="margin-top: 1rem;">
+            <div class="actions" style="align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+              <div>
+                <p class="eyebrow" style="margin-bottom: 0.25rem;">Authentication</p>
+                <h2 style="margin: 0;">All sessions</h2>
+              </div>
+              <div class="actions" style="align-items: center;">
+                <span id="sessionCount" class="hint">Loading...</span>
+                <button id="refreshSessionsButton" class="btn btn-secondary" type="button">Refresh</button>
+              </div>
+            </div>
+            <div class="sessions-table-scroll">
+              <table style="width: 100%; min-width: 680px; border-collapse: collapse;">
+                <thead>
+                  <tr>
+                    <th style="text-align: left; padding: 0.65rem;">Account</th>
+                    <th style="text-align: left; padding: 0.65rem;">Role</th>
+                    <th style="text-align: left; padding: 0.65rem;">Created</th>
+                    <th style="text-align: left; padding: 0.65rem;">Last seen</th>
+                    <th style="text-align: left; padding: 0.65rem;">Expires</th>
+                    <th style="text-align: left; padding: 0.65rem;">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="sessionsTableBody">
+                  <tr><td colspan="6" class="hint" style="padding: 1rem 0.65rem;">Loading sessions...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="/script.js"></script>
+    <script>
+      (() => {
+        const apiBase = window.location.origin;
+        const body = document.getElementById('sessionsTableBody');
+        const count = document.getElementById('sessionCount');
+        const refresh = document.getElementById('refreshSessionsButton');
+
+        const formatDate = (value) => {
+          if (!value) return '-';
+          const date = new Date(value);
+          return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+        };
+
+        const escapeHtml = (value) => String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+
+        async function loadSessions() {
+          refresh.disabled = true;
+          try {
+            const response = await fetch(`${apiBase}/admin/sessions`, { credentials: 'include', cache: 'no-store' });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || 'Unable to load sessions');
+            const sessions = Array.isArray(payload.sessions) ? payload.sessions : [];
+            count.textContent = `${Number(payload.live_account_count || 0)} live accounts · ${Number(payload.accounts_created || 0)} created · ${sessions.length} sessions`;
+            body.innerHTML = sessions.length ? sessions.map((session) => {
+              const status = session.status || 'unknown';
+              const statusClass = status === 'live' ? 'session-status-live' : status === 'blocked' ? 'session-status-blocked' : 'session-status-inactive';
+              return `<tr style="border-top: 1px solid rgba(148,163,184,0.15);"><td style="padding: 0.75rem 0.65rem;"><strong>${escapeHtml(session.name || session.email || 'Unknown user')}</strong><br><small>${escapeHtml(session.email || '')}</small></td><td style="padding: 0.75rem 0.65rem;">${session.is_admin ? 'Administrator' : 'User'}</td><td style="padding: 0.75rem 0.65rem; white-space: nowrap;">${escapeHtml(formatDate(session.created_at))}</td><td style="padding: 0.75rem 0.65rem; white-space: nowrap;">${escapeHtml(formatDate(session.last_seen_at))}</td><td style="padding: 0.75rem 0.65rem; white-space: nowrap;">${escapeHtml(formatDate(session.expires_at))}</td><td style="padding: 0.75rem 0.65rem;"><span class="status-pill ${statusClass}">${escapeHtml(status)}</span></td></tr>`;
+            }).join('') : '<tr><td colspan="6" class="hint" style="padding: 1rem 0.65rem;">No sessions recorded.</td></tr>';
+          } catch (error) {
+            count.textContent = 'Unavailable';
+            body.innerHTML = `<tr><td colspan="6" style="padding: 1rem 0.65rem; color: #fb7185;">${escapeHtml(error.message || 'Unable to load sessions')}</td></tr>`;
+          } finally {
+            refresh.disabled = false;
+          }
+        }
+
+        refresh.addEventListener('click', loadSessions);
+        loadSessions();
+        window.setInterval(loadSessions, 30000);
+      })();
+    </script>
+  </body>
+</html>

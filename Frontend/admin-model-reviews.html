@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Model Reviews | KielTech</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{color-scheme:dark}body{margin:0;background:#060b12;color:#e5edf7;font-family:Inter,ui-sans-serif,system-ui,sans-serif}.shell{min-height:100vh;background:radial-gradient(circle at top left,rgba(47,111,237,.18),transparent 28%),linear-gradient(135deg,#060b12 0%,#0d1726 100%)}.panel{background:rgba(12,20,32,.9);border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 14px 35px rgba(0,0,0,.16)}.review-table{width:100%;border-collapse:collapse}.review-table th,.review-table td{padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left}.review-table th{color:#94a3b8;font-size:11px;letter-spacing:.12em;text-transform:uppercase}.review-table td{color:#cbd5e1;font-size:13px}.review-row{cursor:pointer}.review-row:hover{background:rgba(47,111,237,.1)}.modal{position:fixed;inset:0;z-index:50;display:none;place-items:center;padding:16px;background:rgba(2,6,23,.76)}.modal.is-open{display:grid}.modal-panel{width:min(520px,100%);padding:22px;border:1px solid rgba(148,163,184,.25);border-radius:18px;background:#0c1420;box-shadow:0 24px 80px #0008}.stars{color:#f5b94c;letter-spacing:2px}.empty{padding:30px;text-align:center;color:#94a3b8}
+</style>
+<style>
+	.admin-review-sidebar-toggle {
+		position: fixed;
+		top: 1rem;
+		left: 1rem;
+		z-index: 62;
+		display: grid;
+		width: 44px;
+		height: 44px;
+		place-items: center;
+		border: 1px solid rgba(255, 255, 255, .14);
+		border-radius: 12px;
+		background: #0c1420;
+		color: #e5edf7;
+		cursor: pointer;
+	}
+
+	.admin-review-sidebar-toggle svg {
+		width: 20px;
+		height: 20px;
+	}
+
+	.admin-review-sidebar-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 60;
+		border: 0;
+		background: rgba(2, 6, 23, .72);
+	}
+
+	.admin-review-sidebar-backdrop[hidden] {
+		display: none;
+	}
+
+	@media (max-width: 1023px) {
+		.admin-review-sidebar {
+			position: fixed !important;
+			inset: 0 auto 0 0;
+			z-index: 61;
+			width: min(20rem, 86vw) !important;
+			height: 100vh;
+			height: 100dvh;
+			overflow-y: auto;
+			transform: translateX(-105%);
+			transition: transform .2s ease;
+		}
+
+		body.admin-review-sidebar-open {
+			overflow: hidden;
+		}
+
+		body.admin-review-sidebar-open .admin-review-sidebar {
+			transform: translateX(0);
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.admin-review-sidebar-toggle,
+		.admin-review-sidebar-backdrop {
+			display: none !important;
+		}
+	}
+</style>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		const sidebar = document.querySelector('.shell > div > aside');
+		if (!sidebar) return;
+		sidebar.classList.add('admin-review-sidebar');
+		const nav = sidebar.querySelector('nav');
+		const uptimeLink = nav.querySelector('a[href="/admin/uptime-policy"]');
+		[
+			{ href: '/admin-models.html', label: '▤  Models' },
+			{ href: '/admin/chat-templates', label: '▦  Templates' }
+		].forEach(({ href, label }) => {
+			if (nav.querySelector(`a[href="${href}"]`)) return;
+			const link = document.createElement('a');
+			link.className = 'rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-slate-200 hover:bg-white/10';
+			link.href = href;
+			link.textContent = label;
+			nav.insertBefore(link, uptimeLink);
+		});
+		const adminPageRoutes = new Map([
+			['/admin/customers', '/admin-customers.html'],
+			['/admin/ai-studio', '/admin-ai-studio.html'],
+			['/admin/email', '/admin-email.html'],
+			['/admin/model-reviews', '/admin-model-reviews.html'],
+			['/admin/chat-templates', '/admin-chat-templates.html'],
+			['/admin/uptime-policy', '/admin-uptime-policy.html']
+		]);
+		nav.querySelectorAll('a').forEach((link) => {
+			const destination = adminPageRoutes.get(link.getAttribute('href'));
+			if (destination) link.href = destination;
+		});
+
+		const toggle = document.createElement('button');
+		toggle.className = 'admin-review-sidebar-toggle';
+		toggle.type = 'button';
+		toggle.setAttribute('aria-label', 'Open admin sidebar');
+		toggle.setAttribute('aria-expanded', 'false');
+		toggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>';
+
+		const backdrop = document.createElement('button');
+		backdrop.className = 'admin-review-sidebar-backdrop';
+		backdrop.type = 'button';
+		backdrop.setAttribute('aria-label', 'Close admin sidebar');
+		backdrop.hidden = true;
+		document.body.append(toggle, backdrop);
+
+		const closeSidebar = () => {
+			document.body.classList.remove('admin-review-sidebar-open');
+			backdrop.hidden = true;
+			toggle.setAttribute('aria-label', 'Open admin sidebar');
+			toggle.setAttribute('aria-expanded', 'false');
+		};
+		const openSidebar = () => {
+			document.body.classList.add('admin-review-sidebar-open');
+			backdrop.hidden = false;
+			toggle.setAttribute('aria-label', 'Close admin sidebar');
+			toggle.setAttribute('aria-expanded', 'true');
+		};
+
+		toggle.addEventListener('click', () => {
+			if (document.body.classList.contains('admin-review-sidebar-open')) closeSidebar();
+			else openSidebar();
+		});
+		backdrop.addEventListener('click', closeSidebar);
+		sidebar.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeSidebar));
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape') closeSidebar();
+		});
+	});
+</script>
+</head>
+<script src="/admin-sidebar.js?v=20261021-firestore-role-cookie-route" defer></script>
+<body><div class="shell"><div class="mx-auto flex min-h-screen max-w-[1440px] flex-col lg:flex-row"><aside class="w-full border-b border-white/10 bg-slate-950/60 p-5 lg:w-64 lg:border-b-0 lg:border-r"><p class="text-[11px] font-semibold uppercase tracking-[.25em] text-slate-400">KielTech</p><h1 class="mt-2 text-xl font-semibold text-white">Enterprise Console</h1><nav class="mt-8 grid gap-2"><a class="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-slate-200 hover:bg-white/10" href="/admin/customers">◌ &nbsp; Customers</a><a class="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-slate-200 hover:bg-white/10" href="/admin/ai-studio">✦ &nbsp; AI Studio</a><a class="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-slate-200 hover:bg-white/10" href="/admin/email">@ &nbsp; Email</a><a class="rounded-xl border border-brand-500/30 bg-brand-500/10 px-3 py-3 text-sm font-medium text-white" href="/admin/model-reviews">★ &nbsp; Models review</a><a class="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-slate-200 hover:bg-white/10" href="/admin/uptime-policy">◷ &nbsp; Uptime Policy</a></nav></aside><main class="min-w-0 flex-1 p-5 sm:p-8"><header class="mb-6 flex flex-wrap items-end justify-between gap-4"><div><p class="text-xs font-semibold uppercase tracking-[.18em] text-sky-300">Quality operations</p><h2 class="mt-2 text-3xl font-semibold text-white">Models review</h2><p class="mt-2 text-sm text-slate-400">Review feedback from customers before it becomes a product decision.</p></div><a class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10" href="/admin/dashboard">Back to dashboard</a></header><section class="panel overflow-hidden"><div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 p-4"><div class="flex gap-2" role="tablist"><button class="scope-button rounded-lg border border-brand-500/40 bg-brand-500/15 px-4 py-2 text-sm text-white" data-scope="normal">Normal users</button><button class="scope-button rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300" data-scope="enterprise">Enterprise</button></div><input id="reviewSearch" class="rounded-lg border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-500" placeholder="Search reviews..." aria-label="Search reviews"></div><div class="overflow-x-auto"><table class="review-table"><thead><tr><th>Model</th><th>Rating</th><th>Reviewer</th><th>Review</th><th>Received</th></tr></thead><tbody id="reviewRows"><tr><td colspan="5" class="empty">Loading reviews...</td></tr></tbody></table></div></section></main></div></div><div id="reviewModal" class="modal" aria-hidden="true"><section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="reviewModalTitle"><div class="flex items-start justify-between gap-4"><div><p class="text-xs font-semibold uppercase tracking-[.18em] text-sky-300">Customer feedback</p><h3 id="reviewModalTitle" class="mt-2 text-xl font-semibold text-white">Review</h3></div><button id="closeReviewModal" class="rounded-lg border border-white/10 px-3 py-1 text-slate-300 hover:bg-white/10" type="button" aria-label="Close review">×</button></div><div id="reviewModalBody" class="mt-5"></div><a id="replyReviewButton" class="mt-6 inline-flex rounded-xl border border-sky-400/40 bg-sky-400/15 px-4 py-2.5 text-sm font-semibold text-sky-100 hover:bg-sky-400/25" href="#">Reply by email</a></section></div>
+<script>
+(()=>{const api=location.origin,rows=document.getElementById('reviewRows'),search=document.getElementById('reviewSearch'),modal=document.getElementById('reviewModal'),body=document.getElementById('reviewModalBody'),modalTitle=document.getElementById('reviewModalTitle'),reply=document.getElementById('replyReviewButton');let scope='normal',reviews=[];const esc=(v)=>String(v??'').replace(/[&<>"']/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const render=()=>{const q=search.value.trim().toLowerCase(),visible=reviews.filter((r)=>!q||`${r.model} ${r.name} ${r.owner_email} ${r.review}`.toLowerCase().includes(q));rows.innerHTML=visible.length?visible.map((r)=>`<tr class="review-row" data-id="${r.id}"><td class="font-semibold text-white">${esc(r.model)}</td><td><span class="stars" aria-label="${r.rating} out of 5">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span></td><td>${esc(r.name||'Unnamed')}<small class="mt-1 block text-slate-500">${esc(r.owner_email)}</small></td><td class="max-w-[360px] truncate">${esc(r.review)}</td><td>${esc(new Date(r.created_at).toLocaleString())}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No reviews found.</td></tr>';rows.querySelectorAll('[data-id]').forEach((row)=>row.addEventListener('click',()=>openReview(reviews.find((r)=>String(r.id)===row.dataset.id))))};const openReview=(review)=>{if(!review)return;modalTitle.textContent=`${review.model} review`;body.innerHTML=`<div class="stars text-xl">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</div><p class="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-200">${esc(review.review)}</p><p class="mt-5 text-xs text-slate-400">From ${esc(review.name||'Unnamed')} · ${esc(review.owner_email)}</p>`;reply.href=`/admin/email?recipient=${encodeURIComponent(review.owner_email)}&subject=${encodeURIComponent(`About your ${review.model} review`)}`;modal.classList.add('is-open');modal.setAttribute('aria-hidden','false')};const close=()=>{modal.classList.remove('is-open');modal.setAttribute('aria-hidden','true')};const load=async()=>{rows.innerHTML='<tr><td colspan="5" class="empty">Loading reviews...</td></tr>';const response=await fetch(`${api}/v1/admin/model-reviews?audience=${scope}`,{credentials:'include',cache:'no-store'});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.detail||'Unable to load reviews.');reviews=data.reviews||[];render()};document.querySelectorAll('[data-scope]').forEach((button)=>button.addEventListener('click',()=>{scope=button.dataset.scope;document.querySelectorAll('[data-scope]').forEach((item)=>item.className=item===button?'scope-button rounded-lg border border-brand-500/40 bg-brand-500/15 px-4 py-2 text-sm text-white':'scope-button rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300');load().catch((e)=>{rows.innerHTML=`<tr><td colspan="5" class="empty">${esc(e.message)}</td></tr>`})}));search.addEventListener('input',render);document.getElementById('closeReviewModal').addEventListener('click',close);modal.addEventListener('click',(e)=>{if(e.target===modal)close()});load().catch((e)=>{rows.innerHTML=`<tr><td colspan="5" class="empty">${esc(e.message)}</td></tr>`})})();
+</script></body></html>

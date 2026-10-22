@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Email | KielTech</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#060b12;color:#e5edf7;font-family:Inter,ui-sans-serif,system-ui,sans-serif}.shell{min-height:100vh;background:radial-gradient(circle at top left,rgba(47,111,237,.18),transparent 28%),linear-gradient(135deg,#060b12 0%,#0d1726 100%)}.content{width:min(1180px,100%);margin:0 auto;padding:24px}.panel{background:rgba(12,20,32,.9);border:1px solid rgba(255,255,255,.1);border-radius:20px;box-shadow:0 14px 35px rgba(0,0,0,.16);padding:20px}.eyebrow{color:#7dd3fc;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}h1,h2,h3,p{margin:0}h1{color:#f8fafc;font-size:clamp(1.6rem,4vw,2.3rem)}h2{color:#f8fafc;font-size:1.05rem}.muted{color:#94a3b8;font-size:.86rem}.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 14px}.tab,.button{border:1px solid rgba(255,255,255,.14);border-radius:10px;background:rgba(255,255,255,.05);color:#cbd5e1;cursor:pointer;font-weight:650;padding:10px 14px}.tab.is-active,.tab:hover,.button-primary{background:rgba(47,111,237,.2);border-color:rgba(96,165,250,.5);color:#dbeafe}.workspace{display:grid;gap:16px;grid-template-columns:minmax(260px,.75fr) minmax(0,1.25fr)}.account-list{display:grid;gap:8px;max-height:530px;margin-top:14px;overflow:auto;padding-right:4px;scrollbar-color:#475569 transparent;scrollbar-width:thin}.account{align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:12px;cursor:pointer;display:flex;gap:10px;justify-content:space-between;padding:12px;width:100%}.account:hover,.account.is-selected{background:rgba(47,111,237,.12);border-color:rgba(96,165,250,.45)}.account strong,.account span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.account strong{color:#f8fafc}.account span{color:#94a3b8;font-size:.78rem;margin-top:3px}.avatar{align-items:center;background:rgba(47,111,237,.18);border:1px solid rgba(96,165,250,.35);border-radius:9px;color:#93c5fd;display:inline-flex;flex:0 0 34px;font-weight:750;height:34px;justify-content:center;text-transform:uppercase}.compose{display:grid;gap:12px;margin-top:16px}label{color:#94a3b8;display:grid;font-size:.82rem;gap:6px}.message-field{display:grid;gap:6px}.message-field>label{display:block}input,textarea{background:rgba(6,11,18,.82);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f8fafc;font:inherit;padding:11px 12px;width:100%}textarea{min-height:180px;resize:vertical}input:focus,textarea:focus{border-color:rgba(96,165,250,.75);box-shadow:0 0 0 3px rgba(47,111,237,.16);outline:none}.compose-actions,.panel-heading{align-items:center;display:flex;gap:12px;justify-content:space-between}.result{color:#94a3b8;font-size:.86rem;min-height:1.25rem}.result.success{color:#86efac}.result.error{color:#fca5a5}.empty{color:#94a3b8;padding:18px 0}@media(max-width:760px){.content{padding:16px}.workspace{grid-template-columns:1fr}.account-list{max-height:300px}}
+</style>
+</head>
+<script src="/admin-sidebar.js?v=20261021-firestore-role-cookie-route" defer></script>
+<body><div class="shell"><main class="content"><p class="eyebrow">Admin communication</p><h1>Email</h1><div class="tabs" role="tablist" aria-label="Email audiences"><button class="tab is-active" type="button" data-scope="all">All customers</button><button class="tab" type="button" data-scope="non_enterprise">Non-Enterprise</button><button class="tab" type="button" data-scope="enterprise">Enterprise customers</button></div><div class="workspace"><section class="panel"><div class="panel-heading"><div><p class="eyebrow">Audience</p><h2 id="audienceTitle">All customers</h2></div><span id="audienceCount" class="muted"></span></div><div id="accountList" class="account-list"><div class="empty">Loading customers...</div></div></section><section class="panel"><div class="panel-heading"><div><p class="eyebrow">Compose</p><h2 id="composeTitle">Email all customers</h2></div><button id="emailAllButton" class="button button-primary" type="button">Email all</button></div><div class="compose"><label>Recipient<input id="recipientField" readonly value="All customers in this audience"></label><label>Subject<input id="emailSubject" placeholder="Write a clear subject"></label><label>Message<textarea id="emailMessage" placeholder="Write your business email..."></textarea></label><div class="compose-actions"><span id="emailResult" class="result"></span><button id="sendEmailButton" class="button button-primary" type="button">Send email</button></div></div></section></div></main></div>
+<script>
+(()=>{const api=window.location.origin;let scope='all';let users=[];let recipientEmail='';const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');const title=()=>scope==='enterprise'?'Enterprise customers':scope==='non_enterprise'?'Non-Enterprise':'All customers';const list=document.getElementById('accountList'),count=document.getElementById('audienceCount'),recipient=document.getElementById('recipientField'),composeTitle=document.getElementById('composeTitle'),result=document.getElementById('emailResult');const audience=()=>users.filter(u=>scope==='enterprise'?u.is_enterprise_dedicated:scope==='non_enterprise'?!u.is_enterprise_dedicated:true);function render(){const rows=audience();document.getElementById('audienceTitle').textContent=title();count.textContent=`${rows.length} recipients`;list.innerHTML=rows.length?rows.map(u=>`<button class="account ${recipientEmail===u.email?'is-selected':''}" type="button" data-email="${esc(u.email)}"><span class="avatar">${esc((u.name||u.email||'C').charAt(0))}</span><span style="min-width:0;flex:1;text-align:left"><strong>${esc(u.name||'Unnamed customer')}</strong><span>${esc(u.email||'')}</span></span><span>Compose</span></button>`).join(''):'<div class="empty">No customers in this audience.</div>';list.querySelectorAll('[data-email]').forEach(b=>b.addEventListener('click',()=>{recipientEmail=b.dataset.email||'';recipient.value=recipientEmail;composeTitle.textContent=`Email ${recipientEmail}`;document.getElementById('emailAllButton').textContent='Email all';render()}))}async function loadUsers(){const r=await fetch(`${api}/admin/users`,{credentials:'include',cache:'no-store'});const p=await r.json().catch(()=>({}));if(!r.ok)throw new Error(p.detail||'Unable to load customers');users=Array.isArray(p.users)?p.users:[];render()}document.querySelectorAll('[data-scope]').forEach(b=>b.addEventListener('click',()=>{scope=b.dataset.scope||'all';recipientEmail='';recipient.value=title()+' in this audience';composeTitle.textContent=`Email all ${title().toLowerCase()}`;document.querySelectorAll('[data-scope]').forEach(x=>x.classList.toggle('is-active',x===b));render()}));document.getElementById('emailAllButton').addEventListener('click',()=>{recipientEmail='';recipient.value=title()+' in this audience';composeTitle.textContent=`Email all ${title().toLowerCase()}`;render()});document.getElementById('sendEmailButton').addEventListener('click',async()=>{const subject=document.getElementById('emailSubject').value.trim(),message=document.getElementById('emailMessage').value.trim();if(!subject||!message){result.className='result error';result.textContent='Add a subject and message before sending.';return}const b=document.getElementById('sendEmailButton');b.disabled=true;result.className='result';result.textContent='Sending...';try{const r=await fetch(`${api}/admin/send-email`,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({scope,recipient_email:recipientEmail,subject,message})});const p=await r.json().catch(()=>({}));if(!r.ok)throw new Error(p.detail||'Unable to send email');result.className='result success';result.textContent=`Sent to ${p.sent_count||0} recipient${p.sent_count===1?'':'s'}.`}catch(e){result.className='result error';result.textContent=e.message||'Email failed.'}finally{b.disabled=false}});loadUsers().catch(e=>{list.innerHTML=`<div class="empty">${esc(e.message)}</div>`})})()
+</script>
+<script>
+	(() => {
+		const result = document.getElementById('emailResult');
+		const count = document.getElementById('audienceCount');
+		if (!result || !count) return;
+		const observer = new MutationObserver(() => {
+			const match = result.textContent.match(/^Sent to 0 recipient/);
+			if (!match) return;
+			const selected = count.textContent.match(/\d+/)?.[0] || '0';
+			result.className = 'result error';
+			result.textContent = `Selected ${selected} · Delivered 0 · Delivery failed. Check SMTP delivery settings.`;
+		});
+		observer.observe(result, { childList: true, characterData: true, subtree: true });
+	})();
+</script>
+<script>
+	(() => {
+		const message = document.getElementById('emailMessage');
+		if (!message) return;
+		const style = document.createElement('style');
+		style.textContent = '.format-toolbar{align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;display:flex;flex-wrap:wrap;gap:8px;padding:8px}.format-toolbar select,.format-toolbar button{background:#0c1420;border:1px solid rgba(255,255,255,.14);border-radius:7px;color:#cbd5e1;padding:8px 10px}.format-toolbar button{cursor:pointer;font-weight:700}.format-toolbar button:hover,.format-toolbar button.is-active{background:rgba(47,111,237,.28);border-color:rgba(96,165,250,.7);color:#fff}.compose-editor{background:rgba(6,11,18,.82);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f8fafc;font-family:Arial,Helvetica,sans-serif;font-size:18px;line-height:1.65;min-height:220px;outline:none;overflow:auto;padding:14px;resize:vertical}.compose-editor:focus{border-color:rgba(96,165,250,.75);box-shadow:0 0 0 3px rgba(47,111,237,.16)}.compose-editor:empty:before{color:#64748b;content:attr(data-placeholder)}';
+		document.head.appendChild(style);
+		message.hidden = true;
+		const toolbar = document.createElement('div');
+		toolbar.className = 'format-toolbar';
+		toolbar.innerHTML = '<select id="emailFontFamily" aria-label="Font family"><option value="Arial, Helvetica, sans-serif">Gmail Sans</option><option value="Inter, Arial, sans-serif">Inter</option><option value="Georgia, serif">Georgia</option><option value="Verdana, sans-serif">Verdana</option></select><select id="emailFontSize" aria-label="Font size"><option value="18px">Normal</option><option value="21px">Large</option><option value="26px">Heading</option><option value="32px">Title</option></select><button type="button" data-format="bold">B</button><button type="button" data-format="italic"><i>I</i></button><button type="button" data-format="underline"><u>U</u></button><button type="button" data-format="insertUnorderedList">List</button>';
+		const editor = document.createElement('div');
+		editor.id = 'emailEditor'; editor.className = 'compose-editor'; editor.contentEditable = 'true'; editor.setAttribute('role', 'textbox'); editor.setAttribute('aria-labelledby', 'emailMessageLabel'); editor.setAttribute('aria-multiline', 'true'); editor.dataset.placeholder = 'Write your business email...';
+		const messageField = document.createElement('div');
+		messageField.className = 'message-field';
+		const messageLabel = document.createElement('label');
+		messageLabel.id = 'emailMessageLabel';
+		messageLabel.htmlFor = 'emailEditor';
+		messageLabel.textContent = 'Message';
+		messageField.append(messageLabel, toolbar, editor);
+		message.parentElement.replaceWith(messageField);
+		let savedRange = null;
+		let typingFontFamily = 'Arial, Helvetica, sans-serif';
+		let typingFontSize = '18px';
+		let typingFormats = { bold: false, italic: false, underline: false };
+		const sync = () => { message.value = editor.innerText.trim(); };
+		const saveCaret = () => {
+			const selection = window.getSelection();
+			if (selection && selection.rangeCount && editor.contains(selection.anchorNode)) {
+				savedRange = selection.getRangeAt(0).cloneRange();
+			}
+		};
+		const restoreCaret = () => {
+			const selection = window.getSelection();
+			if (!selection || !savedRange) return null;
+			selection.removeAllRanges();
+			selection.addRange(savedRange.cloneRange());
+			return selection;
+		};
+		const applyTypingStyle = (property, value) => {
+			editor.focus();
+			const selection = restoreCaret() || window.getSelection();
+			const range = savedRange || (selection && selection.rangeCount ? selection.getRangeAt(0) : document.createRange());
+			if (!savedRange && !selection?.rangeCount) {
+				range.selectNodeContents(editor);
+				range.collapse(false);
+			}
+			if (!editor.contains(range.startContainer)) {
+				range.selectNodeContents(editor);
+				range.collapse(false);
+			}
+			const marker = document.createElement('span');
+			marker.style[property] = value;
+			if (range.collapsed) {
+				const caretText = document.createTextNode('\u200b');
+				marker.appendChild(caretText);
+				range.insertNode(marker);
+				const caretRange = document.createRange();
+				caretRange.setStart(caretText, 1);
+				caretRange.collapse(true);
+				selection.removeAllRanges();
+				selection.addRange(caretRange);
+				savedRange = caretRange.cloneRange();
+				return;
+			} else {
+				marker.appendChild(range.extractContents());
+				range.insertNode(marker);
+			}
+			const nextRange = document.createRange();
+			nextRange.selectNodeContents(marker);
+			nextRange.collapse(false);
+			selection.removeAllRanges();
+			selection.addRange(nextRange);
+			savedRange = nextRange.cloneRange();
+		};
+		const applyCurrentTypingFormats = () => {
+			applyTypingStyle('fontFamily', typingFontFamily);
+			applyTypingStyle('fontSize', typingFontSize);
+			applyTypingStyle('fontWeight', typingFormats.bold ? '700' : '400');
+			applyTypingStyle('fontStyle', typingFormats.italic ? 'italic' : 'normal');
+			applyTypingStyle('textDecoration', typingFormats.underline ? 'underline' : 'none');
+		};
+		editor.addEventListener('input', sync);
+		document.addEventListener('selectionchange', saveCaret);
+		toolbar.querySelectorAll('button').forEach((control) => control.addEventListener('mousedown', (event) => { saveCaret(); event.preventDefault(); }));
+		toolbar.querySelectorAll('select').forEach((control) => control.addEventListener('mousedown', () => { saveCaret(); }));
+		toolbar.querySelector('#emailFontFamily').addEventListener('change', (event) => { typingFontFamily = event.target.value; applyTypingStyle('fontFamily', typingFontFamily); });
+		toolbar.querySelector('#emailFontSize').addEventListener('change', (event) => { typingFontSize = event.target.value; applyTypingStyle('fontSize', typingFontSize); });
+		toolbar.querySelectorAll('[data-format]').forEach((button) => button.addEventListener('click', () => {
+			const format = button.dataset.format;
+			const selection = restoreCaret();
+			const hasSelection = selection && !selection.isCollapsed;
+			if (format === 'insertUnorderedList') {
+				editor.focus();
+				document.execCommand(format, false, null);
+				button.classList.toggle('is-active');
+				button.setAttribute('aria-pressed', button.classList.contains('is-active'));
+				sync();
+				return;
+			}
+			typingFormats[format] = !typingFormats[format];
+			button.classList.toggle('is-active', typingFormats[format]);
+			button.setAttribute('aria-pressed', typingFormats[format]);
+			if (hasSelection) {
+				document.execCommand(format, false, null);
+				saveCaret();
+			} else {
+				applyCurrentTypingFormats();
+			}
+			sync();
+		}));
+		const nativeFetch = window.fetch.bind(window);
+		window.fetch = (input, init = {}) => {
+			if (typeof input === 'string' && input.endsWith('/admin/send-email') && init.body) {
+				const payload = JSON.parse(init.body);
+				payload.html_message = `<div style="font-family:${typingFontFamily};font-size:${typingFontSize};line-height:1.65">${editor.innerHTML}</div>`;
+				init = { ...init, body: JSON.stringify(payload) };
+			}
+			return nativeFetch(input, init);
+		};
+	})();
+</script><script>(()=>{const params=new URLSearchParams(location.search),recipient=params.get('recipient'),subject=params.get('subject');if(!recipient)return;if(subject)document.getElementById('emailSubject').value=subject;let attempts=0;const timer=window.setInterval(()=>{const account=document.querySelector(`[data-email="${CSS.escape(recipient)}"]`);if(account){account.click();document.getElementById('emailEditor')?.focus();window.clearInterval(timer)}if(++attempts>50)window.clearInterval(timer)},100)})();</script></body></html>

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Manage model listings, provider IDs, pricing, and context limits.">
+  <meta name="theme-color" content="#08111a">
+  <title>Models | KielTech Admin</title>
+  <link rel="stylesheet" href="/admin-models.css?v=admin-model-custom-type-1">
+  <script src="/admin-sidebar.js?v=20261021-firestore-role-cookie-route" defer></script>
+  <script src="/admin-models.js?v=admin-model-custom-type-1" defer></script>
+</head>
+<body>
+  <main class="model-admin">
+    <header class="model-admin__header">
+      <div>
+        <p class="model-admin__eyebrow">Admin / Catalog</p>
+        <h1>Models</h1>
+        <p>Manage model listings, per-million token pricing, and context limits.</p>
+      </div>
+      <div class="model-admin__actions">
+        <a class="model-button" href="/models.html" target="_blank" rel="noopener noreferrer">View public catalog</a>
+        <button id="addModelButton" class="model-button model-button--primary" type="button" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14m-7-7h14"/></svg>
+          Add new model
+        </button>
+      </div>
+    </header>
+
+    <div class="model-tools">
+      <label class="model-search" for="modelSearch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input id="modelSearch" class="model-control" type="search" placeholder="Search model name or ID" autocomplete="off">
+      </label>
+      <span id="modelSummary" class="model-summary">Loading catalog…</span>
+      <button id="refreshModels" class="model-button" type="button">Refresh</button>
+    </div>
+    <p id="modelPageStatus" class="model-status" role="status" aria-live="polite"></p>
+    <div id="modelCategories" class="model-categories" aria-live="polite">
+      <section class="model-category"><p class="model-empty">Loading registered models…</p></section>
+    </div>
+    <section class="model-category model-chat-access" aria-labelledby="chatAvailabilityHeading">
+      <header class="model-category__header">
+        <div>
+          <h2 id="chatAvailabilityHeading">Kiel Chat availability</h2>
+          <p class="model-chat-access__description">Choose which models appear in the Kiel Chat selector. Assigned models stay disabled for customers until they are configured and ready.</p>
+        </div>
+        <span id="chatAvailabilityCount" class="model-category__count"></span>
+      </header>
+      <div class="model-table-wrap">
+        <table class="model-table model-chat-access__table">
+          <thead><tr><th>Model</th><th>Setup status</th><th>Available in Kiel Chat</th></tr></thead>
+          <tbody id="chatAvailabilityBody"><tr><td colspan="2" class="model-empty">Loading models…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="model-category model-studio-access" aria-labelledby="studioModelsHeading">
+      <header class="model-category__header">
+        <div>
+          <h2 id="studioModelsHeading">Studio model assignments</h2>
+          <p class="model-studio-access__description">This table syncs every model in the registry, including image, voice, video, and embedding categories. Only active, configured text and vision models are currently supported in the Website Studio selector; other models remain visible with the reason they cannot be assigned.</p>
+        </div>
+        <div class="model-studio-access__actions">
+          <span id="studioModelAssignmentCount" class="model-category__count">Loading model registry…</span>
+          <button id="saveStudioModelAssignments" class="model-button model-button--primary" type="button" disabled>Save assignments</button>
+        </div>
+      </header>
+      <p id="studioModelAssignmentStatus" class="model-status model-studio-access__status" role="status" aria-live="polite"></p>
+      <div class="model-table-wrap">
+        <table class="model-table model-studio-access__table">
+          <thead><tr><th>Model</th><th>Category</th><th>Provider model ID</th><th>Readiness</th><th>Assigned to Studio</th></tr></thead>
+          <tbody id="studioModelAssignmentBody"><tr><td colspan="5" class="model-empty">Loading Studio model assignments…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+    <section id="removedModelsSection" class="model-category model-removed" aria-labelledby="removedModelsHeading" hidden>
+      <header class="model-category__header">
+        <div>
+          <h2 id="removedModelsHeading">Removed models</h2>
+          <p class="model-removed__description">Restore a model to return it to the public catalog.</p>
+        </div>
+        <span id="removedModelsCount" class="model-category__count"></span>
+      </header>
+      <div class="model-table-wrap">
+        <table class="model-table">
+          <thead><tr><th>Model</th><th>Status</th><th>Provider ID</th><th>Actions</th></tr></thead>
+          <tbody id="removedModelsBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="chatCapabilityDialog" class="model-dialog model-chat-dialog" aria-labelledby="chatCapabilityHeading">
+    <form id="chatCapabilityForm" class="model-form">
+      <header class="model-dialog__header">
+        <div>
+          <h2 id="chatCapabilityHeading">Describe this model</h2>
+          <p id="chatCapabilityDescription">Add a short ability label that will appear under the model name in Kiel Chat.</p>
+        </div>
+        <button id="closeChatCapabilityDialog" class="model-dialog__close" type="button" aria-label="Close model ability form">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </header>
+      <label class="model-field" for="chatCapabilityInput">
+        Model ability
+        <input id="chatCapabilityInput" class="model-control" type="text" minlength="2" maxlength="60" placeholder="e.g. High reasoning" required>
+        <small>Keep it short, such as “High reasoning”, “Fast responses”, or “Vision”.</small>
+      </label>
+      <footer class="model-form__footer">
+        <p id="chatCapabilityStatus" class="model-status" role="status" aria-live="polite"></p>
+        <div class="model-form__footer-actions">
+          <button id="cancelChatCapabilityDialog" class="model-button" type="button">Cancel</button>
+          <button id="saveChatCapabilityButton" class="model-button model-button--primary" type="submit">Add to Kiel Chat</button>
+        </div>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="permanentDeleteDialog" class="model-dialog model-chat-dialog model-delete-dialog" aria-labelledby="permanentDeleteHeading">
+    <form id="permanentDeleteForm" class="model-form">
+      <header class="model-dialog__header">
+        <div>
+          <h2 id="permanentDeleteHeading">Permanently delete model?</h2>
+          <p id="permanentDeleteDescription">This permanently removes the model from this catalog and cannot be undone.</p>
+        </div>
+        <button id="closePermanentDeleteDialog" class="model-dialog__close" type="button" aria-label="Close permanent delete confirmation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </header>
+      <label class="model-field" for="permanentDeleteConfirmation">
+        Type the model ID to confirm
+        <input id="permanentDeleteConfirmation" class="model-control" type="text" autocomplete="off" required>
+        <small id="permanentDeleteModelId"></small>
+      </label>
+      <footer class="model-form__footer">
+        <p id="permanentDeleteStatus" class="model-status" role="status" aria-live="polite"></p>
+        <div class="model-form__footer-actions">
+          <button id="cancelPermanentDelete" class="model-button" type="button">Cancel</button>
+          <button id="confirmPermanentDelete" class="model-button model-button--danger" type="submit" disabled>Permanently delete</button>
+        </div>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="modelDialog" class="model-dialog" aria-labelledby="modelDialogTitle">
+    <form id="modelForm" class="model-form">
+      <header class="model-dialog__header">
+        <div>
+          <h2 id="modelDialogTitle">Add model</h2>
+          <p id="modelDialogDescription">Add a model to the catalog. Pricing and endpoint configuration can be filled in later.</p>
+        </div>
+        <button id="closeModelDialog" class="model-dialog__close" type="button" aria-label="Close model form">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </header>
+
+      <div class="model-form__grid">
+        <label class="model-field" for="modelCategory">
+          Category
+          <select id="modelCategory" class="model-control" required></select>
+          <small id="categoryRuntimeNote" aria-live="polite"></small>
+        </label>
+        <div id="multimodalOptions" class="model-field model-field--wide" hidden>
+          <label for="modelTypeLabel">Model type label</label>
+          <input id="modelTypeLabel" class="model-control" type="text" maxlength="80" placeholder="e.g. Text, Vision">
+          <small>Enter the type label customers should see for this Omni / multimodal model.</small>
+          <label for="multimodalProfile">Supported capabilities</label>
+          <select id="multimodalProfile" class="model-control">
+            <option value="text-generation,image-understanding">Text + Vision</option>
+            <option value="text-generation,image-generation,image-understanding">Text + Image + Vision</option>
+          </select>
+          <small>Choose the capabilities this model actually supports. This controls API access.</small>
+        </div>
+        <label class="model-field" for="modelDisplayName">
+          Model name
+          <input id="modelDisplayName" class="model-control" type="text" minlength="2" maxlength="120" placeholder="e.g. KielMind Ultra" required>
+          <small>Catalog ID: <span id="modelIdPreview">generated-from-model-name</span></small>
+        </label>
+        <label class="model-field" for="providerModel">
+          Provider model ID
+          <input id="providerModel" class="model-control" type="text" minlength="2" maxlength="128" placeholder="e.g. provider/model-name">
+          <small>Required with rates and context to enable API requests.</small>
+        </label>
+        <label class="model-field" for="inputPrice">
+          Input price / 1M (USD)
+          <input id="inputPrice" class="model-control" type="number" min="0" max="1000000" step="any" placeholder="Pending">
+        </label>
+        <label class="model-field" for="outputPrice">
+          Output price / 1M (USD)
+          <input id="outputPrice" class="model-control" type="number" min="0" max="1000000" step="any" placeholder="Pending">
+        </label>
+        <label class="model-field" for="maxContext">
+          Max context (tokens)
+          <input id="maxContext" class="model-control" type="number" min="1" max="2000000" step="1" placeholder="Pending">
+        </label>
+        <p class="model-form__note">Models are listed as Ready when added. API requests remain disabled until endpoint, input/output rates, and context limit are configured.</p>
+      </div>
+
+      <footer class="model-form__footer">
+        <p id="modelFormStatus" class="model-status" role="status" aria-live="polite"></p>
+        <div class="model-form__footer-actions">
+          <button id="cancelModelDialog" class="model-button" type="button">Cancel</button>
+          <button id="publishModelButton" class="model-button model-button--primary" type="submit">Publish model</button>
+        </div>
+      </footer>
+    </form>
+  </dialog>
+</body>
+</html>

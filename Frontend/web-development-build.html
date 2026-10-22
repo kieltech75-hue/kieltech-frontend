@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KielTech Web Development Build Request</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#buildRequestSection">Skip to build request</a>
+    <header class="hero hero-small">
+      <nav class="nav container">
+        <div class="brand-row">
+          <a class="brand" href="index.html" aria-label="KielTech home">
+            <img src="KielTech-logo.png" alt="KielTech logo" class="logo-mark" />
+            <span class="brand-text">KielTech</span>
+          </a>
+        </div>
+        <div class="nav-actions">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">🌙</button>
+        </div>
+      </nav>
+      <div class="container page-intro">
+        <div class="service-nav-shell">
+          <button id="serviceDrawerToggle" class="service-drawer-toggle" type="button" aria-expanded="false">☰ Services</button>
+        </div>
+        <p class="eyebrow">Web development</p>
+        <h1 class="hero-heading">Complete your build setup.</h1>
+        <p class="hero-copy">Confirm the model you selected, describe the product you want built, and launch your workspace.</p>
+      </div>
+    </header>
+
+    <main class="container section build-page-main">
+      <div class="build-page-heading">
+        <div>
+          <p class="eyebrow">Request workspace</p>
+          <h2>Turn your idea into a build brief.</h2>
+        </div>
+        <p class="build-page-heading__meta"><span class="build-page-heading__dot" aria-hidden="true"></span> Secure account workflow</p>
+      </div>
+      <section id="buildRequestSection" class="web-dev-request-card">
+        <aside class="build-context-panel" aria-label="Request details">
+          <div>
+            <p class="eyebrow">Selected model</p>
+            <div id="selectedAiSummary" class="selected-ai-summary">Loading your selected model...</div>
+          </div>
+          <div class="build-steps" aria-label="Request steps">
+            <div class="build-step build-step--active"><span>01</span><div><strong>Describe</strong><small>Share the product direction.</small></div></div>
+            <div class="build-step"><span>02</span><div><strong>Review</strong><small>Confirm the project direction.</small></div></div>
+            <div class="build-step"><span>03</span><div><strong>Open Studio</strong><small>Continue with your build workspace.</small></div></div>
+          </div>
+          <div class="build-context-note"><strong>What happens next</strong><p>We save your brief to your account, then open Studio with this model locked to the request.</p></div>
+        </aside>
+        <div class="build-form-panel">
+          <div class="section-heading">
+            <p class="eyebrow">Project details</p>
+            <h2>What should we build?</h2>
+            <p>Start with the outcome. You can refine the implementation in Studio.</p>
+          </div>
+        <form id="webDevelopmentRequestForm" class="web-dev-form" aria-busy="true">
+          <div class="form-grid">
+            <label class="settings-field">
+              <span>Project name <em>Required</em></span>
+              <input id="projectNameInput" type="text" placeholder="My portfolio website" maxlength="120" autocomplete="organization" required />
+            </label>
+            <label class="settings-field">
+              <span>Account email</span>
+              <input id="projectEmailInput" type="email" placeholder="Sign in to load your account email" autocomplete="email" readonly required />
+            </label>
+          </div>
+          <label class="settings-field">
+            <span>Describe the product <em>Required</em></span>
+            <textarea id="projectBriefInput" rows="6" minlength="20" maxlength="5000" placeholder="What are you building, who is it for, and what should the first version help them do?" required></textarea>
+            <small class="field-hint">A clear goal and target audience help the model produce a stronger first draft.</small>
+          </label>
+          <label class="settings-field">
+            <span>Pages or features you want included</span>
+            <textarea id="featureListInput" rows="3" maxlength="500" placeholder="About page, blog, contact form, dashboard, integrations"></textarea>
+            <small class="field-hint">Optional. Separate ideas with commas.</small>
+          </label>
+          <div class="hero-actions">
+            <button class="btn btn-primary" id="startBuildButton" type="submit" disabled>Start build request</button>
+            <button class="btn btn-secondary" id="resetBuildButton" type="button">Back to selection</button>
+          </div>
+          <div id="webDevelopmentFormMessage" class="form-status" aria-live="polite"></div>
+        </form>
+        </div>
+        <div id="buildProgressPanel" class="build-progress-panel is-hidden">
+          <div class="build-progress-list">
+            <div class="build-progress-item is-active">Request received</div>
+            <div class="build-progress-item">AI specialist engaged</div>
+            <div class="build-progress-item">Build draft prepared</div>
+            <div class="build-progress-item">Delivery ready</div>
+          </div>
+          <div id="buildOutcomePanel" class="build-outcome-panel"></div>
+          <div id="deliverySummaryPanel" class="build-outcome-panel is-hidden"></div>
+        </div>
+      </section>
+    </main>
+
+    <div id="webDevelopmentToast" class="web-development-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>© 2026 KielTech. Turning ideas into lasting digital value.</p>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

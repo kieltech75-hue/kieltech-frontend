@@ -1,0 +1,222 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "KielTech Chat API",
+    "version": "1.0.0",
+    "description": "Focused public API definition for model discovery and server-side chat completion requests."
+  },
+  "servers": [
+    {
+      "url": "https://api.kieltech.com",
+      "description": "KielTech production API"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Models"
+    },
+    {
+      "name": "Chat"
+    }
+  ],
+  "paths": {
+    "/v1/models/catalog": {
+      "get": {
+        "operationId": "listModels",
+        "summary": "List public models",
+        "tags": [
+          "Models"
+        ],
+        "responses": {
+          "200": {
+            "description": "Public model catalog, including each model's availability and published rates.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "models"
+                  ],
+                  "properties": {
+                    "models": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "properties": {
+                          "model_id": {
+                            "type": "string"
+                          },
+                          "display_name": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "Available",
+                              "Unavailable"
+                            ]
+                          },
+                          "is_available": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/chat/completions": {
+      "post": {
+        "operationId": "createChatCompletion",
+        "summary": "Generate a chat response",
+        "tags": [
+          "Chat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatCompletionRequest"
+              },
+              "example": {
+                "model": "YOUR_READY_MODEL_ID",
+                "prompt": "Summarize the benefits of a reliable API.",
+                "stream": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat completion response. The response fields depend on the selected model and whether streaming was requested.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "description": "Server-sent event stream when stream is true."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request, unsupported model, or context limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Insufficient balance or payment required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "KielTech API key"
+      }
+    },
+    "schemas": {
+      "ChatCompletionRequest": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "User prompt to respond to."
+          },
+          "model": {
+            "type": "string",
+            "default": "kielmind-lite",
+            "description": "Model ID from the public model catalog."
+          },
+          "stream": {
+            "type": "boolean",
+            "default": false
+          },
+          "system_instructions": {
+            "type": "string",
+            "default": "You are a helpful assistant."
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2,
+            "default": 0.5
+          },
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8192,
+            "default": 900
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  }
+}

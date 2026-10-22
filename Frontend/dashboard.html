@@ -4,30 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard | KielTech</title>
-    <link rel="stylesheet" href="styles.css" />
+    <meta name="description" content="Monitor your KielTech API usage, model activity, and developer account." />
+    <link rel="stylesheet" href="styles.css?v=20261020-dashboard-separated-cards" />
   </head>
-  <body>
+  <body class="dashboard-page">
     <header class="hero hero-small">
       <nav class="nav container">
-        <a class="brand" href="index.html">KielTech</a>
-        <div class="nav-actions">
-          <div class="nav-links">
-            <a href="about.html">About</a>
-            <a href="services.html">Services</a>
-            <a href="downloads.html">Downloads</a>
-            <a href="contact.html">Contact</a>
-            <a href="login.html">Login</a>
-            <a href="dashboard.html">Dashboard</a>
+        <div class="brand-row">
+          <div class="brand-block">
+            <a class="brand" href="index.html" aria-label="KielTech home">
+              <img src="KielTech-logo.png" alt="KielTech logo" class="logo-mark" />
+              <span class="brand-text">KielTech</span>
+            </a>
+            <button id="serviceDrawerToggle" class="service-drawer-toggle service-drawer-toggle--inline" type="button" aria-expanded="false">☰ Services</button>
           </div>
+        </div>
+        <div class="nav-actions">
           <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">🌙</button>
         </div>
       </nav>
+      <div class="container page-intro">
+        <p class="eyebrow">Dashboard</p>
+        <h1 id="dashboardPageTitle">Your KielTech developer console</h1>
+        <p class="hero-copy">Manage API access, live model usage, billing, and production support from one secure workspace.</p>
+      </div>
     </header>
 
-    <main class="container section">
-      <div id="dashboardPanel" class="card"></div>
+    <main class="container section dashboard-layout" aria-labelledby="dashboardPageTitle">
+      <section id="dashboardContent" class="dashboard-content" aria-live="polite" aria-busy="true"></section>
     </main>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=20261020-dashboard-wallet-cards-2"></script>
   </body>
 </html>

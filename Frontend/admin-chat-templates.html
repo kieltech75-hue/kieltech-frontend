@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Publish, search, and manage KielTech chat templates.">
+  <meta name="theme-color" content="#08111a">
+  <title>Chat Templates | KielTech Admin</title>
+  <link rel="stylesheet" href="/admin-chat-templates.css">
+  <script src="/admin-sidebar.js?v=20261021-firestore-role-cookie-route" defer></script>
+  <script src="/admin-chat-templates-ui.js?v=20261019-admin-model-catalog-sync" defer></script>
+</head>
+<body>
+  <main class="templates-page">
+    <header class="templates-header">
+      <div>
+        <p class="templates-eyebrow">Admin / Content</p>
+        <h1>Chat templates</h1>
+        <p>Publish reusable prompts, guide model selection, and keep the customer library current.</p>
+      </div>
+      <div class="header-actions">
+        <a class="template-button" href="/admin-models.html">Manage models</a>
+        <a id="viewCustomerPage" class="template-button" href="/chat-templates.html" target="_blank" rel="noopener noreferrer">
+          View customer page
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6m-11 4L20 4"/><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg>
+        </a>
+      </div>
+    </header>
+
+    <div class="template-workspace">
+      <section class="template-section" aria-labelledby="createTemplateHeading">
+        <header class="template-section__header">
+          <div>
+            <h2 id="createTemplateHeading">Create template</h2>
+            <p>Write the reusable prompt customers will start from.</p>
+          </div>
+        </header>
+
+        <form id="templateForm" class="template-form">
+          <fieldset id="templateFields" disabled>
+            <div class="template-form__grid">
+              <label class="template-field template-field--wide" for="templateTitle">
+                <span class="template-field__meta"><span>Title <span aria-hidden="true">*</span></span><small data-count-for="templateTitle">0 / 120</small></span>
+                <input class="template-control" id="templateTitle" name="title" type="text" maxlength="120" autocomplete="off" placeholder="e.g. Product launch brief" required>
+              </label>
+
+              <label class="template-field template-field--wide" for="templateDescription">
+                <span class="template-field__meta"><span>Description</span><small data-count-for="templateDescription">0 / 500</small></span>
+                <input class="template-control" id="templateDescription" name="description" type="text" maxlength="500" autocomplete="off" placeholder="A short explanation shown in the library">
+              </label>
+
+              <label class="template-field" for="templateCategory">
+                <span class="template-field__meta"><span>Category</span><small data-count-for="templateCategory">7 / 60</small></span>
+                <input class="template-control" id="templateCategory" name="category" type="text" maxlength="60" value="General" autocomplete="off">
+              </label>
+
+              <label class="template-field" for="templateModel">
+                <span class="template-field__meta"><span>Image model</span></span>
+                <select class="template-control" id="templateModel" name="model" required disabled>
+                  <option value="">Loading image models…</option>
+                </select>
+                <span class="template-count">Choose an available image-generation model from the Admin Models catalog.</span>
+              </label>
+
+              <label class="template-field template-field--wide" for="templatePrompt">
+                <span class="template-field__meta"><span>Prompt <span aria-hidden="true">*</span></span><small data-count-for="templatePrompt">0 / 5000</small></span>
+                <textarea class="template-control" id="templatePrompt" name="prompt" maxlength="5000" rows="7" placeholder="Describe the task, context, constraints, and expected output..." required></textarea>
+              </label>
+
+              <div class="template-field template-field--wide">
+                <span class="template-field__meta"><span>Cover image</span></span>
+                <label class="template-upload" for="templateImage">
+                  <span class="template-upload__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L8 8m4-4 4 4"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
+                  </span>
+                  <span class="template-upload__copy"><strong>Choose an image</strong><small>PNG, JPG, or WebP · 5 MB max</small></span>
+                  <input class="template-file-input" id="templateImage" name="image" type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="imageUploadHint">
+                </label>
+                <span id="imageUploadHint" class="template-count">Optional. Use a clear landscape image for the customer library.</span>
+                <div id="imagePreview" class="template-image-preview" hidden>
+                  <img id="imagePreviewImage" alt="Selected cover preview">
+                  <span id="imagePreviewName"></span>
+                  <button id="removeTemplateImage" class="template-button" type="button" aria-label="Remove selected image">Remove</button>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="template-form__footer">
+            <p id="templateResult" class="template-status" role="status" aria-live="polite"></p>
+            <div class="form-actions">
+              <button class="template-button" type="reset">Clear form</button>
+              <button id="publishTemplate" class="template-button template-button--primary" type="submit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14m-7-7h14"/></svg>
+                Publish template
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section class="template-section" aria-labelledby="templateLibraryHeading">
+        <header class="template-section__header">
+          <div>
+            <h2 id="templateLibraryHeading">Template library</h2>
+            <p>Review published content and archive items no longer in use.</p>
+          </div>
+          <div class="section-actions">
+            <button id="refreshTemplates" class="template-button" type="button" aria-label="Refresh template library" title="Refresh template library">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.6-2L20 12M4 12l2.8 5a7 7 0 0 0 11.6-2"/></svg>
+              <span>Refresh</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="template-library__tools">
+          <label class="template-search" for="templateSearch">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            <input class="template-control" id="templateSearch" type="search" placeholder="Search title, category, model, or prompt" autocomplete="off" aria-label="Search templates">
+          </label>
+          <label class="template-filter"><input id="includeArchived" type="checkbox"> Include archived</label>
+        </div>
+        <div id="templateSummary" class="template-summary" aria-live="polite">Loading library…</div>
+        <div id="templateList" class="template-list" aria-live="polite" aria-busy="true">
+          <div class="template-state"><span class="template-spinner" aria-hidden="true"></span><strong>Loading templates</strong><p>Fetching the current template library.</p></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

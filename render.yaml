@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: kieltech-backend
+    runtime: python
+    rootDir: kieltech-backend
+    buildCommand: pip install -r requirements.txt && playwright install --with-deps chromium
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        value: kieltech-71377
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: ENTERPRISE_PASSKEY_SECRET
+        sync: false
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: SENTRY_TRACES_SAMPLE_RATE
+        value: "0.1"
+      - key: KIELTECH_USE_MOCK
+        value: "false"
+
+  - type: web
+    name: kieltech-web
+    runtime: static
+    rootDir: Frontend
+    buildCommand: ""
+    staticPublishPath: .
+    pullRequestPreviewsEnabled: true
+    autoDeploy: true

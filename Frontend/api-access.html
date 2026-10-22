@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Access | KielTech</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero hero-small">
+      <nav class="nav container">
+        <div class="brand-row">
+          <a class="brand" href="index.html" aria-label="KielTech home">
+            <img src="KielTech-logo.png" alt="KielTech logo" class="logo-mark" />
+            <span class="brand-text">KielTech</span>
+          </a>
+        </div>
+        <div class="nav-actions">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">🌙</button>
+        </div>
+      </nav>
+      <div class="container page-intro">
+        <p class="eyebrow">API access</p>
+        <h1>Request API access</h1>
+        <p class="hero-copy">A professional request flow for developers and businesses that want controlled access to your AI API platform.</p>
+      </div>
+    </header>
+    <main class="container section">
+      <div class="api-form-card">
+        <form id="apiAccessForm" class="form-grid">
+          <input type="text" name="name" placeholder="Full name" required />
+          <input type="email" name="email" placeholder="Work email" required />
+          <input type="text" name="company" placeholder="Company or project" required />
+          <select name="product" required>
+            <option value="Proxy backend">Proxy backend</option>
+            <option value="Human Language">Human Language</option>
+            <option value="KielSeek">KielSeek</option>
+            <option value="KielBolt">KielBolt</option>
+            <option value="Jotex">Jotex</option>
+          </select>
+          <input type="text" name="useCase" placeholder="Primary use case" required />
+          <textarea name="requirements" rows="5" placeholder="Tell us about your requirements, expected volume, and access needs" required></textarea>
+          <button type="submit" class="btn btn-primary">Submit request</button>
+          <p id="apiAccessMessage" class="demo-response"></p>
+        </form>
+      </div>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
